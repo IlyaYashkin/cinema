@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"cinema/internal/lib/jwt"
 	"cinema/internal/sso/domain"
 	"cinema/internal/sso/services/auth"
 	"context"
@@ -34,7 +33,7 @@ type Auth interface {
 	Refresh(
 		ctx context.Context,
 		refreshToken string,
-	) (tokenPair *jwt.TokenPair, err error)
+	) (tokenPair *domain.TokenPair, err error)
 	Logout(
 		ctx context.Context,
 		refreshToken string,
