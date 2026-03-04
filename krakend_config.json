@@ -1,0 +1,35 @@
+{
+  "$schema": "https://www.krakend.io/schema/krakend.json",
+  "version": 3,
+  "name": "KrakenD - API Gateway",
+  "timeout": "3000ms",
+  "cache_ttl": "300s",
+  "output_encoding": "json",
+  "endpoints": [
+    {
+      "endpoint": "/v1/auth",
+      "backend": [
+        {
+          "host": [
+            "auth.server"
+          ],
+          "url_pattern": "/foo",
+          "group": "foo"
+        }
+      ],
+      "extra_config": {
+        "proxy": {
+          "static": {
+            "strategy": "incomplete",
+            "data": {
+              "defaults": {
+                "foo": 42,
+                "bar": "default bar"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

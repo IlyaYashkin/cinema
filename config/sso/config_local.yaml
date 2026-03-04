@@ -1,0 +1,12 @@
+env: "local"
+grpc:
+  port: 44044
+  timeout: 10h
+jwt:
+  access_ttl: 15m
+  refresh_ttl: 720h
+db:
+  max_conns: 10
+  min_conns: 2
+  max_conn_lifetime: 1h
+  max_conn_idle_time: 30m
