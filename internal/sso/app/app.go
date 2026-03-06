@@ -1,9 +1,10 @@
 package app
 
 import (
+	"cinema/internal/lib/grpc"
 	"cinema/internal/lib/jwt"
-	"cinema/internal/sso/app/grpc"
 	"cinema/internal/sso/config"
+	grpcAuth "cinema/internal/sso/grpc/auth"
 	"cinema/internal/sso/services/auth"
 	"cinema/internal/sso/storage/postgres"
 	"cinema/internal/sso/storage/redis"
@@ -42,7 +43,7 @@ func New(
 
 	authService := auth.New(log, conn, conn, sessionStorage, jwtGenerator)
 
-	grpcApp := grpc.New(log, authService, cfg.GRPCConfig.Port, cfg.Env)
+	grpcApp := grpc.New(log, grpcAuth.NewController(authService), cfg.GRPCConfig.Port, cfg.Env)
 
 	return &App{
 		GRPCServer:     grpcApp,

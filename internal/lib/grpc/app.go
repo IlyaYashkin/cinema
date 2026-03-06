@@ -6,8 +6,6 @@ import (
 	"log/slog"
 	"net"
 
-	grpcAuth "cinema/internal/sso/grpc/auth"
-
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
 	"google.golang.org/grpc"
@@ -22,7 +20,11 @@ type App struct {
 	port       int
 }
 
-func New(log *slog.Logger, authService grpcAuth.Auth, port int, env string) *App {
+type Registrar interface {
+	RegisterGRPCServer(gRPCServer *grpc.Server)
+}
+
+func New(log *slog.Logger, registrar Registrar, port int, env string) *App {
 	loggingOpts := []logging.Option{
 		logging.WithLogOnEvents(
 			logging.PayloadReceived, logging.PayloadSent,
@@ -30,7 +32,7 @@ func New(log *slog.Logger, authService grpcAuth.Auth, port int, env string) *App
 	}
 
 	recoveryOpts := []recovery.Option{
-		recovery.WithRecoveryHandler(func(p interface{}) (err error) {
+		recovery.WithRecoveryHandler(func(p any) (err error) {
 			log.Error("Recovered from panic", slog.Any("panic", p))
 
 			return status.Errorf(codes.Internal, "internal error")
@@ -42,7 +44,8 @@ func New(log *slog.Logger, authService grpcAuth.Auth, port int, env string) *App
 		logging.UnaryServerInterceptor(InterceptorLogger(log), loggingOpts...),
 	))
 
-	grpcAuth.Register(gRPCServer, authService)
+	registrar.RegisterGRPCServer(gRPCServer)
+
 	if env == "local" {
 		reflection.Register(gRPCServer)
 	}
@@ -61,8 +64,6 @@ func (a *App) MustRun() {
 func (a *App) Run() error {
 	const op = "grpcapp.Run"
 
-	// Создаём listener, который будет слушать TCP-сообщения, адресованные
-	// Нашему gRPC-серверу
 	l, err := net.Listen("tcp", fmt.Sprintf(":%d", a.port))
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
@@ -70,7 +71,6 @@ func (a *App) Run() error {
 
 	a.log.Info("grpc server started", slog.String("addr", l.Addr().String()))
 
-	// Запускаем обработчик gRPC-сообщений
 	if err := a.gRPCServer.Serve(l); err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
