@@ -10,7 +10,7 @@ import (
 )
 
 func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (string, error) {
-	sql := `insert into users (email, password_hash) values ($1, $2) returning id`
+	sql := `insert into sso.users (email, password_hash) values ($1, $2) returning id`
 
 	isUserExists, err := s.isUserExists(ctx, email)
 	if err != nil {
@@ -31,7 +31,7 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (
 }
 
 func (s *Storage) FindByEmail(ctx context.Context, email string) (domain.User, error) {
-	sql := `select id, email, password_hash, created_at from users where email = $1`
+	sql := `select id, email, password_hash, created_at from sso.users where email = $1`
 
 	var user domain.User
 	err := s.pool.QueryRow(ctx, sql, email).Scan(
@@ -53,7 +53,7 @@ func (s *Storage) FindByEmail(ctx context.Context, email string) (domain.User, e
 func (s *Storage) isUserExists(ctx context.Context, email string) (bool, error) {
 	var exists bool
 	err := s.pool.QueryRow(ctx,
-		"select exists(select 1 from users where email = $1)",
+		"select exists(select 1 from sso.users where email = $1)",
 		email,
 	).Scan(&exists)
 	return exists, err
