@@ -1,7 +1,8 @@
-package auth
+package test
 
 import (
 	"cinema/internal/sso/domain"
+	auth2 "cinema/internal/sso/services/auth"
 	"context"
 	"log/slog"
 	"testing"
@@ -29,9 +30,9 @@ func TestAuth_Login_InvalidPassword(t *testing.T) {
 
 	userProvider.On("FindByEmail", mock.Anything, email).Return(user, nil)
 
-	auth := New(slog.Default(), nil, userProvider, sessionStorage, tokenGenerator)
+	auth := auth2.New(slog.Default(), nil, userProvider, sessionStorage, tokenGenerator)
 
 	_, err := auth.Login(context.Background(), email, password)
 
-	require.ErrorIs(t, err, ErrInvalidCredentials)
+	require.ErrorIs(t, err, auth2.ErrInvalidCredentials)
 }

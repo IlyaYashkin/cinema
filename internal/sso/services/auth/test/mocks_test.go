@@ -2,7 +2,7 @@
 // github.com/vektra/mockery
 // template: testify
 
-package auth
+package test
 
 import (
 	"cinema/internal/lib/jwt"
