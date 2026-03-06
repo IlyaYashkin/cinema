@@ -41,7 +41,7 @@ type Auth interface {
 		ctx context.Context,
 		email string,
 		password string,
-	) (userID string, err error)
+	) (userId string, err error)
 	Refresh(
 		ctx context.Context,
 		refreshToken string,
@@ -62,7 +62,7 @@ func (c *Controller) Login(
 	ctx context.Context,
 	in *sso.LoginRequest,
 ) (*sso.LoginResponse, error) {
-	if err := validateLoginRequest(in); err != nil {
+	if err := validateCredentials(in.GetEmail(), in.GetPassword()); err != nil {
 		return nil, err
 	}
 
@@ -102,7 +102,7 @@ func (c *Controller) Refresh(
 	ctx context.Context,
 	in *sso.RefreshRequest,
 ) (*sso.RefreshResponse, error) {
-	if in.RefreshToken == "" {
+	if in.GetRefreshToken() == "" {
 		return nil, status.Error(codes.InvalidArgument, "refresh token is required")
 	}
 
@@ -122,7 +122,7 @@ func (c *Controller) Logout(
 	ctx context.Context,
 	in *sso.LogoutRequest,
 ) (*sso.LogoutResponse, error) {
-	if in.RefreshToken == "" {
+	if in.GetRefreshToken() == "" {
 		return nil, status.Error(codes.InvalidArgument, "refresh token is required")
 	}
 
@@ -142,10 +142,15 @@ func (c *Controller) ChangeRole(
 	ctx context.Context,
 	in *sso.ChangeRoleRequest,
 ) (*sso.ChangeRoleResponse, error) {
-	if in.UserId == "" {
+	token, err := getBearerFromCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if in.GetUserId() == "" {
 		return nil, status.Error(codes.InvalidArgument, "user id is required")
 	}
-	if in.Role == "" {
+	if in.GetRole() == "" {
 		return nil, status.Error(codes.InvalidArgument, "role is required")
 	}
 
@@ -153,11 +158,6 @@ func (c *Controller) ChangeRole(
 
 	if !role.IsValid() {
 		return nil, status.Error(codes.InvalidArgument, "invalid role")
-	}
-
-	token, err := getBearerFromCtx(ctx)
-	if err != nil {
-		return nil, err
 	}
 
 	err = c.auth.ChangeRole(ctx, token, in.GetUserId(), role)
@@ -189,39 +189,38 @@ func getBearerFromCtx(ctx context.Context) (string, error) {
 		return "", status.Error(codes.Unauthenticated, "missing authorization header")
 	}
 
-	token := strings.TrimPrefix(values[0], "Bearer ")
-	if token == values[0] || token == "" {
+	authHeader := values[0]
+	if !strings.HasPrefix(strings.ToLower(authHeader), "bearer ") {
 		return "", status.Error(codes.Unauthenticated, "invalid authorization header format")
+	}
+	token := authHeader[7:]
+
+	if token == "" {
+		return "", status.Error(codes.Unauthenticated, "missing token")
 	}
 
 	return token, nil
 }
 
-func validateLoginRequest(in *sso.LoginRequest) error {
-	if in.Email == "" {
-		return status.Error(codes.InvalidArgument, "email is required")
+func validateRegisterRequest(in *sso.RegisterRequest) error {
+	if err := validateCredentials(in.GetEmail(), in.GetPassword()); err != nil {
+		return err
 	}
-	if in.Password == "" {
-		return status.Error(codes.InvalidArgument, "password is required")
-	}
-	if _, err := mail.ParseAddress(in.Email); err != nil {
-		return status.Error(codes.InvalidArgument, "invalid email format")
+	if len(in.GetPassword()) < 8 {
+		return status.Error(codes.InvalidArgument, "password must be at least 8 characters")
 	}
 	return nil
 }
 
-func validateRegisterRequest(in *sso.RegisterRequest) error {
-	if in.Email == "" {
+func validateCredentials(email, password string) error {
+	if email == "" {
 		return status.Error(codes.InvalidArgument, "email is required")
 	}
-	if in.Password == "" {
+	if password == "" {
 		return status.Error(codes.InvalidArgument, "password is required")
 	}
-	if _, err := mail.ParseAddress(in.Email); err != nil {
+	if _, err := mail.ParseAddress(email); err != nil {
 		return status.Error(codes.InvalidArgument, "invalid email format")
-	}
-	if len(in.Password) < 8 {
-		return status.Error(codes.InvalidArgument, "password must be at least 8 characters")
 	}
 	return nil
 }

@@ -111,7 +111,7 @@ func (a *Auth) Login(ctx context.Context, email string, password string) (*domai
 	}
 
 	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(password)); err != nil {
-		log.Error("invalid password", sl.Err(err))
+		log.Warn("invalid password", sl.Err(err))
 
 		return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
 	}
@@ -301,8 +301,6 @@ func (a *Auth) ChangeRole(ctx context.Context, accessToken string, userId string
 
 		return fmt.Errorf("%s: %w", op, err)
 	}
-
-	log.Info("user session invalidated")
 
 	log.Info("user role changed")
 
