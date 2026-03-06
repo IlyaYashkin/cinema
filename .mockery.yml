@@ -13,6 +13,6 @@ require-template-schema-exists: true
 template: testify
 template-schema: '{{.Template}}.schema.json'
 packages:
-  cinema:
+  cinema/internal/sso/services/auth:
     config:
       all: true

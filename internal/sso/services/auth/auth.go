@@ -48,7 +48,7 @@ type TokenGenerator interface {
 
 type Auth struct {
 	log            *slog.Logger
-	usrSaver       UserSaver
+	userSaver      UserSaver
 	usrProvider    UserProvider
 	sessionStorage SessionStorage
 	jwtGenerator   TokenGenerator
@@ -63,7 +63,7 @@ func New(
 ) *Auth {
 	return &Auth{
 		log:            log,
-		usrSaver:       userSaver,
+		userSaver:      userSaver,
 		usrProvider:    userProvider,
 		sessionStorage: sessionStorage,
 		jwtGenerator:   generator,
@@ -87,7 +87,7 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email string, pass string) (
 		return "", fmt.Errorf("%s: %w", op, err)
 	}
 
-	id, err := a.usrSaver.SaveUser(ctx, email, passHash)
+	id, err := a.userSaver.SaveUser(ctx, email, passHash)
 	if err != nil {
 		log.Error("failed to save user", sl.Err(err))
 
@@ -124,28 +124,30 @@ func (a *Auth) Login(ctx context.Context, email string, password string) (*domai
 		return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
 	}
 
-	err = a.sessionStorage.DeleteAll(ctx, user.Id.String())
+	userId := user.Id.String()
+
+	err = a.sessionStorage.DeleteAll(ctx, userId)
 	if err != nil {
 		log.Error("failed to delete old sessions", sl.Err(err))
 
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	accessToken, err := a.jwtGenerator.GenerateAccessToken(user.Id.String())
+	accessToken, err := a.jwtGenerator.GenerateAccessToken(userId)
 	if err != nil {
 		log.Error("failed to generate access token", sl.Err(err))
 
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	refreshToken, err := a.jwtGenerator.GenerateRefreshToken(user.Id.String())
+	refreshToken, err := a.jwtGenerator.GenerateRefreshToken(userId)
 	if err != nil {
 		log.Error("failed to generate refresh token", sl.Err(err))
 
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	err = a.sessionStorage.Save(ctx, user.Id.String(), refreshToken, a.jwtGenerator.GetRefreshTTL())
+	err = a.sessionStorage.Save(ctx, userId, refreshToken, a.jwtGenerator.GetRefreshTTL())
 	if err != nil {
 		log.Error("failed to save refresh token", sl.Err(err))
 
