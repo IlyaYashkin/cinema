@@ -6,9 +6,11 @@ import (
 	"context"
 	"errors"
 	"net/mail"
+	"strings"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	"cinema/gen/sso"
@@ -47,6 +49,12 @@ type Auth interface {
 	Logout(
 		ctx context.Context,
 		refreshToken string,
+	) (err error)
+	ChangeRole(
+		ctx context.Context,
+		token string,
+		userId string,
+		role domain.Role,
 	) (err error)
 }
 
@@ -128,6 +136,65 @@ func (c *Controller) Logout(
 	}
 
 	return &sso.LogoutResponse{}, nil
+}
+
+func (c *Controller) ChangeRole(
+	ctx context.Context,
+	in *sso.ChangeRoleRequest,
+) (*sso.ChangeRoleResponse, error) {
+	if in.UserId == "" {
+		return nil, status.Error(codes.InvalidArgument, "user id is required")
+	}
+	if in.Role == "" {
+		return nil, status.Error(codes.InvalidArgument, "role is required")
+	}
+
+	role := domain.Role(in.GetRole())
+
+	if !role.IsValid() {
+		return nil, status.Error(codes.InvalidArgument, "invalid role")
+	}
+
+	token, err := getBearerFromCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = c.auth.ChangeRole(ctx, token, in.GetUserId(), role)
+	if err != nil {
+		if errors.Is(err, auth.ErrInvalidAccessToken) {
+			return nil, status.Error(codes.Unauthenticated, "invalid access token")
+		}
+		if errors.Is(err, auth.ErrPermissionDenied) {
+			return nil, status.Error(codes.PermissionDenied, "permission denied")
+		}
+		if errors.Is(err, auth.ErrUserNotFound) {
+			return nil, status.Error(codes.NotFound, "user not found")
+		}
+
+		return nil, status.Error(codes.Internal, "failed to set role")
+	}
+
+	return &sso.ChangeRoleResponse{}, nil
+}
+
+func getBearerFromCtx(ctx context.Context) (string, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return "", status.Error(codes.Unauthenticated, "missing metadata")
+	}
+
+	values := md.Get("authorization")
+	if len(values) == 0 {
+		return "", status.Error(codes.Unauthenticated, "missing authorization header")
+	}
+
+	token := strings.TrimPrefix(values[0], "Bearer ")
+	if token == values[0] || token == "" {
+		return "", status.Error(codes.Unauthenticated, "invalid authorization header format")
+	}
+
+	return token, nil
 }
 
 func validateLoginRequest(in *sso.LoginRequest) error {

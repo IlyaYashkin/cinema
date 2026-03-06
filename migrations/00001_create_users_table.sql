@@ -1,14 +1,26 @@
--- +goose Up
-create schema sso;
+-- +goose up
+CREATE SCHEMA sso;
 
-create table sso.users (
-    id uuid primary key default gen_random_uuid(),
-    email text unique not null,
-    password_hash text not null,
-    created_at timestamptz default now()
+CREATE TABLE sso.roles
+(
+    id   SMALLINT PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL
 );
 
--- +goose Down
-drop table sso.users;
+INSERT INTO sso.roles (id, name)
+VALUES (1, 'member'),
+       (2, 'admin');
 
-drop schema sso;
+CREATE TABLE sso.users
+(
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email         TEXT UNIQUE NOT NULL,
+    role_id       SMALLINT NOT NULL REFERENCES sso.roles(id) DEFAULT 1,
+    password_hash TEXT        NOT NULL,
+    created_at    TIMESTAMPTZ      DEFAULT now()
+);
+
+-- +goose down
+DROP TABLE sso.users;
+
+DROP SCHEMA sso;

@@ -14,12 +14,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var (
-	ErrInvalidCredentials  = errors.New("invalid credentials")
-	ErrUserAlreadyExists   = errors.New("user already exists")
-	ErrInvalidRefreshToken = errors.New("invalid refresh token")
-)
-
 type SessionStorage interface {
 	Save(ctx context.Context, userId, token string, ttl time.Duration) error
 	Exists(ctx context.Context, userId, token string) (bool, error)
@@ -27,44 +21,39 @@ type SessionStorage interface {
 	DeleteAll(ctx context.Context, userId string) error
 }
 
-type UserSaver interface {
+type UserProvider interface {
 	SaveUser(
 		ctx context.Context,
 		email string,
 		passHash []byte,
 	) (id string, err error)
-}
-
-type UserProvider interface {
 	FindByEmail(ctx context.Context, email string) (domain.User, error)
+	ChangeUserRole(ctx context.Context, userId string, role string) error
 }
 
 type TokenGenerator interface {
-	GenerateAccessToken(userId string) (string, error)
-	GenerateRefreshToken(userId string) (string, error)
+	GenerateAccessToken(userId string, role string) (string, error)
+	GenerateRefreshToken(userId string, role string) (string, error)
 	ValidateToken(tokenString string) (*jwt.Claims, error)
 	GetRefreshTTL() time.Duration
 }
 
 type Auth struct {
 	log            *slog.Logger
-	userSaver      UserSaver
-	usrProvider    UserProvider
+	userProvider   UserProvider
 	sessionStorage SessionStorage
 	jwtGenerator   TokenGenerator
 }
 
 func New(
 	log *slog.Logger,
-	userSaver UserSaver,
 	userProvider UserProvider,
 	sessionStorage SessionStorage,
 	generator TokenGenerator,
 ) *Auth {
 	return &Auth{
 		log:            log,
-		userSaver:      userSaver,
-		usrProvider:    userProvider,
+		userProvider:   userProvider,
 		sessionStorage: sessionStorage,
 		jwtGenerator:   generator,
 	}
@@ -87,7 +76,7 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email string, pass string) (
 		return "", fmt.Errorf("%s: %w", op, err)
 	}
 
-	id, err := a.userSaver.SaveUser(ctx, email, passHash)
+	id, err := a.userProvider.SaveUser(ctx, email, passHash)
 	if err != nil {
 		log.Error("failed to save user", sl.Err(err))
 
@@ -111,11 +100,14 @@ func (a *Auth) Login(ctx context.Context, email string, password string) (*domai
 
 	log.Info("logging user")
 
-	user, err := a.usrProvider.FindByEmail(ctx, email)
+	user, err := a.userProvider.FindByEmail(ctx, email)
 	if err != nil {
 		log.Error("failed to login user", sl.Err(err))
 
-		return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
+		if errors.Is(err, storage.ErrUserNotFound) {
+			return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
+		}
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(password)); err != nil {
@@ -133,14 +125,14 @@ func (a *Auth) Login(ctx context.Context, email string, password string) (*domai
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	accessToken, err := a.jwtGenerator.GenerateAccessToken(userId)
+	accessToken, err := a.jwtGenerator.GenerateAccessToken(user.Id.String(), string(user.Role))
 	if err != nil {
 		log.Error("failed to generate access token", sl.Err(err))
 
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	refreshToken, err := a.jwtGenerator.GenerateRefreshToken(userId)
+	refreshToken, err := a.jwtGenerator.GenerateRefreshToken(userId, string(user.Role))
 	if err != nil {
 		log.Error("failed to generate refresh token", sl.Err(err))
 
@@ -172,6 +164,7 @@ func (a *Auth) Refresh(ctx context.Context, refreshToken string) (*domain.TokenP
 	}
 
 	userId := claims.Subject
+	role := claims.Role
 
 	log = log.With(
 		slog.String("userId", userId),
@@ -196,14 +189,14 @@ func (a *Auth) Refresh(ctx context.Context, refreshToken string) (*domain.TokenP
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	accessToken, err := a.jwtGenerator.GenerateAccessToken(userId)
+	accessToken, err := a.jwtGenerator.GenerateAccessToken(userId, role)
 	if err != nil {
 		log.Error("failed to generate access token", sl.Err(err))
 
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	refreshToken, err = a.jwtGenerator.GenerateRefreshToken(userId)
+	refreshToken, err = a.jwtGenerator.GenerateRefreshToken(userId, role)
 	if err != nil {
 		log.Error("failed to generate refresh token", sl.Err(err))
 
@@ -258,7 +251,60 @@ func (a *Auth) Logout(ctx context.Context, refreshToken string) error {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	log.Info("user logged out")
+	return nil
+}
+
+func (a *Auth) ChangeRole(ctx context.Context, accessToken string, userId string, role domain.Role) error {
+	const op = "Auth.ChangeRole"
+
+	log := a.log.With(
+		slog.String("op", op),
+		slog.String("userId", userId),
+		slog.String("role", string(role)),
+	)
+
+	log.Info("change user role")
+
+	claims, err := a.jwtGenerator.ValidateToken(accessToken)
+	if err != nil {
+		log.Error("failed to validate access token", sl.Err(err))
+
+		return fmt.Errorf("%s: %w", op, ErrInvalidAccessToken)
+	}
+
+	log = log.With(
+		slog.String("changed by", claims.Subject),
+		slog.String("changed by (role)", claims.Role),
+	)
+
+	if domain.Role(claims.Role) != domain.Admin {
+		log.Error("attempt to change role without permission")
+
+		return fmt.Errorf("%s: %w", op, ErrPermissionDenied)
+	}
+
+	err = a.userProvider.ChangeUserRole(ctx, userId, string(role))
+	if err != nil {
+		log.Error("failed to set user role", sl.Err(err))
+
+		if errors.Is(err, storage.ErrUserNotFound) {
+			return fmt.Errorf("%s: %w", op, ErrUserNotFound)
+		}
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	log.Info("invalidating user session after role change")
+
+	err = a.sessionStorage.DeleteAll(ctx, userId)
+	if err != nil {
+		log.Error("failed to delete sessions", sl.Err(err))
+
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	log.Info("user session invalidated")
+
+	log.Info("user role changed")
 
 	return nil
 }

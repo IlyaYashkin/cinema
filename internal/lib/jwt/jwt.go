@@ -13,7 +13,7 @@ import (
 
 type Claims struct {
 	jwt.RegisteredClaims
-	UserId string `json:"user_id"`
+	Role string `json:"role"`
 }
 
 type Generator struct {
@@ -52,7 +52,7 @@ func NewGenerator(config config.JWTConfig) (*Generator, error) {
 	}, nil
 }
 
-func (g *Generator) GenerateAccessToken(userId string) (string, error) {
+func (g *Generator) GenerateAccessToken(userId string, role string) (string, error) {
 	claims := Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ID:        uuid.New().String(),
@@ -60,19 +60,22 @@ func (g *Generator) GenerateAccessToken(userId string) (string, error) {
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(g.accessTTL)),
 		},
-		UserId: userId,
+		Role: role,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 	return token.SignedString(g.privateKey)
 }
 
-func (g *Generator) GenerateRefreshToken(userId string) (string, error) {
-	claims := jwt.RegisteredClaims{
-		ID:        uuid.New().String(),
-		Subject:   userId,
-		IssuedAt:  jwt.NewNumericDate(time.Now()),
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(g.refreshTTL)),
+func (g *Generator) GenerateRefreshToken(userId string, role string) (string, error) {
+	claims := Claims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ID:        uuid.New().String(),
+			Subject:   userId,
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(g.refreshTTL)),
+		},
+		Role: role,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)

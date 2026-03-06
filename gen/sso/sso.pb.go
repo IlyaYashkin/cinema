@@ -397,6 +397,94 @@ func (*LogoutResponse) Descriptor() ([]byte, []int) {
 	return file_sso_sso_proto_rawDescGZIP(), []int{7}
 }
 
+type ChangeRoleRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Role          string                 `protobuf:"bytes,2,opt,name=role,proto3" json:"role,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangeRoleRequest) Reset() {
+	*x = ChangeRoleRequest{}
+	mi := &file_sso_sso_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangeRoleRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangeRoleRequest) ProtoMessage() {}
+
+func (x *ChangeRoleRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sso_sso_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangeRoleRequest.ProtoReflect.Descriptor instead.
+func (*ChangeRoleRequest) Descriptor() ([]byte, []int) {
+	return file_sso_sso_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ChangeRoleRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *ChangeRoleRequest) GetRole() string {
+	if x != nil {
+		return x.Role
+	}
+	return ""
+}
+
+type ChangeRoleResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangeRoleResponse) Reset() {
+	*x = ChangeRoleResponse{}
+	mi := &file_sso_sso_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangeRoleResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangeRoleResponse) ProtoMessage() {}
+
+func (x *ChangeRoleResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sso_sso_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangeRoleResponse.ProtoReflect.Descriptor instead.
+func (*ChangeRoleResponse) Descriptor() ([]byte, []int) {
+	return file_sso_sso_proto_rawDescGZIP(), []int{9}
+}
+
 var File_sso_sso_proto protoreflect.FileDescriptor
 
 const file_sso_sso_proto_rawDesc = "" +
@@ -420,12 +508,18 @@ const file_sso_sso_proto_rawDesc = "" +
 	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\"4\n" +
 	"\rLogoutRequest\x12#\n" +
 	"\rrefresh_token\x18\x01 \x01(\tR\frefreshToken\"\x10\n" +
-	"\x0eLogoutResponse2\xd8\x01\n" +
+	"\x0eLogoutResponse\"@\n" +
+	"\x11ChangeRoleRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x12\n" +
+	"\x04role\x18\x02 \x01(\tR\x04role\"\x14\n" +
+	"\x12ChangeRoleResponse2\x97\x02\n" +
 	"\x04Auth\x127\n" +
 	"\bRegister\x12\x14.sso.RegisterRequest\x1a\x15.sso.RegisterResponse\x12.\n" +
 	"\x05Login\x12\x11.sso.LoginRequest\x1a\x12.sso.LoginResponse\x124\n" +
 	"\aRefresh\x12\x13.sso.RefreshRequest\x1a\x14.sso.RefreshResponse\x121\n" +
-	"\x06Logout\x12\x12.sso.LogoutRequest\x1a\x13.sso.LogoutResponseB\x1bZ\x19cinema/internal/proto;ssob\x06proto3"
+	"\x06Logout\x12\x12.sso.LogoutRequest\x1a\x13.sso.LogoutResponse\x12=\n" +
+	"\n" +
+	"ChangeRole\x12\x16.sso.ChangeRoleRequest\x1a\x17.sso.ChangeRoleResponseB\x1bZ\x19cinema/internal/proto;ssob\x06proto3"
 
 var (
 	file_sso_sso_proto_rawDescOnce sync.Once
@@ -439,28 +533,32 @@ func file_sso_sso_proto_rawDescGZIP() []byte {
 	return file_sso_sso_proto_rawDescData
 }
 
-var file_sso_sso_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_sso_sso_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_sso_sso_proto_goTypes = []any{
-	(*RegisterRequest)(nil),  // 0: sso.RegisterRequest
-	(*RegisterResponse)(nil), // 1: sso.RegisterResponse
-	(*LoginRequest)(nil),     // 2: sso.LoginRequest
-	(*LoginResponse)(nil),    // 3: sso.LoginResponse
-	(*RefreshRequest)(nil),   // 4: sso.RefreshRequest
-	(*RefreshResponse)(nil),  // 5: sso.RefreshResponse
-	(*LogoutRequest)(nil),    // 6: sso.LogoutRequest
-	(*LogoutResponse)(nil),   // 7: sso.LogoutResponse
+	(*RegisterRequest)(nil),    // 0: sso.RegisterRequest
+	(*RegisterResponse)(nil),   // 1: sso.RegisterResponse
+	(*LoginRequest)(nil),       // 2: sso.LoginRequest
+	(*LoginResponse)(nil),      // 3: sso.LoginResponse
+	(*RefreshRequest)(nil),     // 4: sso.RefreshRequest
+	(*RefreshResponse)(nil),    // 5: sso.RefreshResponse
+	(*LogoutRequest)(nil),      // 6: sso.LogoutRequest
+	(*LogoutResponse)(nil),     // 7: sso.LogoutResponse
+	(*ChangeRoleRequest)(nil),  // 8: sso.ChangeRoleRequest
+	(*ChangeRoleResponse)(nil), // 9: sso.ChangeRoleResponse
 }
 var file_sso_sso_proto_depIdxs = []int32{
 	0, // 0: sso.Auth.Register:input_type -> sso.RegisterRequest
 	2, // 1: sso.Auth.Login:input_type -> sso.LoginRequest
 	4, // 2: sso.Auth.Refresh:input_type -> sso.RefreshRequest
 	6, // 3: sso.Auth.Logout:input_type -> sso.LogoutRequest
-	1, // 4: sso.Auth.Register:output_type -> sso.RegisterResponse
-	3, // 5: sso.Auth.Login:output_type -> sso.LoginResponse
-	5, // 6: sso.Auth.Refresh:output_type -> sso.RefreshResponse
-	7, // 7: sso.Auth.Logout:output_type -> sso.LogoutResponse
-	4, // [4:8] is the sub-list for method output_type
-	0, // [0:4] is the sub-list for method input_type
+	8, // 4: sso.Auth.ChangeRole:input_type -> sso.ChangeRoleRequest
+	1, // 5: sso.Auth.Register:output_type -> sso.RegisterResponse
+	3, // 6: sso.Auth.Login:output_type -> sso.LoginResponse
+	5, // 7: sso.Auth.Refresh:output_type -> sso.RefreshResponse
+	7, // 8: sso.Auth.Logout:output_type -> sso.LogoutResponse
+	9, // 9: sso.Auth.ChangeRole:output_type -> sso.ChangeRoleResponse
+	5, // [5:10] is the sub-list for method output_type
+	0, // [0:5] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -477,7 +575,7 @@ func file_sso_sso_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sso_sso_proto_rawDesc), len(file_sso_sso_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

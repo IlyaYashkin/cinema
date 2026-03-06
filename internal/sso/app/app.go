@@ -41,7 +41,7 @@ func New(
 		panic("error creating jwt generator: " + err.Error())
 	}
 
-	authService := auth.New(log, conn, conn, sessionStorage, jwtGenerator)
+	authService := auth.New(log, conn, sessionStorage, jwtGenerator)
 
 	grpcApp := grpc.New(log, grpcAuth.NewController(authService), cfg.GRPCConfig.Port, cfg.Env)
 
