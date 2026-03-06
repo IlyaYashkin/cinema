@@ -1,18 +1,18 @@
 package main
 
 import (
+	"cinema/internal/catalog/app"
+	catalogConfig "cinema/internal/catalog/config"
 	libconfig "cinema/internal/lib/config"
 	"cinema/internal/lib/env"
 	"cinema/internal/lib/shutdown"
 	"cinema/internal/lib/sl"
-	"cinema/internal/sso/app"
-	ssoConfig "cinema/internal/sso/config"
 )
 
 func main() {
 	env.Load()
 
-	cfg := libconfig.MustLoad[ssoConfig.Config]()
+	cfg := libconfig.MustLoad[catalogConfig.Config]()
 
 	log := sl.SetupLogger(cfg.Env)
 

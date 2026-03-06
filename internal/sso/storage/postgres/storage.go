@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"cinema/internal/sso/config"
+	"cinema/internal/lib/config"
 	"context"
 
 	"github.com/jackc/pgx/v5/pgxpool"
