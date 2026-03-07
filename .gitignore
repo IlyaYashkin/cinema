@@ -4,3 +4,4 @@
 !/env/sso.env.example
 /bin
 /.idea
+/config/*/config_local.yaml
