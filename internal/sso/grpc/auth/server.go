@@ -63,6 +63,15 @@ type Auth interface {
 		oldPassword string,
 		newPassword string,
 	) (err error)
+	ForgotPassword(
+		ctx context.Context,
+		email string,
+	)
+	ResetPassword(
+		ctx context.Context,
+		resetToken string,
+		newPassword string,
+	) (err error)
 }
 
 func (c *Controller) Login(
@@ -174,6 +183,9 @@ func (c *Controller) ChangeEmail(
 	if in.GetPassword() == "" {
 		return nil, status.Error(codes.InvalidArgument, "password is required")
 	}
+	if err := validateEmail(in.GetNewEmail()); err != nil {
+		return nil, err
+	}
 
 	err = c.auth.ChangeEmail(ctx, token, in.GetNewEmail(), in.GetPassword())
 	if err != nil {
@@ -205,4 +217,39 @@ func (c *Controller) ChangePassword(
 	}
 
 	return &sso.ChangePasswordResponse{}, nil
+}
+
+func (c *Controller) ForgotPassword(
+	ctx context.Context,
+	in *sso.ForgotPasswordRequest,
+) (*sso.ForgotPasswordResponse, error) {
+	if in.GetEmail() == "" {
+		return nil, status.Error(codes.InvalidArgument, "email is required")
+	}
+	if err := validateEmail(in.GetEmail()); err != nil {
+		return nil, err
+	}
+
+	c.auth.ForgotPassword(ctx, in.GetEmail())
+
+	return &sso.ForgotPasswordResponse{}, nil
+}
+
+func (c *Controller) ResetPassword(
+	ctx context.Context,
+	in *sso.ResetPasswordRequest,
+) (*sso.ResetPasswordResponse, error) {
+	if in.GetResetToken() == "" {
+		return nil, status.Error(codes.InvalidArgument, "reset token is required")
+	}
+	if in.GetNewPassword() == "" {
+		return nil, status.Error(codes.InvalidArgument, "new password is required")
+	}
+
+	err := c.auth.ResetPassword(ctx, in.GetResetToken(), in.GetNewPassword())
+	if err != nil {
+		return nil, toGRPCError(err)
+	}
+
+	return &sso.ResetPasswordResponse{}, nil
 }

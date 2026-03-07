@@ -13,4 +13,6 @@ var (
 	ErrTokenExpired        = errors.New("token expired")
 
 	ErrPermissionDenied = errors.New("permission denied")
+
+	ErrInvalidResetToken = errors.New("reset token is invalid or expired")
 )

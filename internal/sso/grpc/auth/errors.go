@@ -28,6 +28,9 @@ func toGRPCError(err error) error {
 
 	case errors.Is(err, auth.ErrPermissionDenied):
 		return status.Error(codes.PermissionDenied, "permission denied")
+
+	case errors.Is(err, auth.ErrInvalidResetToken):
+		return status.Error(codes.Unauthenticated, "invalid reset token")
 	}
 
 	return status.Error(codes.Internal, "internal server error")

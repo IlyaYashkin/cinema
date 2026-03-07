@@ -10,20 +10,19 @@ import (
 )
 
 func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (string, error) {
-	query := `INSERT INTO sso.users (email, password_hash) VALUES ($1, $2) returning id`
-
-	isUserExists, err := s.isUserExists(ctx, email)
-	if err != nil {
-		return "", err
-	}
-
-	if isUserExists {
-		return "", storage.ErrUserExists
-	}
+	query := `
+		INSERT INTO sso.users (email, password_hash) VALUES ($1, $2)
+		ON CONFLICT(email) DO NOTHING
+		RETURNING id
+	`
 
 	var id string
-	err = s.pool.QueryRow(ctx, query, email, passHash).Scan(&id)
+	err := s.pool.QueryRow(ctx, query, email, passHash).Scan(&id)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return "", storage.ErrUserExists
+		}
+
 		return "", err
 	}
 

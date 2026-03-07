@@ -661,6 +661,174 @@ func (*ChangePasswordResponse) Descriptor() ([]byte, []int) {
 	return file_sso_sso_proto_rawDescGZIP(), []int{13}
 }
 
+type ForgotPasswordRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ForgotPasswordRequest) Reset() {
+	*x = ForgotPasswordRequest{}
+	mi := &file_sso_sso_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ForgotPasswordRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ForgotPasswordRequest) ProtoMessage() {}
+
+func (x *ForgotPasswordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sso_sso_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ForgotPasswordRequest.ProtoReflect.Descriptor instead.
+func (*ForgotPasswordRequest) Descriptor() ([]byte, []int) {
+	return file_sso_sso_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ForgotPasswordRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+type ForgotPasswordResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ForgotPasswordResponse) Reset() {
+	*x = ForgotPasswordResponse{}
+	mi := &file_sso_sso_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ForgotPasswordResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ForgotPasswordResponse) ProtoMessage() {}
+
+func (x *ForgotPasswordResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sso_sso_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ForgotPasswordResponse.ProtoReflect.Descriptor instead.
+func (*ForgotPasswordResponse) Descriptor() ([]byte, []int) {
+	return file_sso_sso_proto_rawDescGZIP(), []int{15}
+}
+
+type ResetPasswordRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ResetToken    string                 `protobuf:"bytes,1,opt,name=reset_token,json=resetToken,proto3" json:"reset_token,omitempty"`
+	NewPassword   string                 `protobuf:"bytes,2,opt,name=new_password,json=newPassword,proto3" json:"new_password,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResetPasswordRequest) Reset() {
+	*x = ResetPasswordRequest{}
+	mi := &file_sso_sso_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResetPasswordRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResetPasswordRequest) ProtoMessage() {}
+
+func (x *ResetPasswordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sso_sso_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResetPasswordRequest.ProtoReflect.Descriptor instead.
+func (*ResetPasswordRequest) Descriptor() ([]byte, []int) {
+	return file_sso_sso_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *ResetPasswordRequest) GetResetToken() string {
+	if x != nil {
+		return x.ResetToken
+	}
+	return ""
+}
+
+func (x *ResetPasswordRequest) GetNewPassword() string {
+	if x != nil {
+		return x.NewPassword
+	}
+	return ""
+}
+
+type ResetPasswordResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResetPasswordResponse) Reset() {
+	*x = ResetPasswordResponse{}
+	mi := &file_sso_sso_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResetPasswordResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResetPasswordResponse) ProtoMessage() {}
+
+func (x *ResetPasswordResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sso_sso_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResetPasswordResponse.ProtoReflect.Descriptor instead.
+func (*ResetPasswordResponse) Descriptor() ([]byte, []int) {
+	return file_sso_sso_proto_rawDescGZIP(), []int{17}
+}
+
 var File_sso_sso_proto protoreflect.FileDescriptor
 
 const file_sso_sso_proto_rawDesc = "" +
@@ -696,7 +864,15 @@ const file_sso_sso_proto_rawDesc = "" +
 	"\x15ChangePasswordRequest\x12!\n" +
 	"\fold_password\x18\x01 \x01(\tR\voldPassword\x12!\n" +
 	"\fnew_password\x18\x02 \x01(\tR\vnewPassword\"\x18\n" +
-	"\x16ChangePasswordResponse2\xa4\x03\n" +
+	"\x16ChangePasswordResponse\"-\n" +
+	"\x15ForgotPasswordRequest\x12\x14\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\"\x18\n" +
+	"\x16ForgotPasswordResponse\"Z\n" +
+	"\x14ResetPasswordRequest\x12\x1f\n" +
+	"\vreset_token\x18\x01 \x01(\tR\n" +
+	"resetToken\x12!\n" +
+	"\fnew_password\x18\x02 \x01(\tR\vnewPassword\"\x17\n" +
+	"\x15ResetPasswordResponse2\xb7\x04\n" +
 	"\x04Auth\x127\n" +
 	"\bRegister\x12\x14.sso.RegisterRequest\x1a\x15.sso.RegisterResponse\x12.\n" +
 	"\x05Login\x12\x11.sso.LoginRequest\x1a\x12.sso.LoginResponse\x124\n" +
@@ -705,7 +881,9 @@ const file_sso_sso_proto_rawDesc = "" +
 	"\n" +
 	"ChangeRole\x12\x16.sso.ChangeRoleRequest\x1a\x17.sso.ChangeRoleResponse\x12@\n" +
 	"\vChangeEmail\x12\x17.sso.ChangeEmailRequest\x1a\x18.sso.ChangeEmailResponse\x12I\n" +
-	"\x0eChangePassword\x12\x1a.sso.ChangePasswordRequest\x1a\x1b.sso.ChangePasswordResponseB\x14Z\x12cinema/gen/sso;ssob\x06proto3"
+	"\x0eChangePassword\x12\x1a.sso.ChangePasswordRequest\x1a\x1b.sso.ChangePasswordResponse\x12I\n" +
+	"\x0eForgotPassword\x12\x1a.sso.ForgotPasswordRequest\x1a\x1b.sso.ForgotPasswordResponse\x12F\n" +
+	"\rResetPassword\x12\x19.sso.ResetPasswordRequest\x1a\x1a.sso.ResetPasswordResponseB\x14Z\x12cinema/gen/sso;ssob\x06proto3"
 
 var (
 	file_sso_sso_proto_rawDescOnce sync.Once
@@ -719,7 +897,7 @@ func file_sso_sso_proto_rawDescGZIP() []byte {
 	return file_sso_sso_proto_rawDescData
 }
 
-var file_sso_sso_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_sso_sso_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_sso_sso_proto_goTypes = []any{
 	(*RegisterRequest)(nil),        // 0: sso.RegisterRequest
 	(*RegisterResponse)(nil),       // 1: sso.RegisterResponse
@@ -735,6 +913,10 @@ var file_sso_sso_proto_goTypes = []any{
 	(*ChangeEmailResponse)(nil),    // 11: sso.ChangeEmailResponse
 	(*ChangePasswordRequest)(nil),  // 12: sso.ChangePasswordRequest
 	(*ChangePasswordResponse)(nil), // 13: sso.ChangePasswordResponse
+	(*ForgotPasswordRequest)(nil),  // 14: sso.ForgotPasswordRequest
+	(*ForgotPasswordResponse)(nil), // 15: sso.ForgotPasswordResponse
+	(*ResetPasswordRequest)(nil),   // 16: sso.ResetPasswordRequest
+	(*ResetPasswordResponse)(nil),  // 17: sso.ResetPasswordResponse
 }
 var file_sso_sso_proto_depIdxs = []int32{
 	0,  // 0: sso.Auth.Register:input_type -> sso.RegisterRequest
@@ -744,15 +926,19 @@ var file_sso_sso_proto_depIdxs = []int32{
 	8,  // 4: sso.Auth.ChangeRole:input_type -> sso.ChangeRoleRequest
 	10, // 5: sso.Auth.ChangeEmail:input_type -> sso.ChangeEmailRequest
 	12, // 6: sso.Auth.ChangePassword:input_type -> sso.ChangePasswordRequest
-	1,  // 7: sso.Auth.Register:output_type -> sso.RegisterResponse
-	3,  // 8: sso.Auth.Login:output_type -> sso.LoginResponse
-	5,  // 9: sso.Auth.Refresh:output_type -> sso.RefreshResponse
-	7,  // 10: sso.Auth.Logout:output_type -> sso.LogoutResponse
-	9,  // 11: sso.Auth.ChangeRole:output_type -> sso.ChangeRoleResponse
-	11, // 12: sso.Auth.ChangeEmail:output_type -> sso.ChangeEmailResponse
-	13, // 13: sso.Auth.ChangePassword:output_type -> sso.ChangePasswordResponse
-	7,  // [7:14] is the sub-list for method output_type
-	0,  // [0:7] is the sub-list for method input_type
+	14, // 7: sso.Auth.ForgotPassword:input_type -> sso.ForgotPasswordRequest
+	16, // 8: sso.Auth.ResetPassword:input_type -> sso.ResetPasswordRequest
+	1,  // 9: sso.Auth.Register:output_type -> sso.RegisterResponse
+	3,  // 10: sso.Auth.Login:output_type -> sso.LoginResponse
+	5,  // 11: sso.Auth.Refresh:output_type -> sso.RefreshResponse
+	7,  // 12: sso.Auth.Logout:output_type -> sso.LogoutResponse
+	9,  // 13: sso.Auth.ChangeRole:output_type -> sso.ChangeRoleResponse
+	11, // 14: sso.Auth.ChangeEmail:output_type -> sso.ChangeEmailResponse
+	13, // 15: sso.Auth.ChangePassword:output_type -> sso.ChangePasswordResponse
+	15, // 16: sso.Auth.ForgotPassword:output_type -> sso.ForgotPasswordResponse
+	17, // 17: sso.Auth.ResetPassword:output_type -> sso.ResetPasswordResponse
+	9,  // [9:18] is the sub-list for method output_type
+	0,  // [0:9] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name
@@ -769,7 +955,7 @@ func file_sso_sso_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sso_sso_proto_rawDesc), len(file_sso_sso_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -32,6 +32,14 @@ type GRPCConfig struct {
 	Timeout time.Duration `yaml:"timeout"`
 }
 
+type SMTPConfig struct {
+	Host     string `yaml:"host" env-required:"true"`
+	Port     int    `yaml:"port" env-default:"587"`
+	Username string `env:"SMTP_USERNAME" env-required:"true"`
+	Password string `env:"SMTP_PASSWORD" env-required:"true"`
+	From     string `yaml:"from" env-required:"true"`
+}
+
 func MustLoad[T any]() *T {
 	configPath := fetchConfigPath()
 	if configPath == "" {
@@ -45,11 +53,11 @@ func MustLoad[T any]() *T {
 	var cfg T
 
 	if err := cleanenv.ReadEnv(&cfg); err != nil {
-		panic("error reading env file: " + err.Error())
+		//panic("error reading env file: " + err.Error())
 	}
 
 	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
-		panic("config path is empty: " + err.Error())
+		panic("error reading config: " + err.Error())
 	}
 
 	return &cfg

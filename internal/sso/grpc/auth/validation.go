@@ -25,6 +25,13 @@ func validateCredentials(email, password string) error {
 	if password == "" {
 		return status.Error(codes.InvalidArgument, "password is required")
 	}
+	if err := validateEmail(email); err != nil {
+		return err
+	}
+	return nil
+}
+
+func validateEmail(email string) error {
 	if _, err := mail.ParseAddress(email); err != nil {
 		return status.Error(codes.InvalidArgument, "invalid email format")
 	}

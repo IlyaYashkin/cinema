@@ -6,6 +6,8 @@ import (
 	"cinema/internal/sso/domain"
 	"cinema/internal/sso/storage"
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -16,18 +18,20 @@ import (
 )
 
 type SessionStorage interface {
-	Save(ctx context.Context, userId, token string, ttl time.Duration) error
-	Exists(ctx context.Context, userId, token string) (bool, error)
-	Delete(ctx context.Context, userId, token string) error
-	DeleteAll(ctx context.Context, userId string) error
+	SaveSession(ctx context.Context, userId, token string, ttl time.Duration) error
+	IsSessionExists(ctx context.Context, userId, token string) (bool, error)
+	DeleteSession(ctx context.Context, userId, token string) error
+	DeleteAllSessions(ctx context.Context, userId string) error
+}
+
+type ResetTokenStorage interface {
+	SaveResetToken(ctx context.Context, userId, token string, ttl time.Duration) error
+	GetUserIdByResetToken(ctx context.Context, token string) (string, error)
+	DeleteResetToken(ctx context.Context, token string) error
 }
 
 type UserProvider interface {
-	SaveUser(
-		ctx context.Context,
-		email string,
-		passHash []byte,
-	) (id string, err error)
+	SaveUser(ctx context.Context, email string, passHash []byte) (id string, err error)
 	FindByEmail(ctx context.Context, email string) (domain.User, error)
 	FindById(ctx context.Context, id string) (domain.User, error)
 	UpdateUserRole(ctx context.Context, userId string, role string) error
@@ -42,24 +46,37 @@ type TokenGenerator interface {
 	GetRefreshTTL() time.Duration
 }
 
+type NotificationSender interface {
+	SendPasswordResetNotification(ctx context.Context, email, resetToken string) error
+}
+
 type Auth struct {
-	log            *slog.Logger
-	userProvider   UserProvider
-	sessionStorage SessionStorage
-	jwtGenerator   TokenGenerator
+	log                *slog.Logger
+	userProvider       UserProvider
+	sessionStorage     SessionStorage
+	resetTokenStorage  ResetTokenStorage
+	jwtGenerator       TokenGenerator
+	notificationSender NotificationSender
+	resetTokenTTL      time.Duration
 }
 
 func New(
 	log *slog.Logger,
 	userProvider UserProvider,
 	sessionStorage SessionStorage,
+	resetTokenStorage ResetTokenStorage,
 	generator TokenGenerator,
+	notificationSender NotificationSender,
+	resetTokenTTL time.Duration,
 ) *Auth {
 	return &Auth{
-		log:            log,
-		userProvider:   userProvider,
-		sessionStorage: sessionStorage,
-		jwtGenerator:   generator,
+		log:                log,
+		userProvider:       userProvider,
+		sessionStorage:     sessionStorage,
+		resetTokenStorage:  resetTokenStorage,
+		jwtGenerator:       generator,
+		notificationSender: notificationSender,
+		resetTokenTTL:      resetTokenTTL,
 	}
 }
 
@@ -82,11 +99,13 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email string, pass string) (
 
 	id, err := a.userProvider.SaveUser(ctx, email, passHash)
 	if err != nil {
-		log.Error("failed to save user", sl.Err(err))
-
 		if errors.Is(err, storage.ErrUserExists) {
+			log.Warn("user already exists", sl.Err(err))
+
 			return "", ErrUserAlreadyExists
 		}
+
+		log.Error("failed to save user", sl.Err(err))
 
 		return "", fmt.Errorf("%s: %w", op, err)
 	}
@@ -123,7 +142,7 @@ func (a *Auth) Login(ctx context.Context, email string, password string) (*domai
 
 	userId := user.Id.String()
 
-	err = a.sessionStorage.DeleteAll(ctx, userId)
+	err = a.sessionStorage.DeleteAllSessions(ctx, userId)
 	if err != nil {
 		log.Error("failed to delete old sessions", sl.Err(err))
 
@@ -144,7 +163,7 @@ func (a *Auth) Login(ctx context.Context, email string, password string) (*domai
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	err = a.sessionStorage.Save(ctx, userId, refreshToken, a.jwtGenerator.GetRefreshTTL())
+	err = a.sessionStorage.SaveSession(ctx, userId, refreshToken, a.jwtGenerator.GetRefreshTTL())
 	if err != nil {
 		log.Error("failed to save refresh token", sl.Err(err))
 
@@ -173,7 +192,7 @@ func (a *Auth) Refresh(ctx context.Context, refreshToken string) (*domain.TokenP
 		slog.String("userId", userId),
 	)
 
-	exists, err := a.sessionStorage.Exists(ctx, userId, refreshToken)
+	exists, err := a.sessionStorage.IsSessionExists(ctx, userId, refreshToken)
 	if err != nil {
 		log.Error("failed to check session", sl.Err(err))
 
@@ -186,7 +205,7 @@ func (a *Auth) Refresh(ctx context.Context, refreshToken string) (*domain.TokenP
 		return nil, fmt.Errorf("%s: %w", op, ErrInvalidRefreshToken)
 	}
 
-	if err := a.sessionStorage.Delete(ctx, userId, refreshToken); err != nil {
+	if err := a.sessionStorage.DeleteSession(ctx, userId, refreshToken); err != nil {
 		log.Error("failed to delete old refresh token", sl.Err(err))
 
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -206,7 +225,7 @@ func (a *Auth) Refresh(ctx context.Context, refreshToken string) (*domain.TokenP
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	if err := a.sessionStorage.Save(ctx, userId, refreshToken, a.jwtGenerator.GetRefreshTTL()); err != nil {
+	if err := a.sessionStorage.SaveSession(ctx, userId, refreshToken, a.jwtGenerator.GetRefreshTTL()); err != nil {
 		log.Error("failed to save refresh token", sl.Err(err))
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -232,7 +251,7 @@ func (a *Auth) Logout(ctx context.Context, refreshToken string) error {
 		slog.String("userId", userId),
 	)
 
-	exists, err := a.sessionStorage.Exists(ctx, userId, refreshToken)
+	exists, err := a.sessionStorage.IsSessionExists(ctx, userId, refreshToken)
 	if err != nil {
 		log.Error("failed to check session", sl.Err(err))
 
@@ -245,7 +264,7 @@ func (a *Auth) Logout(ctx context.Context, refreshToken string) error {
 		return fmt.Errorf("%s: %w", op, ErrInvalidRefreshToken)
 	}
 
-	err = a.sessionStorage.DeleteAll(ctx, userId)
+	err = a.sessionStorage.DeleteAllSessions(ctx, userId)
 	if err != nil {
 		log.Error("failed to delete sessions", sl.Err(err))
 
@@ -294,7 +313,7 @@ func (a *Auth) ChangeRole(ctx context.Context, accessToken string, userId string
 
 	log.Info("invalidating user session after role change")
 
-	err = a.sessionStorage.DeleteAll(ctx, userId)
+	err = a.sessionStorage.DeleteAllSessions(ctx, userId)
 	if err != nil {
 		log.Error("failed to delete sessions", sl.Err(err))
 
@@ -351,7 +370,7 @@ func (a *Auth) ChangeEmail(
 
 	log.Info("invalidating user session after email change")
 
-	err = a.sessionStorage.DeleteAll(ctx, userId)
+	err = a.sessionStorage.DeleteAllSessions(ctx, userId)
 	if err != nil {
 		log.Error("failed to delete sessions", sl.Err(err))
 
@@ -399,25 +418,100 @@ func (a *Auth) ChangePassword(
 		return fmt.Errorf("%s: %w", op, ErrInvalidPassword)
 	}
 
-	passHash, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	err = a.generatePasswordHashAndUpdateUser(ctx, log, userId, newPassword)
 	if err != nil {
-		log.Error("failed to generate password hash", sl.Err(err))
-
-		return fmt.Errorf("%s: %w", op, err)
-	}
-
-	err = a.userProvider.UpdateUserPassword(ctx, userId, passHash)
-	if err != nil {
-		log.Error("failed to update user password", sl.Err(err))
-
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
 	log.Info("invalidating user session after password change")
 
-	err = a.sessionStorage.DeleteAll(ctx, userId)
+	err = a.sessionStorage.DeleteAllSessions(ctx, userId)
 	if err != nil {
-		log.Error("failed to delete sessions", sl.Err(err))
+		log.Error("failed to delete all sessions", sl.Err(err))
+
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (a *Auth) ForgotPassword(
+	ctx context.Context,
+	email string,
+) {
+	const op = "Auth.ForgotPassword"
+
+	log := a.log.With(
+		slog.String("op", op),
+	)
+
+	log.Info("forgot user password")
+
+	user, err := a.userProvider.FindByEmail(ctx, email)
+	if err != nil {
+		log.Error("failed to find user", sl.Err(err))
+
+		return
+	}
+
+	log = log.With(
+		slog.String("userId", user.Id.String()),
+	)
+
+	resetToken := generateResetToken()
+
+	err = a.resetTokenStorage.SaveResetToken(ctx, user.Id.String(), resetToken, a.resetTokenTTL)
+	if err != nil {
+		log.Error("failed to save reset token", sl.Err(err))
+
+		return
+	}
+
+	err = a.notificationSender.SendPasswordResetNotification(ctx, email, resetToken)
+	if err != nil {
+		log.Error("failed to send password reset notification", sl.Err(err))
+
+		_ = a.resetTokenStorage.DeleteResetToken(ctx, user.Id.String())
+
+		return
+	}
+}
+
+func (a *Auth) ResetPassword(
+	ctx context.Context,
+	resetToken string,
+	newPassword string,
+) error {
+	const op = "Auth.ResetPassword"
+
+	log := a.log.With(
+		slog.String("op", op),
+	)
+
+	log.Info("reset user password")
+
+	userId, err := a.resetTokenStorage.GetUserIdByResetToken(ctx, resetToken)
+	if err != nil {
+		log.Error("failed to find user by reset token", sl.Err(err))
+
+		return ErrInvalidResetToken
+	}
+
+	err = a.generatePasswordHashAndUpdateUser(ctx, log, userId, newPassword)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	err = a.resetTokenStorage.DeleteResetToken(ctx, resetToken)
+	if err != nil {
+		log.Error("failed to delete reset token", sl.Err(err))
+
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	err = a.sessionStorage.DeleteAllSessions(ctx, userId)
+	if err != nil {
+		log.Error("failed to delete all sessions", sl.Err(err))
 
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -444,4 +538,28 @@ func (a *Auth) validateToken(log *slog.Logger, token string, invalidErr error) (
 		return nil, invalidErr
 	}
 	return claims, nil
+}
+
+func (a *Auth) generatePasswordHashAndUpdateUser(ctx context.Context, log *slog.Logger, userId, password string) error {
+	passHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Error("failed to generate password hash", sl.Err(err))
+
+		return err
+	}
+
+	err = a.userProvider.UpdateUserPassword(ctx, userId, passHash)
+	if err != nil {
+		log.Error("failed to update user password", sl.Err(err))
+
+		return err
+	}
+
+	return nil
+}
+
+func generateResetToken() string {
+	b := make([]byte, 32)
+	_, _ = rand.Read(b)
+	return hex.EncodeToString(b)
 }

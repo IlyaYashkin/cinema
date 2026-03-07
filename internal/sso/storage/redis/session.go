@@ -1,18 +1,11 @@
 package redis
 
 import (
-	"cinema/internal/sso/config"
 	"context"
 	"encoding/json"
 	"fmt"
 	"time"
-
-	"github.com/redis/go-redis/v9"
 )
-
-type SessionStorage struct {
-	client *redis.Client
-}
 
 type Session struct {
 	UserId    string
@@ -20,18 +13,7 @@ type Session struct {
 	CreatedAt time.Time
 }
 
-func NewSessionStorage(config config.RedisConfig) (*SessionStorage, error) {
-	opts, err := redis.ParseURL(config.URL)
-	if err != nil {
-		return nil, err
-	}
-
-	client := redis.NewClient(opts)
-
-	return &SessionStorage{client: client}, nil
-}
-
-func (s *SessionStorage) Save(ctx context.Context, userId, token string, ttl time.Duration) error {
+func (s *Storage) SaveSession(ctx context.Context, userId, token string, ttl time.Duration) error {
 	key := fmt.Sprintf("session:%s:%s", userId, token)
 
 	session := Session{
@@ -47,19 +29,22 @@ func (s *SessionStorage) Save(ctx context.Context, userId, token string, ttl tim
 	return s.client.Set(ctx, key, data, ttl).Err()
 }
 
-func (s *SessionStorage) Exists(ctx context.Context, userId, token string) (bool, error) {
+func (s *Storage) IsSessionExists(ctx context.Context, userId, token string) (bool, error) {
 	key := fmt.Sprintf("session:%s:%s", userId, token)
+
 	result, err := s.client.Exists(ctx, key).Result()
+
 	return result > 0, err
 }
 
-func (s *SessionStorage) Delete(ctx context.Context, userId, token string) error {
+func (s *Storage) DeleteSession(ctx context.Context, userId, token string) error {
 	key := fmt.Sprintf("session:%s:%s", userId, token)
+
 	return s.client.Del(ctx, key).Err()
 }
 
-func (s *SessionStorage) DeleteAll(ctx context.Context, userId string) error {
-	keys, err := s.scanKeys(ctx, userId)
+func (s *Storage) DeleteAllSessions(ctx context.Context, userId string) error {
+	keys, err := s.scanSessionKeys(ctx, userId)
 	if err != nil {
 		return err
 	}
@@ -69,7 +54,7 @@ func (s *SessionStorage) DeleteAll(ctx context.Context, userId string) error {
 	return s.client.Del(ctx, keys...).Err()
 }
 
-func (s *SessionStorage) scanKeys(ctx context.Context, userId string) ([]string, error) {
+func (s *Storage) scanSessionKeys(ctx context.Context, userId string) ([]string, error) {
 	var keys []string
 	pattern := fmt.Sprintf("session:%s:*", userId)
 	cursor := uint64(0)
@@ -89,14 +74,4 @@ func (s *SessionStorage) scanKeys(ctx context.Context, userId string) ([]string,
 	}
 
 	return keys, nil
-}
-
-func (s *SessionStorage) MustConnect() {
-	if err := s.client.Ping(context.Background()).Err(); err != nil {
-		panic("error pinging redis: " + err.Error())
-	}
-}
-
-func (s *SessionStorage) Close() {
-	_ = s.client.Close()
 }

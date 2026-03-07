@@ -3,8 +3,10 @@ package app
 import (
 	"cinema/internal/lib/grpc"
 	"cinema/internal/lib/jwt"
+	"cinema/internal/lib/smtp"
 	"cinema/internal/sso/config"
 	grpcAuth "cinema/internal/sso/grpc/auth"
+	ssoSmtp "cinema/internal/sso/notification/smtp"
 	"cinema/internal/sso/services/auth"
 	"cinema/internal/sso/storage/postgres"
 	"cinema/internal/sso/storage/redis"
@@ -17,23 +19,23 @@ type Connection interface {
 }
 
 type App struct {
-	GRPCServer     *grpc.App
-	DBConnection   Connection
-	SessionStorage Connection
+	GRPCServer      *grpc.App
+	DBConnection    Connection
+	RedisConnection Connection
 }
 
 func New(
 	log *slog.Logger,
 	cfg *config.Config,
 ) *App {
-	conn, err := postgres.New(cfg.DBConfig)
+	dbConn, err := postgres.New(cfg.DBConfig)
 	if err != nil {
 		panic("error creating database connection: " + err.Error())
 	}
 
-	sessionStorage, err := redis.NewSessionStorage(cfg.RedisConfig)
+	redisConn, err := redis.NewStorage(cfg.RedisConfig)
 	if err != nil {
-		panic("error creating session storage: " + err.Error())
+		panic("error creating redis storage: " + err.Error())
 	}
 
 	jwtGenerator, err := jwt.NewGenerator(cfg.JWTConfig)
@@ -41,25 +43,32 @@ func New(
 		panic("error creating jwt generator: " + err.Error())
 	}
 
-	authService := auth.New(log, conn, sessionStorage, jwtGenerator)
+	smtpClient, err := smtp.New(cfg.SMTPConfig)
+	if err != nil {
+		panic("error creating smtp client: " + err.Error())
+	}
+
+	emailSender := ssoSmtp.NewEmailSender(smtpClient, cfg.ResetPasswordBaseUrl)
+
+	authService := auth.New(log, dbConn, redisConn, redisConn, jwtGenerator, emailSender, cfg.ResetTokenTTL)
 
 	grpcApp := grpc.New(log, grpcAuth.NewController(authService), cfg.GRPCConfig.Port, cfg.Env)
 
 	return &App{
-		GRPCServer:     grpcApp,
-		DBConnection:   conn,
-		SessionStorage: sessionStorage,
+		GRPCServer:      grpcApp,
+		DBConnection:    dbConn,
+		RedisConnection: redisConn,
 	}
 }
 
 func (a *App) MustRun() {
 	a.DBConnection.MustConnect()
-	a.SessionStorage.MustConnect()
+	a.RedisConnection.MustConnect()
 	a.GRPCServer.MustRun()
 }
 
 func (a *App) Stop() {
 	a.GRPCServer.Stop()
-	a.SessionStorage.Close()
+	a.RedisConnection.Close()
 	a.DBConnection.Close()
 }

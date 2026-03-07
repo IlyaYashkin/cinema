@@ -12,6 +12,8 @@ service Auth {
   rpc ChangeRole (ChangeRoleRequest) returns (ChangeRoleResponse);
   rpc ChangeEmail (ChangeEmailRequest) returns (ChangeEmailResponse);
   rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse);
+  rpc ForgotPassword (ForgotPasswordRequest) returns (ForgotPasswordResponse);
+  rpc ResetPassword (ResetPasswordRequest) returns (ResetPasswordResponse);
 }
 
 message RegisterRequest {
@@ -60,15 +62,24 @@ message ChangeEmailRequest {
   string password = 2;
 }
 
-message ChangeEmailResponse {
-
-}
+message ChangeEmailResponse {}
 
 message ChangePasswordRequest {
   string old_password = 1;
   string new_password = 2;
 }
 
-message ChangePasswordResponse {
+message ChangePasswordResponse {}
 
+message ForgotPasswordRequest {
+  string email = 1;
 }
+
+message ForgotPasswordResponse {}
+
+message ResetPasswordRequest {
+  string reset_token = 1;
+  string new_password = 2;
+}
+
+message ResetPasswordResponse {}
