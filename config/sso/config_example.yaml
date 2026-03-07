@@ -1,4 +1,6 @@
 env: "local"
+reset_token_ttl: 15m
+reset_password_base_url: http://localhost/reset-password
 grpc:
   port: 44044
   timeout: 10h
@@ -10,3 +12,7 @@ db:
   min_conns: 2
   max_conn_lifetime: 1h
   max_conn_idle_time: 30m
+smtp:
+  host: smtp_host
+  port: smtp_port
+  from: smtp_from
