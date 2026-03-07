@@ -11,6 +11,7 @@ import (
 	"log/slog"
 	"time"
 
+	jwtlib "github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -28,7 +29,10 @@ type UserProvider interface {
 		passHash []byte,
 	) (id string, err error)
 	FindByEmail(ctx context.Context, email string) (domain.User, error)
-	ChangeUserRole(ctx context.Context, userId string, role string) error
+	FindById(ctx context.Context, id string) (domain.User, error)
+	UpdateUserRole(ctx context.Context, userId string, role string) error
+	UpdateUserEmail(ctx context.Context, userId string, email string) error
+	UpdateUserPassword(ctx context.Context, userId string, passHash []byte) error
 }
 
 type TokenGenerator interface {
@@ -102,11 +106,12 @@ func (a *Auth) Login(ctx context.Context, email string, password string) (*domai
 
 	user, err := a.userProvider.FindByEmail(ctx, email)
 	if err != nil {
-		log.Error("failed to login user", sl.Err(err))
+		log.Error("failed to find user", sl.Err(err))
 
 		if errors.Is(err, storage.ErrUserNotFound) {
 			return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
 		}
+
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -156,11 +161,9 @@ func (a *Auth) Refresh(ctx context.Context, refreshToken string) (*domain.TokenP
 		slog.String("op", op),
 	)
 
-	claims, err := a.jwtGenerator.ValidateToken(refreshToken)
+	claims, err := a.validateRefreshToken(log, refreshToken)
 	if err != nil {
-		log.Error("failed to validate refresh token", sl.Err(err))
-
-		return nil, fmt.Errorf("%s: %w", op, ErrInvalidRefreshToken)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	userId := claims.Subject
@@ -218,11 +221,9 @@ func (a *Auth) Logout(ctx context.Context, refreshToken string) error {
 		slog.String("op", op),
 	)
 
-	claims, err := a.jwtGenerator.ValidateToken(refreshToken)
+	claims, err := a.validateRefreshToken(log, refreshToken)
 	if err != nil {
-		log.Error("failed to validate refresh token", sl.Err(err))
-
-		return fmt.Errorf("%s: %w", op, ErrInvalidRefreshToken)
+		return fmt.Errorf("%s: %w", op, err)
 	}
 
 	userId := claims.Subject
@@ -265,11 +266,9 @@ func (a *Auth) ChangeRole(ctx context.Context, accessToken string, userId string
 
 	log.Info("change user role")
 
-	claims, err := a.jwtGenerator.ValidateToken(accessToken)
+	claims, err := a.validateAccessToken(log, accessToken)
 	if err != nil {
-		log.Error("failed to validate access token", sl.Err(err))
-
-		return fmt.Errorf("%s: %w", op, ErrInvalidAccessToken)
+		return fmt.Errorf("%s: %w", op, err)
 	}
 
 	log = log.With(
@@ -283,7 +282,7 @@ func (a *Auth) ChangeRole(ctx context.Context, accessToken string, userId string
 		return fmt.Errorf("%s: %w", op, ErrPermissionDenied)
 	}
 
-	err = a.userProvider.ChangeUserRole(ctx, userId, string(role))
+	err = a.userProvider.UpdateUserRole(ctx, userId, string(role))
 	if err != nil {
 		log.Error("failed to set user role", sl.Err(err))
 
@@ -302,7 +301,147 @@ func (a *Auth) ChangeRole(ctx context.Context, accessToken string, userId string
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	log.Info("user role changed")
+	return nil
+}
+
+func (a *Auth) ChangeEmail(
+	ctx context.Context,
+	accessToken string,
+	newEmail string,
+	password string,
+) error {
+	const op = "Auth.ChangeEmail"
+
+	log := a.log.With(
+		slog.String("op", op),
+	)
+
+	log.Info("change user email")
+
+	claims, err := a.validateAccessToken(log, accessToken)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	userId := claims.Subject
+
+	log = log.With(
+		slog.String("userId", userId),
+	)
+
+	user, err := a.userProvider.FindById(ctx, userId)
+	if err != nil {
+		log.Error("failed to find user", sl.Err(err))
+
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(password)); err != nil {
+		log.Warn("invalid password", sl.Err(err))
+
+		return fmt.Errorf("%s: %w", op, ErrInvalidPassword)
+	}
+
+	err = a.userProvider.UpdateUserEmail(ctx, userId, newEmail)
+	if err != nil {
+		log.Error("failed to change user email", sl.Err(err))
+
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	log.Info("invalidating user session after email change")
+
+	err = a.sessionStorage.DeleteAll(ctx, userId)
+	if err != nil {
+		log.Error("failed to delete sessions", sl.Err(err))
+
+		return fmt.Errorf("%s: %w", op, err)
+	}
 
 	return nil
+}
+
+func (a *Auth) ChangePassword(
+	ctx context.Context,
+	accessToken string,
+	oldPassword string,
+	newPassword string,
+) error {
+	const op = "Auth.ChangePassword"
+
+	log := a.log.With(
+		slog.String("op", op),
+	)
+
+	log.Info("change user password")
+
+	claims, err := a.validateAccessToken(log, accessToken)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	userId := claims.Subject
+
+	log = log.With(
+		slog.String("userId", userId),
+	)
+
+	user, err := a.userProvider.FindById(ctx, userId)
+	if err != nil {
+		log.Error("failed to find user", sl.Err(err))
+
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(oldPassword)); err != nil {
+		log.Warn("invalid password", sl.Err(err))
+
+		return fmt.Errorf("%s: %w", op, ErrInvalidPassword)
+	}
+
+	passHash, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		log.Error("failed to generate password hash", sl.Err(err))
+
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	err = a.userProvider.UpdateUserPassword(ctx, userId, passHash)
+	if err != nil {
+		log.Error("failed to update user password", sl.Err(err))
+
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	log.Info("invalidating user session after password change")
+
+	err = a.sessionStorage.DeleteAll(ctx, userId)
+	if err != nil {
+		log.Error("failed to delete sessions", sl.Err(err))
+
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (a *Auth) validateAccessToken(log *slog.Logger, token string) (*jwt.Claims, error) {
+	return a.validateToken(log, token, ErrInvalidAccessToken)
+}
+
+func (a *Auth) validateRefreshToken(log *slog.Logger, token string) (*jwt.Claims, error) {
+	return a.validateToken(log, token, ErrInvalidRefreshToken)
+}
+
+func (a *Auth) validateToken(log *slog.Logger, token string, invalidErr error) (*jwt.Claims, error) {
+	claims, err := a.jwtGenerator.ValidateToken(token)
+	if err != nil {
+		if errors.Is(err, jwtlib.ErrTokenExpired) {
+			log.Warn("token expired")
+			return nil, ErrTokenExpired
+		}
+		log.Error("failed to validate token", sl.Err(err))
+		return nil, invalidErr
+	}
+	return claims, nil
 }

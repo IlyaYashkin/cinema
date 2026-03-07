@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package sso;
 
-option go_package = "cinema/internal/proto;sso";
+option go_package = "cinema/gen/sso;sso";
 
 service Auth {
   rpc Register (RegisterRequest) returns (RegisterResponse);
@@ -10,6 +10,8 @@ service Auth {
   rpc Refresh (RefreshRequest) returns (RefreshResponse);
   rpc Logout (LogoutRequest) returns (LogoutResponse);
   rpc ChangeRole (ChangeRoleRequest) returns (ChangeRoleResponse);
+  rpc ChangeEmail (ChangeEmailRequest) returns (ChangeEmailResponse);
+  rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse);
 }
 
 message RegisterRequest {
@@ -52,3 +54,21 @@ message ChangeRoleRequest {
 }
 
 message ChangeRoleResponse {}
+
+message ChangeEmailRequest {
+  string new_email = 1;
+  string password = 2;
+}
+
+message ChangeEmailResponse {
+
+}
+
+message ChangePasswordRequest {
+  string old_password = 1;
+  string new_password = 2;
+}
+
+message ChangePasswordResponse {
+
+}

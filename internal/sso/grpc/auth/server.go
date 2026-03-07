@@ -2,15 +2,10 @@ package auth
 
 import (
 	"cinema/internal/sso/domain"
-	"cinema/internal/sso/services/auth"
 	"context"
-	"errors"
-	"net/mail"
-	"strings"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	"cinema/gen/sso"
@@ -52,9 +47,21 @@ type Auth interface {
 	) (err error)
 	ChangeRole(
 		ctx context.Context,
-		token string,
+		accessToken string,
 		userId string,
 		role domain.Role,
+	) (err error)
+	ChangeEmail(
+		ctx context.Context,
+		accessToken string,
+		newEmail string,
+		password string,
+	) (err error)
+	ChangePassword(
+		ctx context.Context,
+		accessToken string,
+		oldPassword string,
+		newPassword string,
 	) (err error)
 }
 
@@ -68,11 +75,7 @@ func (c *Controller) Login(
 
 	tokenPair, err := c.auth.Login(ctx, in.GetEmail(), in.GetPassword())
 	if err != nil {
-		if errors.Is(err, auth.ErrInvalidCredentials) {
-			return nil, status.Error(codes.Unauthenticated, "invalid email or password")
-		}
-
-		return nil, status.Error(codes.Internal, "failed to login")
+		return nil, toGRPCError(err)
 	}
 
 	return &sso.LoginResponse{AccessToken: tokenPair.AccessToken, RefreshToken: tokenPair.RefreshToken}, nil
@@ -88,11 +91,7 @@ func (c *Controller) Register(
 
 	uid, err := c.auth.RegisterNewUser(ctx, in.GetEmail(), in.GetPassword())
 	if err != nil {
-		if errors.Is(err, auth.ErrUserAlreadyExists) {
-			return nil, status.Error(codes.AlreadyExists, "user already exists")
-		}
-
-		return nil, status.Error(codes.Internal, "failed to register user")
+		return nil, toGRPCError(err)
 	}
 
 	return &sso.RegisterResponse{UserId: uid}, nil
@@ -108,11 +107,7 @@ func (c *Controller) Refresh(
 
 	tokenPair, err := c.auth.Refresh(ctx, in.GetRefreshToken())
 	if err != nil {
-		if errors.Is(err, auth.ErrInvalidRefreshToken) {
-			return nil, status.Error(codes.Unauthenticated, "invalid refresh token")
-		}
-
-		return nil, status.Error(codes.Internal, "failed to refresh")
+		return nil, toGRPCError(err)
 	}
 
 	return &sso.RefreshResponse{AccessToken: tokenPair.AccessToken, RefreshToken: tokenPair.RefreshToken}, nil
@@ -128,11 +123,7 @@ func (c *Controller) Logout(
 
 	err := c.auth.Logout(ctx, in.GetRefreshToken())
 	if err != nil {
-		if errors.Is(err, auth.ErrInvalidRefreshToken) {
-			return nil, status.Error(codes.Unauthenticated, "invalid refresh token")
-		}
-
-		return nil, status.Error(codes.Internal, "failed to logout")
+		return nil, toGRPCError(err)
 	}
 
 	return &sso.LogoutResponse{}, nil
@@ -162,65 +153,56 @@ func (c *Controller) ChangeRole(
 
 	err = c.auth.ChangeRole(ctx, token, in.GetUserId(), role)
 	if err != nil {
-		if errors.Is(err, auth.ErrInvalidAccessToken) {
-			return nil, status.Error(codes.Unauthenticated, "invalid access token")
-		}
-		if errors.Is(err, auth.ErrPermissionDenied) {
-			return nil, status.Error(codes.PermissionDenied, "permission denied")
-		}
-		if errors.Is(err, auth.ErrUserNotFound) {
-			return nil, status.Error(codes.NotFound, "user not found")
-		}
-
-		return nil, status.Error(codes.Internal, "failed to set role")
+		return nil, toGRPCError(err)
 	}
 
 	return &sso.ChangeRoleResponse{}, nil
 }
 
-func getBearerFromCtx(ctx context.Context) (string, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return "", status.Error(codes.Unauthenticated, "missing metadata")
+func (c *Controller) ChangeEmail(
+	ctx context.Context,
+	in *sso.ChangeEmailRequest,
+) (*sso.ChangeEmailResponse, error) {
+	token, err := getBearerFromCtx(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	values := md.Get("authorization")
-	if len(values) == 0 {
-		return "", status.Error(codes.Unauthenticated, "missing authorization header")
+	if in.GetNewEmail() == "" {
+		return nil, status.Error(codes.InvalidArgument, "new email is required")
+	}
+	if in.GetPassword() == "" {
+		return nil, status.Error(codes.InvalidArgument, "password is required")
 	}
 
-	authHeader := values[0]
-	if !strings.HasPrefix(strings.ToLower(authHeader), "bearer ") {
-		return "", status.Error(codes.Unauthenticated, "invalid authorization header format")
-	}
-	token := authHeader[7:]
-
-	if token == "" {
-		return "", status.Error(codes.Unauthenticated, "missing token")
+	err = c.auth.ChangeEmail(ctx, token, in.GetNewEmail(), in.GetPassword())
+	if err != nil {
+		return nil, toGRPCError(err)
 	}
 
-	return token, nil
+	return &sso.ChangeEmailResponse{}, nil
 }
 
-func validateRegisterRequest(in *sso.RegisterRequest) error {
-	if err := validateCredentials(in.GetEmail(), in.GetPassword()); err != nil {
-		return err
+func (c *Controller) ChangePassword(
+	ctx context.Context,
+	in *sso.ChangePasswordRequest,
+) (*sso.ChangePasswordResponse, error) {
+	token, err := getBearerFromCtx(ctx)
+	if err != nil {
+		return nil, err
 	}
-	if len(in.GetPassword()) < 8 {
-		return status.Error(codes.InvalidArgument, "password must be at least 8 characters")
-	}
-	return nil
-}
 
-func validateCredentials(email, password string) error {
-	if email == "" {
-		return status.Error(codes.InvalidArgument, "email is required")
+	if in.GetOldPassword() == "" {
+		return nil, status.Error(codes.InvalidArgument, "old password is required")
 	}
-	if password == "" {
-		return status.Error(codes.InvalidArgument, "password is required")
+	if in.GetNewPassword() == "" {
+		return nil, status.Error(codes.InvalidArgument, "new password is required")
 	}
-	if _, err := mail.ParseAddress(email); err != nil {
-		return status.Error(codes.InvalidArgument, "invalid email format")
+
+	err = c.auth.ChangePassword(ctx, token, in.GetOldPassword(), in.GetNewPassword())
+	if err != nil {
+		return nil, toGRPCError(err)
 	}
-	return nil
+
+	return &sso.ChangePasswordResponse{}, nil
 }

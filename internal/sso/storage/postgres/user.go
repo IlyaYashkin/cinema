@@ -56,7 +56,33 @@ func (s *Storage) FindByEmail(ctx context.Context, email string) (domain.User, e
 	return user, nil
 }
 
-func (s *Storage) ChangeUserRole(ctx context.Context, userId string, role string) error {
+func (s *Storage) FindById(ctx context.Context, id string) (domain.User, error) {
+	query := `
+		SELECT u.id, email, r.name, password_hash, created_at
+		FROM sso.users u
+		JOIN sso.roles r ON r.id = u.role_id
+		WHERE u.id = $1
+	`
+
+	var user domain.User
+	err := s.pool.QueryRow(ctx, query, id).Scan(
+		&user.Id,
+		&user.Email,
+		&user.Role,
+		&user.PassHash,
+		&user.CreatedAt,
+	)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return domain.User{}, storage.ErrUserNotFound
+	}
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	return user, nil
+}
+
+func (s *Storage) UpdateUserRole(ctx context.Context, userId string, role string) error {
 	query := `
 		UPDATE sso.users u
 		SET role_id = (SELECT id FROM sso.roles WHERE name = $1)
@@ -71,7 +97,43 @@ func (s *Storage) ChangeUserRole(ctx context.Context, userId string, role string
 		return storage.ErrUserNotFound
 	}
 
-	return err
+	return nil
+}
+
+func (s *Storage) UpdateUserEmail(ctx context.Context, userId string, email string) error {
+	query := `
+		UPDATE sso.users
+		SET email = $2
+		WHERE id = $1
+	`
+
+	result, err := s.pool.Exec(ctx, query, userId, email)
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected() == 0 {
+		return storage.ErrUserNotFound
+	}
+
+	return nil
+}
+
+func (s *Storage) UpdateUserPassword(ctx context.Context, userId string, passHash []byte) error {
+	query := `
+		UPDATE sso.users
+		SET password_hash = $2
+		WHERE id = $1
+	`
+
+	result, err := s.pool.Exec(ctx, query, userId, passHash)
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected() == 0 {
+		return storage.ErrUserNotFound
+	}
+
+	return nil
 }
 
 func (s *Storage) isUserExists(ctx context.Context, email string) (bool, error) {

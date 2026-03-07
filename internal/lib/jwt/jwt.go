@@ -89,7 +89,6 @@ func (g *Generator) ValidateToken(tokenString string) (*Claims, error) {
 		}
 		return g.publicKey, nil
 	})
-
 	if err != nil {
 		return nil, err
 	}

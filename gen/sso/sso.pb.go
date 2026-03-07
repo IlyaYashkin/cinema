@@ -485,6 +485,182 @@ func (*ChangeRoleResponse) Descriptor() ([]byte, []int) {
 	return file_sso_sso_proto_rawDescGZIP(), []int{9}
 }
 
+type ChangeEmailRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	NewEmail      string                 `protobuf:"bytes,1,opt,name=new_email,json=newEmail,proto3" json:"new_email,omitempty"`
+	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangeEmailRequest) Reset() {
+	*x = ChangeEmailRequest{}
+	mi := &file_sso_sso_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangeEmailRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangeEmailRequest) ProtoMessage() {}
+
+func (x *ChangeEmailRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sso_sso_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangeEmailRequest.ProtoReflect.Descriptor instead.
+func (*ChangeEmailRequest) Descriptor() ([]byte, []int) {
+	return file_sso_sso_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ChangeEmailRequest) GetNewEmail() string {
+	if x != nil {
+		return x.NewEmail
+	}
+	return ""
+}
+
+func (x *ChangeEmailRequest) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+type ChangeEmailResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangeEmailResponse) Reset() {
+	*x = ChangeEmailResponse{}
+	mi := &file_sso_sso_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangeEmailResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangeEmailResponse) ProtoMessage() {}
+
+func (x *ChangeEmailResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sso_sso_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangeEmailResponse.ProtoReflect.Descriptor instead.
+func (*ChangeEmailResponse) Descriptor() ([]byte, []int) {
+	return file_sso_sso_proto_rawDescGZIP(), []int{11}
+}
+
+type ChangePasswordRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OldPassword   string                 `protobuf:"bytes,1,opt,name=old_password,json=oldPassword,proto3" json:"old_password,omitempty"`
+	NewPassword   string                 `protobuf:"bytes,2,opt,name=new_password,json=newPassword,proto3" json:"new_password,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangePasswordRequest) Reset() {
+	*x = ChangePasswordRequest{}
+	mi := &file_sso_sso_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangePasswordRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangePasswordRequest) ProtoMessage() {}
+
+func (x *ChangePasswordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sso_sso_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangePasswordRequest.ProtoReflect.Descriptor instead.
+func (*ChangePasswordRequest) Descriptor() ([]byte, []int) {
+	return file_sso_sso_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ChangePasswordRequest) GetOldPassword() string {
+	if x != nil {
+		return x.OldPassword
+	}
+	return ""
+}
+
+func (x *ChangePasswordRequest) GetNewPassword() string {
+	if x != nil {
+		return x.NewPassword
+	}
+	return ""
+}
+
+type ChangePasswordResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangePasswordResponse) Reset() {
+	*x = ChangePasswordResponse{}
+	mi := &file_sso_sso_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangePasswordResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangePasswordResponse) ProtoMessage() {}
+
+func (x *ChangePasswordResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sso_sso_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangePasswordResponse.ProtoReflect.Descriptor instead.
+func (*ChangePasswordResponse) Descriptor() ([]byte, []int) {
+	return file_sso_sso_proto_rawDescGZIP(), []int{13}
+}
+
 var File_sso_sso_proto protoreflect.FileDescriptor
 
 const file_sso_sso_proto_rawDesc = "" +
@@ -512,14 +688,24 @@ const file_sso_sso_proto_rawDesc = "" +
 	"\x11ChangeRoleRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x12\n" +
 	"\x04role\x18\x02 \x01(\tR\x04role\"\x14\n" +
-	"\x12ChangeRoleResponse2\x97\x02\n" +
+	"\x12ChangeRoleResponse\"M\n" +
+	"\x12ChangeEmailRequest\x12\x1b\n" +
+	"\tnew_email\x18\x01 \x01(\tR\bnewEmail\x12\x1a\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"\x15\n" +
+	"\x13ChangeEmailResponse\"]\n" +
+	"\x15ChangePasswordRequest\x12!\n" +
+	"\fold_password\x18\x01 \x01(\tR\voldPassword\x12!\n" +
+	"\fnew_password\x18\x02 \x01(\tR\vnewPassword\"\x18\n" +
+	"\x16ChangePasswordResponse2\xa4\x03\n" +
 	"\x04Auth\x127\n" +
 	"\bRegister\x12\x14.sso.RegisterRequest\x1a\x15.sso.RegisterResponse\x12.\n" +
 	"\x05Login\x12\x11.sso.LoginRequest\x1a\x12.sso.LoginResponse\x124\n" +
 	"\aRefresh\x12\x13.sso.RefreshRequest\x1a\x14.sso.RefreshResponse\x121\n" +
 	"\x06Logout\x12\x12.sso.LogoutRequest\x1a\x13.sso.LogoutResponse\x12=\n" +
 	"\n" +
-	"ChangeRole\x12\x16.sso.ChangeRoleRequest\x1a\x17.sso.ChangeRoleResponseB\x1bZ\x19cinema/internal/proto;ssob\x06proto3"
+	"ChangeRole\x12\x16.sso.ChangeRoleRequest\x1a\x17.sso.ChangeRoleResponse\x12@\n" +
+	"\vChangeEmail\x12\x17.sso.ChangeEmailRequest\x1a\x18.sso.ChangeEmailResponse\x12I\n" +
+	"\x0eChangePassword\x12\x1a.sso.ChangePasswordRequest\x1a\x1b.sso.ChangePasswordResponseB\x14Z\x12cinema/gen/sso;ssob\x06proto3"
 
 var (
 	file_sso_sso_proto_rawDescOnce sync.Once
@@ -533,35 +719,43 @@ func file_sso_sso_proto_rawDescGZIP() []byte {
 	return file_sso_sso_proto_rawDescData
 }
 
-var file_sso_sso_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_sso_sso_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_sso_sso_proto_goTypes = []any{
-	(*RegisterRequest)(nil),    // 0: sso.RegisterRequest
-	(*RegisterResponse)(nil),   // 1: sso.RegisterResponse
-	(*LoginRequest)(nil),       // 2: sso.LoginRequest
-	(*LoginResponse)(nil),      // 3: sso.LoginResponse
-	(*RefreshRequest)(nil),     // 4: sso.RefreshRequest
-	(*RefreshResponse)(nil),    // 5: sso.RefreshResponse
-	(*LogoutRequest)(nil),      // 6: sso.LogoutRequest
-	(*LogoutResponse)(nil),     // 7: sso.LogoutResponse
-	(*ChangeRoleRequest)(nil),  // 8: sso.ChangeRoleRequest
-	(*ChangeRoleResponse)(nil), // 9: sso.ChangeRoleResponse
+	(*RegisterRequest)(nil),        // 0: sso.RegisterRequest
+	(*RegisterResponse)(nil),       // 1: sso.RegisterResponse
+	(*LoginRequest)(nil),           // 2: sso.LoginRequest
+	(*LoginResponse)(nil),          // 3: sso.LoginResponse
+	(*RefreshRequest)(nil),         // 4: sso.RefreshRequest
+	(*RefreshResponse)(nil),        // 5: sso.RefreshResponse
+	(*LogoutRequest)(nil),          // 6: sso.LogoutRequest
+	(*LogoutResponse)(nil),         // 7: sso.LogoutResponse
+	(*ChangeRoleRequest)(nil),      // 8: sso.ChangeRoleRequest
+	(*ChangeRoleResponse)(nil),     // 9: sso.ChangeRoleResponse
+	(*ChangeEmailRequest)(nil),     // 10: sso.ChangeEmailRequest
+	(*ChangeEmailResponse)(nil),    // 11: sso.ChangeEmailResponse
+	(*ChangePasswordRequest)(nil),  // 12: sso.ChangePasswordRequest
+	(*ChangePasswordResponse)(nil), // 13: sso.ChangePasswordResponse
 }
 var file_sso_sso_proto_depIdxs = []int32{
-	0, // 0: sso.Auth.Register:input_type -> sso.RegisterRequest
-	2, // 1: sso.Auth.Login:input_type -> sso.LoginRequest
-	4, // 2: sso.Auth.Refresh:input_type -> sso.RefreshRequest
-	6, // 3: sso.Auth.Logout:input_type -> sso.LogoutRequest
-	8, // 4: sso.Auth.ChangeRole:input_type -> sso.ChangeRoleRequest
-	1, // 5: sso.Auth.Register:output_type -> sso.RegisterResponse
-	3, // 6: sso.Auth.Login:output_type -> sso.LoginResponse
-	5, // 7: sso.Auth.Refresh:output_type -> sso.RefreshResponse
-	7, // 8: sso.Auth.Logout:output_type -> sso.LogoutResponse
-	9, // 9: sso.Auth.ChangeRole:output_type -> sso.ChangeRoleResponse
-	5, // [5:10] is the sub-list for method output_type
-	0, // [0:5] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0,  // 0: sso.Auth.Register:input_type -> sso.RegisterRequest
+	2,  // 1: sso.Auth.Login:input_type -> sso.LoginRequest
+	4,  // 2: sso.Auth.Refresh:input_type -> sso.RefreshRequest
+	6,  // 3: sso.Auth.Logout:input_type -> sso.LogoutRequest
+	8,  // 4: sso.Auth.ChangeRole:input_type -> sso.ChangeRoleRequest
+	10, // 5: sso.Auth.ChangeEmail:input_type -> sso.ChangeEmailRequest
+	12, // 6: sso.Auth.ChangePassword:input_type -> sso.ChangePasswordRequest
+	1,  // 7: sso.Auth.Register:output_type -> sso.RegisterResponse
+	3,  // 8: sso.Auth.Login:output_type -> sso.LoginResponse
+	5,  // 9: sso.Auth.Refresh:output_type -> sso.RefreshResponse
+	7,  // 10: sso.Auth.Logout:output_type -> sso.LogoutResponse
+	9,  // 11: sso.Auth.ChangeRole:output_type -> sso.ChangeRoleResponse
+	11, // 12: sso.Auth.ChangeEmail:output_type -> sso.ChangeEmailResponse
+	13, // 13: sso.Auth.ChangePassword:output_type -> sso.ChangePasswordResponse
+	7,  // [7:14] is the sub-list for method output_type
+	0,  // [0:7] is the sub-list for method input_type
+	0,  // [0:0] is the sub-list for extension type_name
+	0,  // [0:0] is the sub-list for extension extendee
+	0,  // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_sso_sso_proto_init() }
@@ -575,7 +769,7 @@ func file_sso_sso_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sso_sso_proto_rawDesc), len(file_sso_sso_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
