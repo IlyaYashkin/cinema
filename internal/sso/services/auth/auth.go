@@ -18,9 +18,9 @@ import (
 )
 
 type SessionStorage interface {
-	SaveSession(ctx context.Context, userId, token string, ttl time.Duration) error
-	IsSessionExists(ctx context.Context, userId, token string) (bool, error)
-	DeleteSession(ctx context.Context, userId, token string) error
+	SaveSession(ctx context.Context, userId, token, deviceId, deviceName string, ttl time.Duration) error
+	GetSession(ctx context.Context, userId, deviceId string) (domain.Session, error)
+	DeleteSession(ctx context.Context, userId, deviceId string) error
 	DeleteAllSessions(ctx context.Context, userId string) error
 }
 
@@ -113,12 +113,14 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email string, pass string) (
 	return id, nil
 }
 
-func (a *Auth) Login(ctx context.Context, email string, password string) (*domain.TokenPair, error) {
+func (a *Auth) Login(ctx context.Context, email string, password string, deviceId string, deviceName string) (*domain.TokenPair, error) {
 	const op = "Auth.Login"
 
 	log := a.log.With(
 		slog.String("op", op),
 		slog.String("email", email),
+		slog.String("deviceId", deviceId),
+		slog.String("deviceName", deviceName),
 	)
 
 	log.Info("logging user")
@@ -142,13 +144,6 @@ func (a *Auth) Login(ctx context.Context, email string, password string) (*domai
 
 	userId := user.Id.String()
 
-	err = a.sessionStorage.DeleteAllSessions(ctx, userId)
-	if err != nil {
-		log.Error("failed to delete old sessions", sl.Err(err))
-
-		return nil, fmt.Errorf("%s: %w", op, err)
-	}
-
 	accessToken, err := a.jwtGenerator.GenerateAccessToken(user.Id.String(), string(user.Role))
 	if err != nil {
 		log.Error("failed to generate access token", sl.Err(err))
@@ -163,7 +158,7 @@ func (a *Auth) Login(ctx context.Context, email string, password string) (*domai
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	err = a.sessionStorage.SaveSession(ctx, userId, refreshToken, a.jwtGenerator.GetRefreshTTL())
+	err = a.sessionStorage.SaveSession(ctx, userId, refreshToken, deviceId, deviceName, a.jwtGenerator.GetRefreshTTL())
 	if err != nil {
 		log.Error("failed to save refresh token", sl.Err(err))
 
@@ -173,11 +168,13 @@ func (a *Auth) Login(ctx context.Context, email string, password string) (*domai
 	return &domain.TokenPair{AccessToken: accessToken, RefreshToken: refreshToken}, nil
 }
 
-func (a *Auth) Refresh(ctx context.Context, refreshToken string) (*domain.TokenPair, error) {
+func (a *Auth) Refresh(ctx context.Context, refreshToken string, deviceId string, deviceName string) (*domain.TokenPair, error) {
 	const op = "Auth.Refresh"
 
 	log := a.log.With(
 		slog.String("op", op),
+		slog.String("deviceId", deviceId),
+		slog.String("deviceName", deviceName),
 	)
 
 	claims, err := a.validateRefreshToken(log, refreshToken)
@@ -192,20 +189,26 @@ func (a *Auth) Refresh(ctx context.Context, refreshToken string) (*domain.TokenP
 		slog.String("userId", userId),
 	)
 
-	exists, err := a.sessionStorage.IsSessionExists(ctx, userId, refreshToken)
+	session, err := a.sessionStorage.GetSession(ctx, userId, deviceId)
 	if err != nil {
-		log.Error("failed to check session", sl.Err(err))
+		log.Error("failed to get session", sl.Err(err))
+
+		if errors.Is(err, storage.ErrSessionNotFound) {
+			return nil, fmt.Errorf("%s: %w", op, ErrInvalidRefreshToken)
+		}
 
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	if !exists {
-		log.Warn("refresh token not found")
+	if session.RefreshToken != refreshToken {
+		log.Warn("refresh token reuse detected, invalidating all sessions")
+
+		_ = a.sessionStorage.DeleteAllSessions(ctx, userId)
 
 		return nil, fmt.Errorf("%s: %w", op, ErrInvalidRefreshToken)
 	}
 
-	if err := a.sessionStorage.DeleteSession(ctx, userId, refreshToken); err != nil {
+	if err := a.sessionStorage.DeleteSession(ctx, userId, deviceId); err != nil {
 		log.Error("failed to delete old refresh token", sl.Err(err))
 
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -225,15 +228,16 @@ func (a *Auth) Refresh(ctx context.Context, refreshToken string) (*domain.TokenP
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	if err := a.sessionStorage.SaveSession(ctx, userId, refreshToken, a.jwtGenerator.GetRefreshTTL()); err != nil {
+	if err := a.sessionStorage.SaveSession(ctx, userId, refreshToken, deviceId, deviceName, a.jwtGenerator.GetRefreshTTL()); err != nil {
 		log.Error("failed to save refresh token", sl.Err(err))
+
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	return &domain.TokenPair{AccessToken: accessToken, RefreshToken: refreshToken}, nil
 }
 
-func (a *Auth) Logout(ctx context.Context, refreshToken string) error {
+func (a *Auth) Logout(ctx context.Context, refreshToken string, deviceId string) error {
 	const op = "Auth.Logout"
 
 	log := a.log.With(
@@ -251,20 +255,26 @@ func (a *Auth) Logout(ctx context.Context, refreshToken string) error {
 		slog.String("userId", userId),
 	)
 
-	exists, err := a.sessionStorage.IsSessionExists(ctx, userId, refreshToken)
+	session, err := a.sessionStorage.GetSession(ctx, userId, deviceId)
 	if err != nil {
-		log.Error("failed to check session", sl.Err(err))
+		log.Error("failed to get session", sl.Err(err))
+
+		if errors.Is(err, storage.ErrSessionNotFound) {
+			return fmt.Errorf("%s: %w", op, ErrInvalidRefreshToken)
+		}
 
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	if !exists {
-		log.Warn("refresh token not found")
+	if session.RefreshToken != refreshToken {
+		log.Warn("refresh token reuse detected, invalidating all sessions")
+
+		_ = a.sessionStorage.DeleteAllSessions(ctx, userId)
 
 		return fmt.Errorf("%s: %w", op, ErrInvalidRefreshToken)
 	}
 
-	err = a.sessionStorage.DeleteAllSessions(ctx, userId)
+	err = a.sessionStorage.DeleteSession(ctx, userId, deviceId)
 	if err != nil {
 		log.Error("failed to delete sessions", sl.Err(err))
 
@@ -310,8 +320,6 @@ func (a *Auth) ChangeRole(ctx context.Context, accessToken string, userId string
 		}
 		return fmt.Errorf("%s: %w", op, err)
 	}
-
-	log.Info("invalidating user session after role change")
 
 	err = a.sessionStorage.DeleteAllSessions(ctx, userId)
 	if err != nil {
@@ -368,8 +376,6 @@ func (a *Auth) ChangeEmail(
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	log.Info("invalidating user session after email change")
-
 	err = a.sessionStorage.DeleteAllSessions(ctx, userId)
 	if err != nil {
 		log.Error("failed to delete sessions", sl.Err(err))
@@ -423,8 +429,6 @@ func (a *Auth) ChangePassword(
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	log.Info("invalidating user session after password change")
-
 	err = a.sessionStorage.DeleteAllSessions(ctx, userId)
 	if err != nil {
 		log.Error("failed to delete all sessions", sl.Err(err))
@@ -471,7 +475,7 @@ func (a *Auth) ForgotPassword(
 	if err != nil {
 		log.Error("failed to send password reset notification", sl.Err(err))
 
-		_ = a.resetTokenStorage.DeleteResetToken(ctx, user.Id.String())
+		_ = a.resetTokenStorage.DeleteResetToken(ctx, resetToken)
 
 		return
 	}

@@ -1,24 +1,24 @@
 package redis
 
 import (
+	"cinema/internal/sso/domain"
+	"cinema/internal/sso/storage"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
-type Session struct {
-	UserId    string
-	DeviceId  string
-	CreatedAt time.Time
-}
+func (s *Storage) SaveSession(ctx context.Context, userId, token, deviceId, deviceName string, ttl time.Duration) error {
+	key := fmt.Sprintf("session:%s:%s", userId, deviceId)
 
-func (s *Storage) SaveSession(ctx context.Context, userId, token string, ttl time.Duration) error {
-	key := fmt.Sprintf("session:%s:%s", userId, token)
-
-	session := Session{
-		UserId:    userId,
-		CreatedAt: time.Now(),
+	session := domain.Session{
+		RefreshToken: token,
+		DeviceName:   deviceName,
+		CreatedAt:    time.Now(),
 	}
 
 	data, err := json.Marshal(session)
@@ -29,16 +29,28 @@ func (s *Storage) SaveSession(ctx context.Context, userId, token string, ttl tim
 	return s.client.Set(ctx, key, data, ttl).Err()
 }
 
-func (s *Storage) IsSessionExists(ctx context.Context, userId, token string) (bool, error) {
-	key := fmt.Sprintf("session:%s:%s", userId, token)
+func (s *Storage) GetSession(ctx context.Context, userId, deviceId string) (domain.Session, error) {
+	key := fmt.Sprintf("session:%s:%s", userId, deviceId)
 
-	result, err := s.client.Exists(ctx, key).Result()
+	data, err := s.client.Get(ctx, key).Bytes()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return domain.Session{}, storage.ErrSessionNotFound
+		}
 
-	return result > 0, err
+		return domain.Session{}, err
+	}
+
+	var session domain.Session
+	if err := json.Unmarshal(data, &session); err != nil {
+		return domain.Session{}, err
+	}
+
+	return session, nil
 }
 
-func (s *Storage) DeleteSession(ctx context.Context, userId, token string) error {
-	key := fmt.Sprintf("session:%s:%s", userId, token)
+func (s *Storage) DeleteSession(ctx context.Context, userId, deviceId string) error {
+	key := fmt.Sprintf("session:%s:%s", userId, deviceId)
 
 	return s.client.Del(ctx, key).Err()
 }

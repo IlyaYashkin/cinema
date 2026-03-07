@@ -1,46 +1,82 @@
 package auth
 
 import (
-	"cinema/gen/sso"
+	"cinema/internal/sso/domain"
 	"net/mail"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-func validateRegisterRequest(in *sso.RegisterRequest) error {
-	if err := validateCredentials(in.GetEmail(), in.GetPassword()); err != nil {
-		return err
-	}
-	if err := validatePasswordLength(in.GetPassword()); err != nil {
-		return err
-	}
-	return nil
-}
-
-func validateCredentials(email, password string) error {
+func validateEmail(email, fieldName string) error {
 	if email == "" {
-		return status.Error(codes.InvalidArgument, "email is required")
+		return status.Errorf(codes.InvalidArgument, "%s is required", fieldName)
 	}
-	if password == "" {
-		return status.Error(codes.InvalidArgument, "password is required")
-	}
-	if err := validateEmail(email); err != nil {
+	if err := validateMaxLength(email, fieldName, 254); err != nil {
 		return err
 	}
-	return nil
-}
-
-func validateEmail(email string) error {
 	if _, err := mail.ParseAddress(email); err != nil {
 		return status.Error(codes.InvalidArgument, "invalid email format")
 	}
 	return nil
 }
 
-func validatePasswordLength(password string) error {
-	if len(password) < 8 {
-		return status.Error(codes.InvalidArgument, "password must be at least 8 characters")
+func validatePassword(password, fieldName string) error {
+	if password == "" {
+		return status.Errorf(codes.InvalidArgument, "%s is required", fieldName)
+	}
+	if err := validateMinLength(password, fieldName, 8); err != nil {
+		return err
+	}
+	if err := validateMaxLength(password, fieldName, 72); err != nil {
+		return err
+	}
+	return nil
+}
+
+func validateDeviceId(deviceId, fieldName string) error {
+	if deviceId == "" {
+		return status.Errorf(codes.InvalidArgument, "%s is required", fieldName)
+	}
+	if err := validateMaxLength(deviceId, fieldName, 64); err != nil {
+		return err
+	}
+	return nil
+}
+
+func validateRole(role string) error {
+	if role == "" {
+		return status.Error(codes.InvalidArgument, "role is required")
+	}
+
+	domainRole := domain.Role(role)
+
+	if !domainRole.IsValid() {
+		return status.Error(codes.InvalidArgument, "invalid role")
+	}
+	return nil
+}
+
+func validateResetToken(resetToken, fieldName string) error {
+	if resetToken == "" {
+		return status.Errorf(codes.InvalidArgument, "%s is required", fieldName)
+	}
+	if err := validateMaxLength(resetToken, fieldName, 64); err != nil {
+		return err
+	}
+	return nil
+}
+
+func validateMinLength(value, field string, min int) error {
+	if len(value) < min {
+		return status.Errorf(codes.InvalidArgument, "%s must be at least %d characters", field, min)
+	}
+	return nil
+}
+
+func validateMaxLength(value, field string, max int) error {
+	if len(value) > max {
+		return status.Errorf(codes.InvalidArgument, "%s must be at most %d characters", field, max)
 	}
 	return nil
 }

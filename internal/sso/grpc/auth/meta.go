@@ -32,3 +32,17 @@ func getBearerFromCtx(ctx context.Context) (string, error) {
 
 	return token, nil
 }
+
+func getUserAgent(ctx context.Context) string {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return ""
+	}
+
+	values := md.Get("user-agent")
+	if len(values) == 0 {
+		return ""
+	}
+
+	return values[0]
+}

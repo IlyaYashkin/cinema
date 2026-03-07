@@ -27,24 +27,14 @@ func (c *Controller) RegisterGRPCServer(gRPCServer *grpc.Server) {
 }
 
 type Auth interface {
-	Login(
-		ctx context.Context,
-		email string,
-		password string,
-	) (tokenPair *domain.TokenPair, err error)
+	Login(ctx context.Context, email string, password string, deviceId string, deviceName string) (tokenPair *domain.TokenPair, err error)
 	RegisterNewUser(
 		ctx context.Context,
 		email string,
 		password string,
 	) (userId string, err error)
-	Refresh(
-		ctx context.Context,
-		refreshToken string,
-	) (tokenPair *domain.TokenPair, err error)
-	Logout(
-		ctx context.Context,
-		refreshToken string,
-	) (err error)
+	Refresh(ctx context.Context, refreshToken string, deviceId string, deviceName string) (tokenPair *domain.TokenPair, err error)
+	Logout(ctx context.Context, refreshToken string, deviceId string) (err error)
 	ChangeRole(
 		ctx context.Context,
 		accessToken string,
@@ -78,11 +68,19 @@ func (c *Controller) Login(
 	ctx context.Context,
 	in *sso.LoginRequest,
 ) (*sso.LoginResponse, error) {
-	if err := validateCredentials(in.GetEmail(), in.GetPassword()); err != nil {
+	if err := validateEmail(in.GetEmail(), "email"); err != nil {
+		return nil, err
+	}
+	if err := validatePassword(in.GetPassword(), "password"); err != nil {
+		return nil, err
+	}
+	if err := validateDeviceId(in.GetDeviceId(), "device_id"); err != nil {
 		return nil, err
 	}
 
-	tokenPair, err := c.auth.Login(ctx, in.GetEmail(), in.GetPassword())
+	userAgent := getUserAgent(ctx)
+
+	tokenPair, err := c.auth.Login(ctx, in.GetEmail(), in.GetPassword(), in.GetDeviceId(), userAgent)
 	if err != nil {
 		return nil, toGRPCError(err)
 	}
@@ -94,7 +92,10 @@ func (c *Controller) Register(
 	ctx context.Context,
 	in *sso.RegisterRequest,
 ) (*sso.RegisterResponse, error) {
-	if err := validateRegisterRequest(in); err != nil {
+	if err := validateEmail(in.GetEmail(), "email"); err != nil {
+		return nil, err
+	}
+	if err := validatePassword(in.GetPassword(), "password"); err != nil {
 		return nil, err
 	}
 
@@ -111,10 +112,15 @@ func (c *Controller) Refresh(
 	in *sso.RefreshRequest,
 ) (*sso.RefreshResponse, error) {
 	if in.GetRefreshToken() == "" {
-		return nil, status.Error(codes.InvalidArgument, "refresh token is required")
+		return nil, status.Error(codes.InvalidArgument, "refresh_token is required")
+	}
+	if err := validateDeviceId(in.GetDeviceId(), "device_id"); err != nil {
+		return nil, err
 	}
 
-	tokenPair, err := c.auth.Refresh(ctx, in.GetRefreshToken())
+	userAgent := getUserAgent(ctx)
+
+	tokenPair, err := c.auth.Refresh(ctx, in.GetRefreshToken(), in.GetDeviceId(), userAgent)
 	if err != nil {
 		return nil, toGRPCError(err)
 	}
@@ -127,10 +133,13 @@ func (c *Controller) Logout(
 	in *sso.LogoutRequest,
 ) (*sso.LogoutResponse, error) {
 	if in.GetRefreshToken() == "" {
-		return nil, status.Error(codes.InvalidArgument, "refresh token is required")
+		return nil, status.Error(codes.InvalidArgument, "refresh_token is required")
+	}
+	if err := validateDeviceId(in.GetDeviceId(), "device_id"); err != nil {
+		return nil, err
 	}
 
-	err := c.auth.Logout(ctx, in.GetRefreshToken())
+	err := c.auth.Logout(ctx, in.GetRefreshToken(), in.GetDeviceId())
 	if err != nil {
 		return nil, toGRPCError(err)
 	}
@@ -148,19 +157,13 @@ func (c *Controller) ChangeRole(
 	}
 
 	if in.GetUserId() == "" {
-		return nil, status.Error(codes.InvalidArgument, "user id is required")
+		return nil, status.Error(codes.InvalidArgument, "user_id is required")
 	}
-	if in.GetRole() == "" {
-		return nil, status.Error(codes.InvalidArgument, "role is required")
-	}
-
-	role := domain.Role(in.GetRole())
-
-	if !role.IsValid() {
-		return nil, status.Error(codes.InvalidArgument, "invalid role")
+	if err := validateRole(in.GetRole()); err != nil {
+		return nil, err
 	}
 
-	err = c.auth.ChangeRole(ctx, token, in.GetUserId(), role)
+	err = c.auth.ChangeRole(ctx, token, in.GetUserId(), domain.Role(in.GetRole()))
 	if err != nil {
 		return nil, toGRPCError(err)
 	}
@@ -177,13 +180,10 @@ func (c *Controller) ChangeEmail(
 		return nil, err
 	}
 
-	if in.GetNewEmail() == "" {
-		return nil, status.Error(codes.InvalidArgument, "new email is required")
+	if err := validateEmail(in.GetNewEmail(), "new_email"); err != nil {
+		return nil, err
 	}
-	if in.GetPassword() == "" {
-		return nil, status.Error(codes.InvalidArgument, "password is required")
-	}
-	if err := validateEmail(in.GetNewEmail()); err != nil {
+	if err := validatePassword(in.GetPassword(), "password"); err != nil {
 		return nil, err
 	}
 
@@ -204,13 +204,10 @@ func (c *Controller) ChangePassword(
 		return nil, err
 	}
 
-	if in.GetOldPassword() == "" {
-		return nil, status.Error(codes.InvalidArgument, "old password is required")
+	if err := validatePassword(in.GetOldPassword(), "old_password"); err != nil {
+		return nil, err
 	}
-	if in.GetNewPassword() == "" {
-		return nil, status.Error(codes.InvalidArgument, "new password is required")
-	}
-	if err := validatePasswordLength(in.GetNewPassword()); err != nil {
+	if err := validatePassword(in.GetNewPassword(), "new_password"); err != nil {
 		return nil, err
 	}
 
@@ -226,10 +223,7 @@ func (c *Controller) ForgotPassword(
 	ctx context.Context,
 	in *sso.ForgotPasswordRequest,
 ) (*sso.ForgotPasswordResponse, error) {
-	if in.GetEmail() == "" {
-		return nil, status.Error(codes.InvalidArgument, "email is required")
-	}
-	if err := validateEmail(in.GetEmail()); err != nil {
+	if err := validateEmail(in.GetEmail(), "email"); err != nil {
 		return nil, err
 	}
 
@@ -242,13 +236,10 @@ func (c *Controller) ResetPassword(
 	ctx context.Context,
 	in *sso.ResetPasswordRequest,
 ) (*sso.ResetPasswordResponse, error) {
-	if in.GetResetToken() == "" {
-		return nil, status.Error(codes.InvalidArgument, "reset token is required")
+	if err := validateResetToken(in.GetNewPassword(), "reset_token"); err != nil {
+		return nil, err
 	}
-	if in.GetNewPassword() == "" {
-		return nil, status.Error(codes.InvalidArgument, "new password is required")
-	}
-	if err := validatePasswordLength(in.GetNewPassword()); err != nil {
+	if err := validatePassword(in.GetNewPassword(), "new_password"); err != nil {
 		return nil, err
 	}
 

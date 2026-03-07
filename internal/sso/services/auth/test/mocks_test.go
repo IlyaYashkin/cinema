@@ -98,8 +98,8 @@ func (_c *MockSessionStorage_DeleteAllSessions_Call) RunAndReturn(run func(ctx c
 }
 
 // DeleteSession provides a mock function for the type MockSessionStorage
-func (_mock *MockSessionStorage) DeleteSession(ctx context.Context, userId string, token string) error {
-	ret := _mock.Called(ctx, userId, token)
+func (_mock *MockSessionStorage) DeleteSession(ctx context.Context, userId string, deviceId string) error {
+	ret := _mock.Called(ctx, userId, deviceId)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DeleteSession")
@@ -107,7 +107,7 @@ func (_mock *MockSessionStorage) DeleteSession(ctx context.Context, userId strin
 
 	var r0 error
 	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
-		r0 = returnFunc(ctx, userId, token)
+		r0 = returnFunc(ctx, userId, deviceId)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -122,12 +122,12 @@ type MockSessionStorage_DeleteSession_Call struct {
 // DeleteSession is a helper method to define mock.On call
 //   - ctx context.Context
 //   - userId string
-//   - token string
-func (_e *MockSessionStorage_Expecter) DeleteSession(ctx interface{}, userId interface{}, token interface{}) *MockSessionStorage_DeleteSession_Call {
-	return &MockSessionStorage_DeleteSession_Call{Call: _e.mock.On("DeleteSession", ctx, userId, token)}
+//   - deviceId string
+func (_e *MockSessionStorage_Expecter) DeleteSession(ctx interface{}, userId interface{}, deviceId interface{}) *MockSessionStorage_DeleteSession_Call {
+	return &MockSessionStorage_DeleteSession_Call{Call: _e.mock.On("DeleteSession", ctx, userId, deviceId)}
 }
 
-func (_c *MockSessionStorage_DeleteSession_Call) Run(run func(ctx context.Context, userId string, token string)) *MockSessionStorage_DeleteSession_Call {
+func (_c *MockSessionStorage_DeleteSession_Call) Run(run func(ctx context.Context, userId string, deviceId string)) *MockSessionStorage_DeleteSession_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -155,51 +155,51 @@ func (_c *MockSessionStorage_DeleteSession_Call) Return(err error) *MockSessionS
 	return _c
 }
 
-func (_c *MockSessionStorage_DeleteSession_Call) RunAndReturn(run func(ctx context.Context, userId string, token string) error) *MockSessionStorage_DeleteSession_Call {
+func (_c *MockSessionStorage_DeleteSession_Call) RunAndReturn(run func(ctx context.Context, userId string, deviceId string) error) *MockSessionStorage_DeleteSession_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// IsSessionExists provides a mock function for the type MockSessionStorage
-func (_mock *MockSessionStorage) IsSessionExists(ctx context.Context, userId string, token string) (bool, error) {
-	ret := _mock.Called(ctx, userId, token)
+// GetSession provides a mock function for the type MockSessionStorage
+func (_mock *MockSessionStorage) GetSession(ctx context.Context, userId string, deviceId string) (domain.Session, error) {
+	ret := _mock.Called(ctx, userId, deviceId)
 
 	if len(ret) == 0 {
-		panic("no return value specified for IsSessionExists")
+		panic("no return value specified for GetSession")
 	}
 
-	var r0 bool
+	var r0 domain.Session
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) (bool, error)); ok {
-		return returnFunc(ctx, userId, token)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) (domain.Session, error)); ok {
+		return returnFunc(ctx, userId, deviceId)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) bool); ok {
-		r0 = returnFunc(ctx, userId, token)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) domain.Session); ok {
+		r0 = returnFunc(ctx, userId, deviceId)
 	} else {
-		r0 = ret.Get(0).(bool)
+		r0 = ret.Get(0).(domain.Session)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
-		r1 = returnFunc(ctx, userId, token)
+		r1 = returnFunc(ctx, userId, deviceId)
 	} else {
 		r1 = ret.Error(1)
 	}
 	return r0, r1
 }
 
-// MockSessionStorage_IsSessionExists_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsSessionExists'
-type MockSessionStorage_IsSessionExists_Call struct {
+// MockSessionStorage_GetSession_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSession'
+type MockSessionStorage_GetSession_Call struct {
 	*mock.Call
 }
 
-// IsSessionExists is a helper method to define mock.On call
+// GetSession is a helper method to define mock.On call
 //   - ctx context.Context
 //   - userId string
-//   - token string
-func (_e *MockSessionStorage_Expecter) IsSessionExists(ctx interface{}, userId interface{}, token interface{}) *MockSessionStorage_IsSessionExists_Call {
-	return &MockSessionStorage_IsSessionExists_Call{Call: _e.mock.On("IsSessionExists", ctx, userId, token)}
+//   - deviceId string
+func (_e *MockSessionStorage_Expecter) GetSession(ctx interface{}, userId interface{}, deviceId interface{}) *MockSessionStorage_GetSession_Call {
+	return &MockSessionStorage_GetSession_Call{Call: _e.mock.On("GetSession", ctx, userId, deviceId)}
 }
 
-func (_c *MockSessionStorage_IsSessionExists_Call) Run(run func(ctx context.Context, userId string, token string)) *MockSessionStorage_IsSessionExists_Call {
+func (_c *MockSessionStorage_GetSession_Call) Run(run func(ctx context.Context, userId string, deviceId string)) *MockSessionStorage_GetSession_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -222,27 +222,27 @@ func (_c *MockSessionStorage_IsSessionExists_Call) Run(run func(ctx context.Cont
 	return _c
 }
 
-func (_c *MockSessionStorage_IsSessionExists_Call) Return(b bool, err error) *MockSessionStorage_IsSessionExists_Call {
-	_c.Call.Return(b, err)
+func (_c *MockSessionStorage_GetSession_Call) Return(session domain.Session, err error) *MockSessionStorage_GetSession_Call {
+	_c.Call.Return(session, err)
 	return _c
 }
 
-func (_c *MockSessionStorage_IsSessionExists_Call) RunAndReturn(run func(ctx context.Context, userId string, token string) (bool, error)) *MockSessionStorage_IsSessionExists_Call {
+func (_c *MockSessionStorage_GetSession_Call) RunAndReturn(run func(ctx context.Context, userId string, deviceId string) (domain.Session, error)) *MockSessionStorage_GetSession_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // SaveSession provides a mock function for the type MockSessionStorage
-func (_mock *MockSessionStorage) SaveSession(ctx context.Context, userId string, token string, ttl time.Duration) error {
-	ret := _mock.Called(ctx, userId, token, ttl)
+func (_mock *MockSessionStorage) SaveSession(ctx context.Context, userId string, token string, deviceId string, deviceName string, ttl time.Duration) error {
+	ret := _mock.Called(ctx, userId, token, deviceId, deviceName, ttl)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SaveSession")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, time.Duration) error); ok {
-		r0 = returnFunc(ctx, userId, token, ttl)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string, string, time.Duration) error); ok {
+		r0 = returnFunc(ctx, userId, token, deviceId, deviceName, ttl)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -258,12 +258,14 @@ type MockSessionStorage_SaveSession_Call struct {
 //   - ctx context.Context
 //   - userId string
 //   - token string
+//   - deviceId string
+//   - deviceName string
 //   - ttl time.Duration
-func (_e *MockSessionStorage_Expecter) SaveSession(ctx interface{}, userId interface{}, token interface{}, ttl interface{}) *MockSessionStorage_SaveSession_Call {
-	return &MockSessionStorage_SaveSession_Call{Call: _e.mock.On("SaveSession", ctx, userId, token, ttl)}
+func (_e *MockSessionStorage_Expecter) SaveSession(ctx interface{}, userId interface{}, token interface{}, deviceId interface{}, deviceName interface{}, ttl interface{}) *MockSessionStorage_SaveSession_Call {
+	return &MockSessionStorage_SaveSession_Call{Call: _e.mock.On("SaveSession", ctx, userId, token, deviceId, deviceName, ttl)}
 }
 
-func (_c *MockSessionStorage_SaveSession_Call) Run(run func(ctx context.Context, userId string, token string, ttl time.Duration)) *MockSessionStorage_SaveSession_Call {
+func (_c *MockSessionStorage_SaveSession_Call) Run(run func(ctx context.Context, userId string, token string, deviceId string, deviceName string, ttl time.Duration)) *MockSessionStorage_SaveSession_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -277,15 +279,25 @@ func (_c *MockSessionStorage_SaveSession_Call) Run(run func(ctx context.Context,
 		if args[2] != nil {
 			arg2 = args[2].(string)
 		}
-		var arg3 time.Duration
+		var arg3 string
 		if args[3] != nil {
-			arg3 = args[3].(time.Duration)
+			arg3 = args[3].(string)
+		}
+		var arg4 string
+		if args[4] != nil {
+			arg4 = args[4].(string)
+		}
+		var arg5 time.Duration
+		if args[5] != nil {
+			arg5 = args[5].(time.Duration)
 		}
 		run(
 			arg0,
 			arg1,
 			arg2,
 			arg3,
+			arg4,
+			arg5,
 		)
 	})
 	return _c
@@ -296,7 +308,7 @@ func (_c *MockSessionStorage_SaveSession_Call) Return(err error) *MockSessionSto
 	return _c
 }
 
-func (_c *MockSessionStorage_SaveSession_Call) RunAndReturn(run func(ctx context.Context, userId string, token string, ttl time.Duration) error) *MockSessionStorage_SaveSession_Call {
+func (_c *MockSessionStorage_SaveSession_Call) RunAndReturn(run func(ctx context.Context, userId string, token string, deviceId string, deviceName string, ttl time.Duration) error) *MockSessionStorage_SaveSession_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -43,7 +43,7 @@ func TestAuth_Login_InvalidPassword(t *testing.T) {
 		time.Minute*15,
 	)
 
-	_, err := srv.Login(context.Background(), email, password)
+	_, err := srv.Login(context.Background(), email, password, "", "")
 
 	require.ErrorIs(t, err, auth.ErrInvalidCredentials)
 }
