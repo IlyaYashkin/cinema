@@ -210,6 +210,9 @@ func (c *Controller) ChangePassword(
 	if in.GetNewPassword() == "" {
 		return nil, status.Error(codes.InvalidArgument, "new password is required")
 	}
+	if err := validatePasswordLength(in.GetNewPassword()); err != nil {
+		return nil, err
+	}
 
 	err = c.auth.ChangePassword(ctx, token, in.GetOldPassword(), in.GetNewPassword())
 	if err != nil {
@@ -244,6 +247,9 @@ func (c *Controller) ResetPassword(
 	}
 	if in.GetNewPassword() == "" {
 		return nil, status.Error(codes.InvalidArgument, "new password is required")
+	}
+	if err := validatePasswordLength(in.GetNewPassword()); err != nil {
+		return nil, err
 	}
 
 	err := c.auth.ResetPassword(ctx, in.GetResetToken(), in.GetNewPassword())

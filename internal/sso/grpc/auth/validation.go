@@ -12,8 +12,8 @@ func validateRegisterRequest(in *sso.RegisterRequest) error {
 	if err := validateCredentials(in.GetEmail(), in.GetPassword()); err != nil {
 		return err
 	}
-	if len(in.GetPassword()) < 8 {
-		return status.Error(codes.InvalidArgument, "password must be at least 8 characters")
+	if err := validatePasswordLength(in.GetPassword()); err != nil {
+		return err
 	}
 	return nil
 }
@@ -34,6 +34,13 @@ func validateCredentials(email, password string) error {
 func validateEmail(email string) error {
 	if _, err := mail.ParseAddress(email); err != nil {
 		return status.Error(codes.InvalidArgument, "invalid email format")
+	}
+	return nil
+}
+
+func validatePasswordLength(password string) error {
+	if len(password) < 8 {
+		return status.Error(codes.InvalidArgument, "password must be at least 8 characters")
 	}
 	return nil
 }
