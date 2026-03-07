@@ -134,12 +134,3 @@ func (s *Storage) UpdateUserPassword(ctx context.Context, userId string, passHas
 
 	return nil
 }
-
-func (s *Storage) isUserExists(ctx context.Context, email string) (bool, error) {
-	var exists bool
-	err := s.pool.QueryRow(ctx,
-		"SELECT EXISTS(SELECT 1 FROM sso.users WHERE email = $1)",
-		email,
-	).Scan(&exists)
-	return exists, err
-}
