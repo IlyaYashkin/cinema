@@ -2,10 +2,11 @@ package test
 
 import (
 	"cinema/internal/sso/domain"
-	auth2 "cinema/internal/sso/services/auth"
+	"cinema/internal/sso/services/auth"
 	"context"
 	"log/slog"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
@@ -20,6 +21,8 @@ func TestAuth_Login_InvalidPassword(t *testing.T) {
 	userProvider := NewMockUserProvider(t)
 	sessionStorage := NewMockSessionStorage(t)
 	tokenGenerator := NewMockTokenGenerator(t)
+	resetTokenStorage := NewMockResetTokenStorage(t)
+	notificationSender := NewMockNotificationSender(t)
 
 	passHash, _ := bcrypt.GenerateFromPassword([]byte("password123123123"), bcrypt.DefaultCost)
 	user := domain.User{
@@ -30,9 +33,17 @@ func TestAuth_Login_InvalidPassword(t *testing.T) {
 
 	userProvider.On("FindByEmail", mock.Anything, email).Return(user, nil)
 
-	auth := auth2.New(slog.Default(), nil, userProvider, sessionStorage, tokenGenerator)
+	srv := auth.New(
+		slog.Default(),
+		userProvider,
+		sessionStorage,
+		resetTokenStorage,
+		tokenGenerator,
+		notificationSender,
+		time.Minute*15,
+	)
 
-	_, err := auth.Login(context.Background(), email, password)
+	_, err := srv.Login(context.Background(), email, password)
 
-	require.ErrorIs(t, err, auth2.ErrInvalidCredentials)
+	require.ErrorIs(t, err, auth.ErrInvalidCredentials)
 }

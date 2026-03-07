@@ -1,5 +1,5 @@
 all: false
-dir: '{{.InterfaceDir}}'
+dir: '{{.InterfaceDir}}/test'
 filename: mocks_test.go
 force-file-write: true
 formatter: goimports
@@ -7,7 +7,7 @@ generate: true
 include-auto-generated: false
 log-level: info
 structname: '{{.Mock}}{{.InterfaceName}}'
-pkgname: '{{.SrcPackageName}}'
+pkgname: 'test'
 recursive: false
 require-template-schema-exists: true
 template: testify

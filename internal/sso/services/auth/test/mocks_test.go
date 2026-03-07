@@ -40,12 +40,69 @@ func (_m *MockSessionStorage) EXPECT() *MockSessionStorage_Expecter {
 	return &MockSessionStorage_Expecter{mock: &_m.Mock}
 }
 
-// Delete provides a mock function for the type MockSessionStorage
-func (_mock *MockSessionStorage) Delete(ctx context.Context, userId string, token string) error {
+// DeleteAllSessions provides a mock function for the type MockSessionStorage
+func (_mock *MockSessionStorage) DeleteAllSessions(ctx context.Context, userId string) error {
+	ret := _mock.Called(ctx, userId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteAllSessions")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = returnFunc(ctx, userId)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockSessionStorage_DeleteAllSessions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteAllSessions'
+type MockSessionStorage_DeleteAllSessions_Call struct {
+	*mock.Call
+}
+
+// DeleteAllSessions is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userId string
+func (_e *MockSessionStorage_Expecter) DeleteAllSessions(ctx interface{}, userId interface{}) *MockSessionStorage_DeleteAllSessions_Call {
+	return &MockSessionStorage_DeleteAllSessions_Call{Call: _e.mock.On("DeleteAllSessions", ctx, userId)}
+}
+
+func (_c *MockSessionStorage_DeleteAllSessions_Call) Run(run func(ctx context.Context, userId string)) *MockSessionStorage_DeleteAllSessions_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockSessionStorage_DeleteAllSessions_Call) Return(err error) *MockSessionStorage_DeleteAllSessions_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockSessionStorage_DeleteAllSessions_Call) RunAndReturn(run func(ctx context.Context, userId string) error) *MockSessionStorage_DeleteAllSessions_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// DeleteSession provides a mock function for the type MockSessionStorage
+func (_mock *MockSessionStorage) DeleteSession(ctx context.Context, userId string, token string) error {
 	ret := _mock.Called(ctx, userId, token)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Delete")
+		panic("no return value specified for DeleteSession")
 	}
 
 	var r0 error
@@ -57,20 +114,20 @@ func (_mock *MockSessionStorage) Delete(ctx context.Context, userId string, toke
 	return r0
 }
 
-// MockSessionStorage_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
-type MockSessionStorage_Delete_Call struct {
+// MockSessionStorage_DeleteSession_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteSession'
+type MockSessionStorage_DeleteSession_Call struct {
 	*mock.Call
 }
 
-// Delete is a helper method to define mock.On call
+// DeleteSession is a helper method to define mock.On call
 //   - ctx context.Context
 //   - userId string
 //   - token string
-func (_e *MockSessionStorage_Expecter) Delete(ctx interface{}, userId interface{}, token interface{}) *MockSessionStorage_Delete_Call {
-	return &MockSessionStorage_Delete_Call{Call: _e.mock.On("Delete", ctx, userId, token)}
+func (_e *MockSessionStorage_Expecter) DeleteSession(ctx interface{}, userId interface{}, token interface{}) *MockSessionStorage_DeleteSession_Call {
+	return &MockSessionStorage_DeleteSession_Call{Call: _e.mock.On("DeleteSession", ctx, userId, token)}
 }
 
-func (_c *MockSessionStorage_Delete_Call) Run(run func(ctx context.Context, userId string, token string)) *MockSessionStorage_Delete_Call {
+func (_c *MockSessionStorage_DeleteSession_Call) Run(run func(ctx context.Context, userId string, token string)) *MockSessionStorage_DeleteSession_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -93,79 +150,22 @@ func (_c *MockSessionStorage_Delete_Call) Run(run func(ctx context.Context, user
 	return _c
 }
 
-func (_c *MockSessionStorage_Delete_Call) Return(err error) *MockSessionStorage_Delete_Call {
+func (_c *MockSessionStorage_DeleteSession_Call) Return(err error) *MockSessionStorage_DeleteSession_Call {
 	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockSessionStorage_Delete_Call) RunAndReturn(run func(ctx context.Context, userId string, token string) error) *MockSessionStorage_Delete_Call {
+func (_c *MockSessionStorage_DeleteSession_Call) RunAndReturn(run func(ctx context.Context, userId string, token string) error) *MockSessionStorage_DeleteSession_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// DeleteAll provides a mock function for the type MockSessionStorage
-func (_mock *MockSessionStorage) DeleteAll(ctx context.Context, userId string) error {
-	ret := _mock.Called(ctx, userId)
-
-	if len(ret) == 0 {
-		panic("no return value specified for DeleteAll")
-	}
-
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
-		r0 = returnFunc(ctx, userId)
-	} else {
-		r0 = ret.Error(0)
-	}
-	return r0
-}
-
-// MockSessionStorage_DeleteAll_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteAll'
-type MockSessionStorage_DeleteAll_Call struct {
-	*mock.Call
-}
-
-// DeleteAll is a helper method to define mock.On call
-//   - ctx context.Context
-//   - userId string
-func (_e *MockSessionStorage_Expecter) DeleteAll(ctx interface{}, userId interface{}) *MockSessionStorage_DeleteAll_Call {
-	return &MockSessionStorage_DeleteAll_Call{Call: _e.mock.On("DeleteAll", ctx, userId)}
-}
-
-func (_c *MockSessionStorage_DeleteAll_Call) Run(run func(ctx context.Context, userId string)) *MockSessionStorage_DeleteAll_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 string
-		if args[1] != nil {
-			arg1 = args[1].(string)
-		}
-		run(
-			arg0,
-			arg1,
-		)
-	})
-	return _c
-}
-
-func (_c *MockSessionStorage_DeleteAll_Call) Return(err error) *MockSessionStorage_DeleteAll_Call {
-	_c.Call.Return(err)
-	return _c
-}
-
-func (_c *MockSessionStorage_DeleteAll_Call) RunAndReturn(run func(ctx context.Context, userId string) error) *MockSessionStorage_DeleteAll_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Exists provides a mock function for the type MockSessionStorage
-func (_mock *MockSessionStorage) Exists(ctx context.Context, userId string, token string) (bool, error) {
+// IsSessionExists provides a mock function for the type MockSessionStorage
+func (_mock *MockSessionStorage) IsSessionExists(ctx context.Context, userId string, token string) (bool, error) {
 	ret := _mock.Called(ctx, userId, token)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Exists")
+		panic("no return value specified for IsSessionExists")
 	}
 
 	var r0 bool
@@ -186,20 +186,20 @@ func (_mock *MockSessionStorage) Exists(ctx context.Context, userId string, toke
 	return r0, r1
 }
 
-// MockSessionStorage_Exists_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Exists'
-type MockSessionStorage_Exists_Call struct {
+// MockSessionStorage_IsSessionExists_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsSessionExists'
+type MockSessionStorage_IsSessionExists_Call struct {
 	*mock.Call
 }
 
-// Exists is a helper method to define mock.On call
+// IsSessionExists is a helper method to define mock.On call
 //   - ctx context.Context
 //   - userId string
 //   - token string
-func (_e *MockSessionStorage_Expecter) Exists(ctx interface{}, userId interface{}, token interface{}) *MockSessionStorage_Exists_Call {
-	return &MockSessionStorage_Exists_Call{Call: _e.mock.On("Exists", ctx, userId, token)}
+func (_e *MockSessionStorage_Expecter) IsSessionExists(ctx interface{}, userId interface{}, token interface{}) *MockSessionStorage_IsSessionExists_Call {
+	return &MockSessionStorage_IsSessionExists_Call{Call: _e.mock.On("IsSessionExists", ctx, userId, token)}
 }
 
-func (_c *MockSessionStorage_Exists_Call) Run(run func(ctx context.Context, userId string, token string)) *MockSessionStorage_Exists_Call {
+func (_c *MockSessionStorage_IsSessionExists_Call) Run(run func(ctx context.Context, userId string, token string)) *MockSessionStorage_IsSessionExists_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -222,22 +222,22 @@ func (_c *MockSessionStorage_Exists_Call) Run(run func(ctx context.Context, user
 	return _c
 }
 
-func (_c *MockSessionStorage_Exists_Call) Return(b bool, err error) *MockSessionStorage_Exists_Call {
+func (_c *MockSessionStorage_IsSessionExists_Call) Return(b bool, err error) *MockSessionStorage_IsSessionExists_Call {
 	_c.Call.Return(b, err)
 	return _c
 }
 
-func (_c *MockSessionStorage_Exists_Call) RunAndReturn(run func(ctx context.Context, userId string, token string) (bool, error)) *MockSessionStorage_Exists_Call {
+func (_c *MockSessionStorage_IsSessionExists_Call) RunAndReturn(run func(ctx context.Context, userId string, token string) (bool, error)) *MockSessionStorage_IsSessionExists_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Save provides a mock function for the type MockSessionStorage
-func (_mock *MockSessionStorage) Save(ctx context.Context, userId string, token string, ttl time.Duration) error {
+// SaveSession provides a mock function for the type MockSessionStorage
+func (_mock *MockSessionStorage) SaveSession(ctx context.Context, userId string, token string, ttl time.Duration) error {
 	ret := _mock.Called(ctx, userId, token, ttl)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Save")
+		panic("no return value specified for SaveSession")
 	}
 
 	var r0 error
@@ -249,21 +249,21 @@ func (_mock *MockSessionStorage) Save(ctx context.Context, userId string, token 
 	return r0
 }
 
-// MockSessionStorage_Save_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Save'
-type MockSessionStorage_Save_Call struct {
+// MockSessionStorage_SaveSession_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SaveSession'
+type MockSessionStorage_SaveSession_Call struct {
 	*mock.Call
 }
 
-// Save is a helper method to define mock.On call
+// SaveSession is a helper method to define mock.On call
 //   - ctx context.Context
 //   - userId string
 //   - token string
 //   - ttl time.Duration
-func (_e *MockSessionStorage_Expecter) Save(ctx interface{}, userId interface{}, token interface{}, ttl interface{}) *MockSessionStorage_Save_Call {
-	return &MockSessionStorage_Save_Call{Call: _e.mock.On("Save", ctx, userId, token, ttl)}
+func (_e *MockSessionStorage_Expecter) SaveSession(ctx interface{}, userId interface{}, token interface{}, ttl interface{}) *MockSessionStorage_SaveSession_Call {
+	return &MockSessionStorage_SaveSession_Call{Call: _e.mock.On("SaveSession", ctx, userId, token, ttl)}
 }
 
-func (_c *MockSessionStorage_Save_Call) Run(run func(ctx context.Context, userId string, token string, ttl time.Duration)) *MockSessionStorage_Save_Call {
+func (_c *MockSessionStorage_SaveSession_Call) Run(run func(ctx context.Context, userId string, token string, ttl time.Duration)) *MockSessionStorage_SaveSession_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -291,23 +291,23 @@ func (_c *MockSessionStorage_Save_Call) Run(run func(ctx context.Context, userId
 	return _c
 }
 
-func (_c *MockSessionStorage_Save_Call) Return(err error) *MockSessionStorage_Save_Call {
+func (_c *MockSessionStorage_SaveSession_Call) Return(err error) *MockSessionStorage_SaveSession_Call {
 	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockSessionStorage_Save_Call) RunAndReturn(run func(ctx context.Context, userId string, token string, ttl time.Duration) error) *MockSessionStorage_Save_Call {
+func (_c *MockSessionStorage_SaveSession_Call) RunAndReturn(run func(ctx context.Context, userId string, token string, ttl time.Duration) error) *MockSessionStorage_SaveSession_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// NewMockUserSaver creates a new instance of MockUserSaver. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// NewMockResetTokenStorage creates a new instance of MockResetTokenStorage. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
-func NewMockUserSaver(t interface {
+func NewMockResetTokenStorage(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *MockUserSaver {
-	mock := &MockUserSaver{}
+}) *MockResetTokenStorage {
+	mock := &MockResetTokenStorage{}
 	mock.Mock.Test(t)
 
 	t.Cleanup(func() { mock.AssertExpectations(t) })
@@ -315,59 +315,49 @@ func NewMockUserSaver(t interface {
 	return mock
 }
 
-// MockUserSaver is an autogenerated mock type for the UserSaver type
-type MockUserSaver struct {
+// MockResetTokenStorage is an autogenerated mock type for the ResetTokenStorage type
+type MockResetTokenStorage struct {
 	mock.Mock
 }
 
-type MockUserSaver_Expecter struct {
+type MockResetTokenStorage_Expecter struct {
 	mock *mock.Mock
 }
 
-func (_m *MockUserSaver) EXPECT() *MockUserSaver_Expecter {
-	return &MockUserSaver_Expecter{mock: &_m.Mock}
+func (_m *MockResetTokenStorage) EXPECT() *MockResetTokenStorage_Expecter {
+	return &MockResetTokenStorage_Expecter{mock: &_m.Mock}
 }
 
-// SaveUser provides a mock function for the type MockUserSaver
-func (_mock *MockUserSaver) SaveUser(ctx context.Context, email string, passHash []byte) (string, error) {
-	ret := _mock.Called(ctx, email, passHash)
+// DeleteResetToken provides a mock function for the type MockResetTokenStorage
+func (_mock *MockResetTokenStorage) DeleteResetToken(ctx context.Context, token string) error {
+	ret := _mock.Called(ctx, token)
 
 	if len(ret) == 0 {
-		panic("no return value specified for SaveUser")
+		panic("no return value specified for DeleteResetToken")
 	}
 
-	var r0 string
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, []byte) (string, error)); ok {
-		return returnFunc(ctx, email, passHash)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, []byte) string); ok {
-		r0 = returnFunc(ctx, email, passHash)
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = returnFunc(ctx, token)
 	} else {
-		r0 = ret.Get(0).(string)
+		r0 = ret.Error(0)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string, []byte) error); ok {
-		r1 = returnFunc(ctx, email, passHash)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
+	return r0
 }
 
-// MockUserSaver_SaveUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SaveUser'
-type MockUserSaver_SaveUser_Call struct {
+// MockResetTokenStorage_DeleteResetToken_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteResetToken'
+type MockResetTokenStorage_DeleteResetToken_Call struct {
 	*mock.Call
 }
 
-// SaveUser is a helper method to define mock.On call
+// DeleteResetToken is a helper method to define mock.On call
 //   - ctx context.Context
-//   - email string
-//   - passHash []byte
-func (_e *MockUserSaver_Expecter) SaveUser(ctx interface{}, email interface{}, passHash interface{}) *MockUserSaver_SaveUser_Call {
-	return &MockUserSaver_SaveUser_Call{Call: _e.mock.On("SaveUser", ctx, email, passHash)}
+//   - token string
+func (_e *MockResetTokenStorage_Expecter) DeleteResetToken(ctx interface{}, token interface{}) *MockResetTokenStorage_DeleteResetToken_Call {
+	return &MockResetTokenStorage_DeleteResetToken_Call{Call: _e.mock.On("DeleteResetToken", ctx, token)}
 }
 
-func (_c *MockUserSaver_SaveUser_Call) Run(run func(ctx context.Context, email string, passHash []byte)) *MockUserSaver_SaveUser_Call {
+func (_c *MockResetTokenStorage_DeleteResetToken_Call) Run(run func(ctx context.Context, token string)) *MockResetTokenStorage_DeleteResetToken_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -377,25 +367,155 @@ func (_c *MockUserSaver_SaveUser_Call) Run(run func(ctx context.Context, email s
 		if args[1] != nil {
 			arg1 = args[1].(string)
 		}
-		var arg2 []byte
-		if args[2] != nil {
-			arg2 = args[2].([]byte)
-		}
 		run(
 			arg0,
 			arg1,
-			arg2,
 		)
 	})
 	return _c
 }
 
-func (_c *MockUserSaver_SaveUser_Call) Return(id string, err error) *MockUserSaver_SaveUser_Call {
-	_c.Call.Return(id, err)
+func (_c *MockResetTokenStorage_DeleteResetToken_Call) Return(err error) *MockResetTokenStorage_DeleteResetToken_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockUserSaver_SaveUser_Call) RunAndReturn(run func(ctx context.Context, email string, passHash []byte) (string, error)) *MockUserSaver_SaveUser_Call {
+func (_c *MockResetTokenStorage_DeleteResetToken_Call) RunAndReturn(run func(ctx context.Context, token string) error) *MockResetTokenStorage_DeleteResetToken_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetUserIdByResetToken provides a mock function for the type MockResetTokenStorage
+func (_mock *MockResetTokenStorage) GetUserIdByResetToken(ctx context.Context, token string) (string, error) {
+	ret := _mock.Called(ctx, token)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetUserIdByResetToken")
+	}
+
+	var r0 string
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
+		return returnFunc(ctx, token)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) string); ok {
+		r0 = returnFunc(ctx, token)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, token)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockResetTokenStorage_GetUserIdByResetToken_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUserIdByResetToken'
+type MockResetTokenStorage_GetUserIdByResetToken_Call struct {
+	*mock.Call
+}
+
+// GetUserIdByResetToken is a helper method to define mock.On call
+//   - ctx context.Context
+//   - token string
+func (_e *MockResetTokenStorage_Expecter) GetUserIdByResetToken(ctx interface{}, token interface{}) *MockResetTokenStorage_GetUserIdByResetToken_Call {
+	return &MockResetTokenStorage_GetUserIdByResetToken_Call{Call: _e.mock.On("GetUserIdByResetToken", ctx, token)}
+}
+
+func (_c *MockResetTokenStorage_GetUserIdByResetToken_Call) Run(run func(ctx context.Context, token string)) *MockResetTokenStorage_GetUserIdByResetToken_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockResetTokenStorage_GetUserIdByResetToken_Call) Return(s string, err error) *MockResetTokenStorage_GetUserIdByResetToken_Call {
+	_c.Call.Return(s, err)
+	return _c
+}
+
+func (_c *MockResetTokenStorage_GetUserIdByResetToken_Call) RunAndReturn(run func(ctx context.Context, token string) (string, error)) *MockResetTokenStorage_GetUserIdByResetToken_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SaveResetToken provides a mock function for the type MockResetTokenStorage
+func (_mock *MockResetTokenStorage) SaveResetToken(ctx context.Context, userId string, token string, ttl time.Duration) error {
+	ret := _mock.Called(ctx, userId, token, ttl)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SaveResetToken")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, time.Duration) error); ok {
+		r0 = returnFunc(ctx, userId, token, ttl)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockResetTokenStorage_SaveResetToken_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SaveResetToken'
+type MockResetTokenStorage_SaveResetToken_Call struct {
+	*mock.Call
+}
+
+// SaveResetToken is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userId string
+//   - token string
+//   - ttl time.Duration
+func (_e *MockResetTokenStorage_Expecter) SaveResetToken(ctx interface{}, userId interface{}, token interface{}, ttl interface{}) *MockResetTokenStorage_SaveResetToken_Call {
+	return &MockResetTokenStorage_SaveResetToken_Call{Call: _e.mock.On("SaveResetToken", ctx, userId, token, ttl)}
+}
+
+func (_c *MockResetTokenStorage_SaveResetToken_Call) Run(run func(ctx context.Context, userId string, token string, ttl time.Duration)) *MockResetTokenStorage_SaveResetToken_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		var arg3 time.Duration
+		if args[3] != nil {
+			arg3 = args[3].(time.Duration)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+		)
+	})
+	return _c
+}
+
+func (_c *MockResetTokenStorage_SaveResetToken_Call) Return(err error) *MockResetTokenStorage_SaveResetToken_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockResetTokenStorage_SaveResetToken_Call) RunAndReturn(run func(ctx context.Context, userId string, token string, ttl time.Duration) error) *MockResetTokenStorage_SaveResetToken_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -493,6 +613,333 @@ func (_c *MockUserProvider_FindByEmail_Call) RunAndReturn(run func(ctx context.C
 	return _c
 }
 
+// FindById provides a mock function for the type MockUserProvider
+func (_mock *MockUserProvider) FindById(ctx context.Context, id string) (domain.User, error) {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FindById")
+	}
+
+	var r0 domain.User
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (domain.User, error)); ok {
+		return returnFunc(ctx, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) domain.User); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		r0 = ret.Get(0).(domain.User)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockUserProvider_FindById_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FindById'
+type MockUserProvider_FindById_Call struct {
+	*mock.Call
+}
+
+// FindById is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id string
+func (_e *MockUserProvider_Expecter) FindById(ctx interface{}, id interface{}) *MockUserProvider_FindById_Call {
+	return &MockUserProvider_FindById_Call{Call: _e.mock.On("FindById", ctx, id)}
+}
+
+func (_c *MockUserProvider_FindById_Call) Run(run func(ctx context.Context, id string)) *MockUserProvider_FindById_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUserProvider_FindById_Call) Return(user domain.User, err error) *MockUserProvider_FindById_Call {
+	_c.Call.Return(user, err)
+	return _c
+}
+
+func (_c *MockUserProvider_FindById_Call) RunAndReturn(run func(ctx context.Context, id string) (domain.User, error)) *MockUserProvider_FindById_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SaveUser provides a mock function for the type MockUserProvider
+func (_mock *MockUserProvider) SaveUser(ctx context.Context, email string, passHash []byte) (string, error) {
+	ret := _mock.Called(ctx, email, passHash)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SaveUser")
+	}
+
+	var r0 string
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, []byte) (string, error)); ok {
+		return returnFunc(ctx, email, passHash)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, []byte) string); ok {
+		r0 = returnFunc(ctx, email, passHash)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, []byte) error); ok {
+		r1 = returnFunc(ctx, email, passHash)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockUserProvider_SaveUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SaveUser'
+type MockUserProvider_SaveUser_Call struct {
+	*mock.Call
+}
+
+// SaveUser is a helper method to define mock.On call
+//   - ctx context.Context
+//   - email string
+//   - passHash []byte
+func (_e *MockUserProvider_Expecter) SaveUser(ctx interface{}, email interface{}, passHash interface{}) *MockUserProvider_SaveUser_Call {
+	return &MockUserProvider_SaveUser_Call{Call: _e.mock.On("SaveUser", ctx, email, passHash)}
+}
+
+func (_c *MockUserProvider_SaveUser_Call) Run(run func(ctx context.Context, email string, passHash []byte)) *MockUserProvider_SaveUser_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []byte
+		if args[2] != nil {
+			arg2 = args[2].([]byte)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUserProvider_SaveUser_Call) Return(id string, err error) *MockUserProvider_SaveUser_Call {
+	_c.Call.Return(id, err)
+	return _c
+}
+
+func (_c *MockUserProvider_SaveUser_Call) RunAndReturn(run func(ctx context.Context, email string, passHash []byte) (string, error)) *MockUserProvider_SaveUser_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateUserEmail provides a mock function for the type MockUserProvider
+func (_mock *MockUserProvider) UpdateUserEmail(ctx context.Context, userId string, email string) error {
+	ret := _mock.Called(ctx, userId, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateUserEmail")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = returnFunc(ctx, userId, email)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockUserProvider_UpdateUserEmail_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateUserEmail'
+type MockUserProvider_UpdateUserEmail_Call struct {
+	*mock.Call
+}
+
+// UpdateUserEmail is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userId string
+//   - email string
+func (_e *MockUserProvider_Expecter) UpdateUserEmail(ctx interface{}, userId interface{}, email interface{}) *MockUserProvider_UpdateUserEmail_Call {
+	return &MockUserProvider_UpdateUserEmail_Call{Call: _e.mock.On("UpdateUserEmail", ctx, userId, email)}
+}
+
+func (_c *MockUserProvider_UpdateUserEmail_Call) Run(run func(ctx context.Context, userId string, email string)) *MockUserProvider_UpdateUserEmail_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUserProvider_UpdateUserEmail_Call) Return(err error) *MockUserProvider_UpdateUserEmail_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockUserProvider_UpdateUserEmail_Call) RunAndReturn(run func(ctx context.Context, userId string, email string) error) *MockUserProvider_UpdateUserEmail_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateUserPassword provides a mock function for the type MockUserProvider
+func (_mock *MockUserProvider) UpdateUserPassword(ctx context.Context, userId string, passHash []byte) error {
+	ret := _mock.Called(ctx, userId, passHash)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateUserPassword")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, []byte) error); ok {
+		r0 = returnFunc(ctx, userId, passHash)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockUserProvider_UpdateUserPassword_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateUserPassword'
+type MockUserProvider_UpdateUserPassword_Call struct {
+	*mock.Call
+}
+
+// UpdateUserPassword is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userId string
+//   - passHash []byte
+func (_e *MockUserProvider_Expecter) UpdateUserPassword(ctx interface{}, userId interface{}, passHash interface{}) *MockUserProvider_UpdateUserPassword_Call {
+	return &MockUserProvider_UpdateUserPassword_Call{Call: _e.mock.On("UpdateUserPassword", ctx, userId, passHash)}
+}
+
+func (_c *MockUserProvider_UpdateUserPassword_Call) Run(run func(ctx context.Context, userId string, passHash []byte)) *MockUserProvider_UpdateUserPassword_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []byte
+		if args[2] != nil {
+			arg2 = args[2].([]byte)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUserProvider_UpdateUserPassword_Call) Return(err error) *MockUserProvider_UpdateUserPassword_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockUserProvider_UpdateUserPassword_Call) RunAndReturn(run func(ctx context.Context, userId string, passHash []byte) error) *MockUserProvider_UpdateUserPassword_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateUserRole provides a mock function for the type MockUserProvider
+func (_mock *MockUserProvider) UpdateUserRole(ctx context.Context, userId string, role string) error {
+	ret := _mock.Called(ctx, userId, role)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateUserRole")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = returnFunc(ctx, userId, role)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockUserProvider_UpdateUserRole_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateUserRole'
+type MockUserProvider_UpdateUserRole_Call struct {
+	*mock.Call
+}
+
+// UpdateUserRole is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userId string
+//   - role string
+func (_e *MockUserProvider_Expecter) UpdateUserRole(ctx interface{}, userId interface{}, role interface{}) *MockUserProvider_UpdateUserRole_Call {
+	return &MockUserProvider_UpdateUserRole_Call{Call: _e.mock.On("UpdateUserRole", ctx, userId, role)}
+}
+
+func (_c *MockUserProvider_UpdateUserRole_Call) Run(run func(ctx context.Context, userId string, role string)) *MockUserProvider_UpdateUserRole_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUserProvider_UpdateUserRole_Call) Return(err error) *MockUserProvider_UpdateUserRole_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockUserProvider_UpdateUserRole_Call) RunAndReturn(run func(ctx context.Context, userId string, role string) error) *MockUserProvider_UpdateUserRole_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockTokenGenerator creates a new instance of MockTokenGenerator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockTokenGenerator(t interface {
@@ -521,8 +968,8 @@ func (_m *MockTokenGenerator) EXPECT() *MockTokenGenerator_Expecter {
 }
 
 // GenerateAccessToken provides a mock function for the type MockTokenGenerator
-func (_mock *MockTokenGenerator) GenerateAccessToken(userId string) (string, error) {
-	ret := _mock.Called(userId)
+func (_mock *MockTokenGenerator) GenerateAccessToken(userId string, role string) (string, error) {
+	ret := _mock.Called(userId, role)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GenerateAccessToken")
@@ -530,16 +977,16 @@ func (_mock *MockTokenGenerator) GenerateAccessToken(userId string) (string, err
 
 	var r0 string
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(string) (string, error)); ok {
-		return returnFunc(userId)
+	if returnFunc, ok := ret.Get(0).(func(string, string) (string, error)); ok {
+		return returnFunc(userId, role)
 	}
-	if returnFunc, ok := ret.Get(0).(func(string) string); ok {
-		r0 = returnFunc(userId)
+	if returnFunc, ok := ret.Get(0).(func(string, string) string); ok {
+		r0 = returnFunc(userId, role)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
-	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
-		r1 = returnFunc(userId)
+	if returnFunc, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = returnFunc(userId, role)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -553,18 +1000,24 @@ type MockTokenGenerator_GenerateAccessToken_Call struct {
 
 // GenerateAccessToken is a helper method to define mock.On call
 //   - userId string
-func (_e *MockTokenGenerator_Expecter) GenerateAccessToken(userId interface{}) *MockTokenGenerator_GenerateAccessToken_Call {
-	return &MockTokenGenerator_GenerateAccessToken_Call{Call: _e.mock.On("GenerateAccessToken", userId)}
+//   - role string
+func (_e *MockTokenGenerator_Expecter) GenerateAccessToken(userId interface{}, role interface{}) *MockTokenGenerator_GenerateAccessToken_Call {
+	return &MockTokenGenerator_GenerateAccessToken_Call{Call: _e.mock.On("GenerateAccessToken", userId, role)}
 }
 
-func (_c *MockTokenGenerator_GenerateAccessToken_Call) Run(run func(userId string)) *MockTokenGenerator_GenerateAccessToken_Call {
+func (_c *MockTokenGenerator_GenerateAccessToken_Call) Run(run func(userId string, role string)) *MockTokenGenerator_GenerateAccessToken_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 string
 		if args[0] != nil {
 			arg0 = args[0].(string)
 		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
 		run(
 			arg0,
+			arg1,
 		)
 	})
 	return _c
@@ -575,14 +1028,14 @@ func (_c *MockTokenGenerator_GenerateAccessToken_Call) Return(s string, err erro
 	return _c
 }
 
-func (_c *MockTokenGenerator_GenerateAccessToken_Call) RunAndReturn(run func(userId string) (string, error)) *MockTokenGenerator_GenerateAccessToken_Call {
+func (_c *MockTokenGenerator_GenerateAccessToken_Call) RunAndReturn(run func(userId string, role string) (string, error)) *MockTokenGenerator_GenerateAccessToken_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GenerateRefreshToken provides a mock function for the type MockTokenGenerator
-func (_mock *MockTokenGenerator) GenerateRefreshToken(userId string) (string, error) {
-	ret := _mock.Called(userId)
+func (_mock *MockTokenGenerator) GenerateRefreshToken(userId string, role string) (string, error) {
+	ret := _mock.Called(userId, role)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GenerateRefreshToken")
@@ -590,16 +1043,16 @@ func (_mock *MockTokenGenerator) GenerateRefreshToken(userId string) (string, er
 
 	var r0 string
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(string) (string, error)); ok {
-		return returnFunc(userId)
+	if returnFunc, ok := ret.Get(0).(func(string, string) (string, error)); ok {
+		return returnFunc(userId, role)
 	}
-	if returnFunc, ok := ret.Get(0).(func(string) string); ok {
-		r0 = returnFunc(userId)
+	if returnFunc, ok := ret.Get(0).(func(string, string) string); ok {
+		r0 = returnFunc(userId, role)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
-	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
-		r1 = returnFunc(userId)
+	if returnFunc, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = returnFunc(userId, role)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -613,18 +1066,24 @@ type MockTokenGenerator_GenerateRefreshToken_Call struct {
 
 // GenerateRefreshToken is a helper method to define mock.On call
 //   - userId string
-func (_e *MockTokenGenerator_Expecter) GenerateRefreshToken(userId interface{}) *MockTokenGenerator_GenerateRefreshToken_Call {
-	return &MockTokenGenerator_GenerateRefreshToken_Call{Call: _e.mock.On("GenerateRefreshToken", userId)}
+//   - role string
+func (_e *MockTokenGenerator_Expecter) GenerateRefreshToken(userId interface{}, role interface{}) *MockTokenGenerator_GenerateRefreshToken_Call {
+	return &MockTokenGenerator_GenerateRefreshToken_Call{Call: _e.mock.On("GenerateRefreshToken", userId, role)}
 }
 
-func (_c *MockTokenGenerator_GenerateRefreshToken_Call) Run(run func(userId string)) *MockTokenGenerator_GenerateRefreshToken_Call {
+func (_c *MockTokenGenerator_GenerateRefreshToken_Call) Run(run func(userId string, role string)) *MockTokenGenerator_GenerateRefreshToken_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 string
 		if args[0] != nil {
 			arg0 = args[0].(string)
 		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
 		run(
 			arg0,
+			arg1,
 		)
 	})
 	return _c
@@ -635,7 +1094,7 @@ func (_c *MockTokenGenerator_GenerateRefreshToken_Call) Return(s string, err err
 	return _c
 }
 
-func (_c *MockTokenGenerator_GenerateRefreshToken_Call) RunAndReturn(run func(userId string) (string, error)) *MockTokenGenerator_GenerateRefreshToken_Call {
+func (_c *MockTokenGenerator_GenerateRefreshToken_Call) RunAndReturn(run func(userId string, role string) (string, error)) *MockTokenGenerator_GenerateRefreshToken_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -742,6 +1201,96 @@ func (_c *MockTokenGenerator_ValidateToken_Call) Return(claims *jwt.Claims, err 
 }
 
 func (_c *MockTokenGenerator_ValidateToken_Call) RunAndReturn(run func(tokenString string) (*jwt.Claims, error)) *MockTokenGenerator_ValidateToken_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// NewMockNotificationSender creates a new instance of MockNotificationSender. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMockNotificationSender(t interface {
+	mock.TestingT
+	Cleanup(func())
+}) *MockNotificationSender {
+	mock := &MockNotificationSender{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
+}
+
+// MockNotificationSender is an autogenerated mock type for the NotificationSender type
+type MockNotificationSender struct {
+	mock.Mock
+}
+
+type MockNotificationSender_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *MockNotificationSender) EXPECT() *MockNotificationSender_Expecter {
+	return &MockNotificationSender_Expecter{mock: &_m.Mock}
+}
+
+// SendPasswordResetNotification provides a mock function for the type MockNotificationSender
+func (_mock *MockNotificationSender) SendPasswordResetNotification(ctx context.Context, email string, resetToken string) error {
+	ret := _mock.Called(ctx, email, resetToken)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendPasswordResetNotification")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = returnFunc(ctx, email, resetToken)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockNotificationSender_SendPasswordResetNotification_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendPasswordResetNotification'
+type MockNotificationSender_SendPasswordResetNotification_Call struct {
+	*mock.Call
+}
+
+// SendPasswordResetNotification is a helper method to define mock.On call
+//   - ctx context.Context
+//   - email string
+//   - resetToken string
+func (_e *MockNotificationSender_Expecter) SendPasswordResetNotification(ctx interface{}, email interface{}, resetToken interface{}) *MockNotificationSender_SendPasswordResetNotification_Call {
+	return &MockNotificationSender_SendPasswordResetNotification_Call{Call: _e.mock.On("SendPasswordResetNotification", ctx, email, resetToken)}
+}
+
+func (_c *MockNotificationSender_SendPasswordResetNotification_Call) Run(run func(ctx context.Context, email string, resetToken string)) *MockNotificationSender_SendPasswordResetNotification_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockNotificationSender_SendPasswordResetNotification_Call) Return(err error) *MockNotificationSender_SendPasswordResetNotification_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockNotificationSender_SendPasswordResetNotification_Call) RunAndReturn(run func(ctx context.Context, email string, resetToken string) error) *MockNotificationSender_SendPasswordResetNotification_Call {
 	_c.Call.Return(run)
 	return _c
 }
