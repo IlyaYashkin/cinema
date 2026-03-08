@@ -1,6 +1,7 @@
 package redis
 
 import (
+	redislib "cinema/internal/lib/redis"
 	"cinema/internal/sso/domain"
 	"cinema/internal/sso/storage"
 	"context"
@@ -12,7 +13,11 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func (s *Storage) SaveSession(ctx context.Context, userId, token, deviceId, deviceName string, ttl time.Duration) error {
+type Session struct {
+	*redislib.Redis
+}
+
+func (s *Session) SaveSession(ctx context.Context, userId, token, deviceId, deviceName string, ttl time.Duration) error {
 	key := fmt.Sprintf("session:%s:%s", userId, deviceId)
 
 	session := domain.Session{
@@ -26,13 +31,13 @@ func (s *Storage) SaveSession(ctx context.Context, userId, token, deviceId, devi
 		return err
 	}
 
-	return s.client.Set(ctx, key, data, ttl).Err()
+	return s.Client().Set(ctx, key, data, ttl).Err()
 }
 
-func (s *Storage) GetSession(ctx context.Context, userId, deviceId string) (domain.Session, error) {
+func (s *Session) GetSession(ctx context.Context, userId, deviceId string) (domain.Session, error) {
 	key := fmt.Sprintf("session:%s:%s", userId, deviceId)
 
-	data, err := s.client.Get(ctx, key).Bytes()
+	data, err := s.Client().Get(ctx, key).Bytes()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return domain.Session{}, storage.ErrSessionNotFound
@@ -49,13 +54,13 @@ func (s *Storage) GetSession(ctx context.Context, userId, deviceId string) (doma
 	return session, nil
 }
 
-func (s *Storage) DeleteSession(ctx context.Context, userId, deviceId string) error {
+func (s *Session) DeleteSession(ctx context.Context, userId, deviceId string) error {
 	key := fmt.Sprintf("session:%s:%s", userId, deviceId)
 
-	return s.client.Del(ctx, key).Err()
+	return s.Client().Del(ctx, key).Err()
 }
 
-func (s *Storage) DeleteAllSessions(ctx context.Context, userId string) error {
+func (s *Session) DeleteAllSessions(ctx context.Context, userId string) error {
 	keys, err := s.scanSessionKeys(ctx, userId)
 	if err != nil {
 		return err
@@ -63,16 +68,16 @@ func (s *Storage) DeleteAllSessions(ctx context.Context, userId string) error {
 	if len(keys) == 0 {
 		return nil
 	}
-	return s.client.Del(ctx, keys...).Err()
+	return s.Client().Del(ctx, keys...).Err()
 }
 
-func (s *Storage) scanSessionKeys(ctx context.Context, userId string) ([]string, error) {
+func (s *Session) scanSessionKeys(ctx context.Context, userId string) ([]string, error) {
 	var keys []string
 	pattern := fmt.Sprintf("session:%s:*", userId)
 	cursor := uint64(0)
 
 	for {
-		result, nextCursor, err := s.client.Scan(ctx, cursor, pattern, 100).Result()
+		result, nextCursor, err := s.Client().Scan(ctx, cursor, pattern, 100).Result()
 		if err != nil {
 			return nil, err
 		}

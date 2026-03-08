@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"cinema/internal/lib/postgres"
 	"cinema/internal/sso/domain"
 	"cinema/internal/sso/storage"
 	"context"
@@ -9,7 +10,11 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (string, error) {
+type User struct {
+	*postgres.Postgres
+}
+
+func (u *User) SaveUser(ctx context.Context, email string, passHash []byte) (string, error) {
 	query := `
 		INSERT INTO sso.users (email, password_hash) VALUES ($1, $2)
 		ON CONFLICT(email) DO NOTHING
@@ -17,7 +22,7 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (
 	`
 
 	var id string
-	err := s.pool.QueryRow(ctx, query, email, passHash).Scan(&id)
+	err := u.Pool().QueryRow(ctx, query, email, passHash).Scan(&id)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return "", storage.ErrUserExists
@@ -29,7 +34,7 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (
 	return id, nil
 }
 
-func (s *Storage) FindByEmail(ctx context.Context, email string) (domain.User, error) {
+func (u *User) FindByEmail(ctx context.Context, email string) (domain.User, error) {
 	query := `
 		SELECT u.id, email, r.name, password_hash, created_at
 		FROM sso.users u
@@ -38,7 +43,7 @@ func (s *Storage) FindByEmail(ctx context.Context, email string) (domain.User, e
 	`
 
 	var user domain.User
-	err := s.pool.QueryRow(ctx, query, email).Scan(
+	err := u.Pool().QueryRow(ctx, query, email).Scan(
 		&user.Id,
 		&user.Email,
 		&user.Role,
@@ -55,7 +60,7 @@ func (s *Storage) FindByEmail(ctx context.Context, email string) (domain.User, e
 	return user, nil
 }
 
-func (s *Storage) FindById(ctx context.Context, id string) (domain.User, error) {
+func (u *User) FindById(ctx context.Context, id string) (domain.User, error) {
 	query := `
 		SELECT u.id, email, r.name, password_hash, created_at
 		FROM sso.users u
@@ -64,7 +69,7 @@ func (s *Storage) FindById(ctx context.Context, id string) (domain.User, error) 
 	`
 
 	var user domain.User
-	err := s.pool.QueryRow(ctx, query, id).Scan(
+	err := u.Pool().QueryRow(ctx, query, id).Scan(
 		&user.Id,
 		&user.Email,
 		&user.Role,
@@ -81,14 +86,14 @@ func (s *Storage) FindById(ctx context.Context, id string) (domain.User, error) 
 	return user, nil
 }
 
-func (s *Storage) UpdateUserRole(ctx context.Context, userId string, role string) error {
+func (u *User) UpdateUserRole(ctx context.Context, userId string, role string) error {
 	query := `
 		UPDATE sso.users u
 		SET role_id = (SELECT id FROM sso.roles WHERE name = $1)
 		WHERE u.id = $2
 	`
 
-	result, err := s.pool.Exec(ctx, query, role, userId)
+	result, err := u.Pool().Exec(ctx, query, role, userId)
 	if err != nil {
 		return err
 	}
@@ -99,14 +104,14 @@ func (s *Storage) UpdateUserRole(ctx context.Context, userId string, role string
 	return nil
 }
 
-func (s *Storage) UpdateUserEmail(ctx context.Context, userId string, email string) error {
+func (u *User) UpdateUserEmail(ctx context.Context, userId string, email string) error {
 	query := `
 		UPDATE sso.users
 		SET email = $2
 		WHERE id = $1
 	`
 
-	result, err := s.pool.Exec(ctx, query, userId, email)
+	result, err := u.Pool().Exec(ctx, query, userId, email)
 	if err != nil {
 		return err
 	}
@@ -117,14 +122,14 @@ func (s *Storage) UpdateUserEmail(ctx context.Context, userId string, email stri
 	return nil
 }
 
-func (s *Storage) UpdateUserPassword(ctx context.Context, userId string, passHash []byte) error {
+func (u *User) UpdateUserPassword(ctx context.Context, userId string, passHash []byte) error {
 	query := `
 		UPDATE sso.users
 		SET password_hash = $2
 		WHERE id = $1
 	`
 
-	result, err := s.pool.Exec(ctx, query, userId, passHash)
+	result, err := u.Pool().Exec(ctx, query, userId, passHash)
 	if err != nil {
 		return err
 	}

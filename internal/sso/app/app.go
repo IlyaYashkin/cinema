@@ -3,13 +3,15 @@ package app
 import (
 	"cinema/internal/lib/grpc"
 	"cinema/internal/lib/jwt"
+	"cinema/internal/lib/postgres"
+	"cinema/internal/lib/redis"
 	"cinema/internal/lib/smtp"
 	"cinema/internal/sso/config"
 	grpcAuth "cinema/internal/sso/grpc/auth"
 	ssoSmtp "cinema/internal/sso/notification/smtp"
 	"cinema/internal/sso/services/auth"
-	"cinema/internal/sso/storage/postgres"
-	"cinema/internal/sso/storage/redis"
+	ssoPostgres "cinema/internal/sso/storage/postgres"
+	ssoRedis "cinema/internal/sso/storage/redis"
 	"log/slog"
 )
 
@@ -32,11 +34,14 @@ func New(
 	if err != nil {
 		panic("error creating database connection: " + err.Error())
 	}
+	userProvider := &ssoPostgres.User{Postgres: dbConn}
 
-	redisConn, err := redis.NewStorage(cfg.RedisConfig)
+	redisConn, err := redis.New(cfg.RedisConfig)
 	if err != nil {
-		panic("error creating redis storage: " + err.Error())
+		panic("error creating redis userProvider: " + err.Error())
 	}
+	sessionStorage := &ssoRedis.Session{Redis: redisConn}
+	resetTokenStorage := &ssoRedis.Reset{Redis: redisConn}
 
 	jwtGenerator, err := jwt.NewGenerator(cfg.JWTConfig)
 	if err != nil {
@@ -50,7 +55,7 @@ func New(
 
 	emailSender := ssoSmtp.NewEmailSender(smtpClient, cfg.ResetPasswordBaseUrl)
 
-	authService := auth.New(log, dbConn, redisConn, redisConn, jwtGenerator, emailSender, cfg.ResetTokenTTL)
+	authService := auth.New(log, userProvider, sessionStorage, resetTokenStorage, jwtGenerator, emailSender, cfg.ResetTokenTTL)
 
 	grpcApp := grpc.New(log, grpcAuth.NewController(authService), cfg.GRPCConfig.Port, cfg.Env)
 

@@ -40,6 +40,18 @@ type SMTPConfig struct {
 	From     string `yaml:"from" env-required:"true"`
 }
 
+type RedisConfig struct {
+	URL string `env:"REDIS_URL" env-default:"localhost:6379"`
+}
+
+type StorageConfig struct {
+	Endpoint  string `yaml:"endpoint" env-required:"true"`
+	Region    string `yaml:"region" env-required:"true"`
+	Bucket    string `yaml:"bucket" env-required:"true"`
+	AccessKey string `env:"STORAGE_ACCESS_KEY" env-required:"true"`
+	SecretKey string `env:"STORAGE_SECRET_KEY" env-required:"true"`
+}
+
 func MustLoad[T any]() *T {
 	configPath := fetchConfigPath()
 	if configPath == "" {
