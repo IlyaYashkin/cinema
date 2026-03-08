@@ -2,29 +2,49 @@ package smtp
 
 import (
 	"cinema/internal/lib/config"
+	"cinema/internal/lib/env"
+	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/wneessen/go-mail"
 )
 
 type Client struct {
+	log    *slog.Logger
 	client *mail.Client
 	from   string
 }
 
-func New(cfg config.SMTPConfig) (*Client, error) {
+func New(log *slog.Logger, cfg config.SMTPConfig, e env.Env) (*Client, error) {
+	tlsPolicyOption := mail.WithTLSPolicy(mail.TLSOpportunistic)
+
+	if e.Is(env.Prod) {
+		tlsPolicyOption = mail.WithTLSPolicy(mail.TLSMandatory)
+	}
+
 	c, err := mail.NewClient(
 		cfg.Host,
 		mail.WithPort(cfg.Port),
 		mail.WithSMTPAuth(mail.SMTPAuthPlain),
 		mail.WithUsername(cfg.Username),
 		mail.WithPassword(cfg.Password),
+		tlsPolicyOption,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create smtp client: %w", err)
 	}
 
-	return &Client{client: c, from: cfg.From}, nil
+	return &Client{log: log, client: c, from: cfg.From}, nil
+}
+
+func (c *Client) Connect() {
+	if err := c.client.DialWithContext(context.Background()); err != nil {
+		c.log.Error("smtp connection failed: " + err.Error())
+	}
+	_ = c.client.Close()
+
+	c.log.Info("smtp connection successful")
 }
 
 func (c *Client) Send(to, subject, body string) error {

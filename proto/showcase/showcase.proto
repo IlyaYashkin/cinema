@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package showcase;
+
+option go_package = "cinema/gen/showcase;showcase";
+
+service Film {
+  rpc Create (FilmCreateRequest) returns (FilmCreateResponse);
+  rpc Get (FilmGetRequest) returns (FilmGetResponse);
+}
+
+message FilmCreateRequest {
+  string name = 1;
+  string description = 2;
+  string genre = 3;
+  float rating = 4;
+  string poster_url = 5;
+}
+
+message FilmCreateResponse {
+  string id = 1;
+}
+
+message FilmGetRequest {
+
+}
+
+message FilmGetResponse {
+
+}

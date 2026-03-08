@@ -1,6 +1,7 @@
 package grpc
 
 import (
+	"cinema/internal/lib/env"
 	"context"
 	"fmt"
 	"log/slog"
@@ -24,7 +25,7 @@ type Registrar interface {
 	RegisterGRPCServer(gRPCServer *grpc.Server)
 }
 
-func New(log *slog.Logger, registrar Registrar, port int, env string) *App {
+func New(log *slog.Logger, registrar Registrar, port int, e env.Env) *App {
 	loggingOpts := []logging.Option{
 		logging.WithLogOnEvents(
 			logging.PayloadReceived, logging.PayloadSent,
@@ -46,7 +47,7 @@ func New(log *slog.Logger, registrar Registrar, port int, env string) *App {
 
 	registrar.RegisterGRPCServer(gRPCServer)
 
-	if env == "local" {
+	if e.Is(env.Local) {
 		reflection.Register(gRPCServer)
 	}
 

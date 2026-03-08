@@ -8,10 +8,6 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
-type Config struct {
-	Env string `yaml:"env" env-default:"local"`
-}
-
 type JWTConfig struct {
 	PrivateKeyPath string        `env:"JWT_PRIVATE_KEY_PATH" env-required:"true"`
 	PublicKeyPath  string        `env:"JWT_PUBLIC_KEY_PATH" env-required:"true"`
@@ -35,8 +31,8 @@ type GRPCConfig struct {
 type SMTPConfig struct {
 	Host     string `yaml:"host" env-required:"true"`
 	Port     int    `yaml:"port" env-default:"587"`
-	Username string `env:"SMTP_USERNAME" env-required:"true"`
-	Password string `env:"SMTP_PASSWORD" env-required:"true"`
+	Username string `env:"SMTP_USERNAME"`
+	Password string `env:"SMTP_PASSWORD"`
 	From     string `yaml:"from" env-required:"true"`
 }
 
@@ -44,12 +40,12 @@ type RedisConfig struct {
 	URL string `env:"REDIS_URL" env-default:"localhost:6379"`
 }
 
-type StorageConfig struct {
+type S3Config struct {
 	Endpoint  string `yaml:"endpoint" env-required:"true"`
 	Region    string `yaml:"region" env-required:"true"`
 	Bucket    string `yaml:"bucket" env-required:"true"`
-	AccessKey string `env:"STORAGE_ACCESS_KEY" env-required:"true"`
-	SecretKey string `env:"STORAGE_SECRET_KEY" env-required:"true"`
+	AccessKey string `env:"S3_ACCESS_KEY" env-required:"true"`
+	SecretKey string `env:"S3_SECRET_KEY" env-required:"true"`
 }
 
 func MustLoad[T any]() *T {

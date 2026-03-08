@@ -2,6 +2,8 @@
 /keys/
 /env/*
 !/env/sso.env.example
+!/env/showcase.env.example
 /bin
 /.idea
 /config/*/config_local.yaml
+/config/garage/garage.toml

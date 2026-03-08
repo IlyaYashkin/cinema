@@ -2,11 +2,12 @@ package config
 
 import (
 	"cinema/internal/lib/config"
+	"cinema/internal/lib/env"
 	"time"
 )
 
 type Config struct {
-	config.Config
+	Env                  env.Env            `yaml:"env" env-default:"local"`
 	GRPCConfig           config.GRPCConfig  `yaml:"grpc"`
 	DBConfig             config.DBConfig    `yaml:"db"`
 	SMTPConfig           config.SMTPConfig  `yaml:"smtp"`

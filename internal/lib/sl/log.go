@@ -1,14 +1,9 @@
 package sl
 
 import (
+	"cinema/internal/lib/env"
 	"log/slog"
 	"os"
-)
-
-const (
-	local = "local"
-	dev   = "dev"
-	prod  = "prod"
 )
 
 func Err(err error) slog.Attr {
@@ -18,19 +13,19 @@ func Err(err error) slog.Attr {
 	}
 }
 
-func SetupLogger(env string) *slog.Logger {
+func SetupLogger(e env.Env) *slog.Logger {
 	var log *slog.Logger
 
-	switch env {
-	case local:
+	switch e {
+	case env.Local:
 		log = slog.New(
 			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
 		)
-	case dev:
+	case env.Dev:
 		log = slog.New(
 			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
 		)
-	case prod:
+	case env.Prod:
 		log = slog.New(
 			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
 		)

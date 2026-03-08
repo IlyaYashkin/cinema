@@ -20,23 +20,28 @@ type Connection interface {
 	MustConnect()
 }
 
+type ConnectionChecker interface {
+	Connect()
+}
+
 type App struct {
 	GRPCServer      *grpc.App
 	DBConnection    Connection
 	RedisConnection Connection
+	SMTPConnection  ConnectionChecker
 }
 
 func New(
 	log *slog.Logger,
 	cfg *config.Config,
 ) *App {
-	dbConn, err := postgres.New(cfg.DBConfig)
+	dbConn, err := postgres.New(log, cfg.DBConfig)
 	if err != nil {
 		panic("error creating database connection: " + err.Error())
 	}
 	userProvider := &ssoPostgres.User{Postgres: dbConn}
 
-	redisConn, err := redis.New(cfg.RedisConfig)
+	redisConn, err := redis.New(log, cfg.RedisConfig)
 	if err != nil {
 		panic("error creating redis userProvider: " + err.Error())
 	}
@@ -48,7 +53,7 @@ func New(
 		panic("error creating jwt generator: " + err.Error())
 	}
 
-	smtpClient, err := smtp.New(cfg.SMTPConfig)
+	smtpClient, err := smtp.New(log, cfg.SMTPConfig, cfg.Env)
 	if err != nil {
 		panic("error creating smtp client: " + err.Error())
 	}
@@ -63,12 +68,14 @@ func New(
 		GRPCServer:      grpcApp,
 		DBConnection:    dbConn,
 		RedisConnection: redisConn,
+		SMTPConnection:  smtpClient,
 	}
 }
 
 func (a *App) MustRun() {
 	a.DBConnection.MustConnect()
 	a.RedisConnection.MustConnect()
+	a.SMTPConnection.Connect()
 	a.GRPCServer.MustRun()
 }
 
