@@ -1,4 +1,4 @@
--- +goose up
+-- +goose Up
 CREATE SCHEMA sso;
 
 CREATE TABLE sso.roles
@@ -20,7 +20,5 @@ CREATE TABLE sso.users
     created_at    TIMESTAMPTZ      DEFAULT now()
 );
 
--- +goose down
-DROP TABLE sso.users;
-
-DROP SCHEMA sso;
+-- +goose Down
+DROP SCHEMA sso CASCADE;
