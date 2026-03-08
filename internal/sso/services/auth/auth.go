@@ -127,17 +127,25 @@ func (a *Auth) Login(ctx context.Context, email string, password string, deviceI
 
 	user, err := a.userProvider.FindByEmail(ctx, email)
 	if err != nil {
-		log.Error("failed to find user", sl.Err(err))
-
 		if errors.Is(err, storage.ErrUserNotFound) {
+			log.Warn("user not found", sl.Err(err))
+
 			return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
 		}
+
+		log.Error("failed to find user", sl.Err(err))
 
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(password)); err != nil {
-		log.Warn("invalid password", sl.Err(err))
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			log.Warn("invalid password", sl.Err(err))
+
+			return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
+		}
+
+		log.Error("failed compare hash and password", sl.Err(err))
 
 		return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
 	}
@@ -191,11 +199,13 @@ func (a *Auth) Refresh(ctx context.Context, refreshToken string, deviceId string
 
 	session, err := a.sessionStorage.GetSession(ctx, userId, deviceId)
 	if err != nil {
-		log.Error("failed to get session", sl.Err(err))
-
 		if errors.Is(err, storage.ErrSessionNotFound) {
+			log.Warn("session not found", sl.Err(err))
+
 			return nil, fmt.Errorf("%s: %w", op, ErrInvalidRefreshToken)
 		}
+
+		log.Error("failed to get session", sl.Err(err))
 
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -257,11 +267,13 @@ func (a *Auth) Logout(ctx context.Context, refreshToken string, deviceId string)
 
 	session, err := a.sessionStorage.GetSession(ctx, userId, deviceId)
 	if err != nil {
-		log.Error("failed to get session", sl.Err(err))
-
 		if errors.Is(err, storage.ErrSessionNotFound) {
+			log.Warn("session not found", sl.Err(err))
+
 			return fmt.Errorf("%s: %w", op, ErrInvalidRefreshToken)
 		}
+
+		log.Error("failed to get session", sl.Err(err))
 
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -313,11 +325,14 @@ func (a *Auth) ChangeRole(ctx context.Context, accessToken string, userId string
 
 	err = a.userProvider.UpdateUserRole(ctx, userId, string(role))
 	if err != nil {
-		log.Error("failed to set user role", sl.Err(err))
-
 		if errors.Is(err, storage.ErrUserNotFound) {
+			log.Warn("user not found", sl.Err(err))
+
 			return fmt.Errorf("%s: %w", op, ErrUserNotFound)
 		}
+
+		log.Error("failed to set user role", sl.Err(err))
+
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -536,9 +551,12 @@ func (a *Auth) validateToken(log *slog.Logger, token string, invalidErr error) (
 	if err != nil {
 		if errors.Is(err, jwtlib.ErrTokenExpired) {
 			log.Warn("token expired")
+
 			return nil, ErrTokenExpired
 		}
+
 		log.Error("failed to validate token", sl.Err(err))
+
 		return nil, invalidErr
 	}
 	return claims, nil
