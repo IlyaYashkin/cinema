@@ -1,7 +1,7 @@
 package app
 
 import (
-	"cinema/internal/catalog/config"
+	"cinema/internal/showcase/config"
 	"log/slog"
 )
 
