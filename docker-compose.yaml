@@ -28,20 +28,18 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  garage:
-    image: dxflrs/garage:v2.2.0
-    container_name: garage
+  seaweedfs:
+    image: chrislusf/seaweedfs
+    container_name: seaweedfs
     restart: unless-stopped
     ports:
-      - "3900:3900"  # S3 API
-      - "3901:3901"  # RPC Bind
-      - "3902:3902"  # Admin API
+      - "8333:8333"  # S3 API
+      - "9333:9333"  # Master
+      - "8080:8080"  # Volume
     volumes:
-      - garage_data:/var/lib/garage/data
-      - garage_meta:/var/lib/garage/meta
-      - ./config/garage/garage.toml:/etc/garage.toml
-    environment:
-      GARAGE_CONFIG_FILE: /etc/garage.toml
+      - seaweedfs_data:/data
+      - ./config/seaweedfs/s3.json:/etc/seaweedfs/s3.json
+    command: server -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json -dir=/data
 
   smtp4dev:
     image: rnwood/smtp4dev
@@ -57,5 +55,4 @@ volumes:
   postgres_data:
     driver: local
   redis_data:
-  garage_data:
-  garage_meta:
+  seaweedfs_data:

@@ -41,11 +41,12 @@ type RedisConfig struct {
 }
 
 type S3Config struct {
-	Endpoint  string `yaml:"endpoint" env-required:"true"`
-	Region    string `yaml:"region" env-required:"true"`
-	Bucket    string `yaml:"bucket" env-required:"true"`
-	AccessKey string `env:"S3_ACCESS_KEY" env-required:"true"`
-	SecretKey string `env:"S3_SECRET_KEY" env-required:"true"`
+	Endpoint   string        `yaml:"endpoint" env-required:"true"`
+	Region     string        `yaml:"region" env-required:"true"`
+	Bucket     string        `yaml:"bucket" env-required:"true"`
+	AccessKey  string        `env:"S3_ACCESS_KEY" env-required:"true"`
+	SecretKey  string        `env:"S3_SECRET_KEY" env-required:"true"`
+	PresignTTL time.Duration `yaml:"presign_ttl" env-default:"15m"`
 }
 
 func MustLoad[T any]() *T {

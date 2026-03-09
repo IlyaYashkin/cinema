@@ -1,0 +1,26 @@
+{
+  "identities": [
+    {
+      "name": "anonymous",
+      "actions": [
+        "Read:showcase"
+      ]
+    },
+    {
+      "name": "cinema",
+      "credentials": [
+        {
+          "accessKey": "access-key",
+          "secretKey": "secret-key"
+        }
+      ],
+      "actions": [
+        "Read",
+        "Write",
+        "List",
+        "Tagging",
+        "Admin"
+      ]
+    }
+  ]
+}

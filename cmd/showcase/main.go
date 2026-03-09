@@ -23,5 +23,5 @@ func main() {
 	shutdown.WaitForShutdown()
 
 	application.Stop()
-	log.Info("Gracefully stopped")
+	log.Info("gracefully stopped")
 }

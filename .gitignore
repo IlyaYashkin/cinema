@@ -6,4 +6,4 @@
 /bin
 /.idea
 /config/*/config_local.yaml
-/config/garage/garage.toml
+/config/seaweedfs/s3.json

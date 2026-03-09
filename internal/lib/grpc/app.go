@@ -54,14 +54,12 @@ func New(log *slog.Logger, registrar Registrar, port int, e env.Env) *App {
 	return &App{log: log, gRPCServer: gRPCServer, port: port}
 }
 
-// MustRun runs gRPC server and panics if any error occurs.
 func (a *App) MustRun() {
 	if err := a.Run(); err != nil {
 		panic(err)
 	}
 }
 
-// Run runs gRPC server.
 func (a *App) Run() error {
 	const op = "grpcapp.Run"
 
@@ -70,7 +68,8 @@ func (a *App) Run() error {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	a.log.Info("grpc server started", slog.String("addr", l.Addr().String()))
+	a.log.With(slog.String("op", op)).
+		Info("grpc server started", slog.String("addr", l.Addr().String()))
 
 	if err := a.gRPCServer.Serve(l); err != nil {
 		return fmt.Errorf("%s: %w", op, err)
