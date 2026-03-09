@@ -25,7 +25,7 @@ type Registrar interface {
 	RegisterGRPCServer(gRPCServer *grpc.Server)
 }
 
-func New(log *slog.Logger, registrar Registrar, port int, e env.Env) *App {
+func New(log *slog.Logger, port int, e env.Env) *App {
 	loggingOpts := []logging.Option{
 		logging.WithLogOnEvents(
 			logging.PayloadReceived, logging.PayloadSent,
@@ -45,13 +45,15 @@ func New(log *slog.Logger, registrar Registrar, port int, e env.Env) *App {
 		logging.UnaryServerInterceptor(InterceptorLogger(log), loggingOpts...),
 	))
 
-	registrar.RegisterGRPCServer(gRPCServer)
-
 	if e.Is(env.Local) {
 		reflection.Register(gRPCServer)
 	}
 
 	return &App{log: log, gRPCServer: gRPCServer, port: port}
+}
+
+func (a *App) Register(registrar Registrar) {
+	registrar.RegisterGRPCServer(a.gRPCServer)
 }
 
 func (a *App) MustRun() {

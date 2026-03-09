@@ -62,7 +62,8 @@ func New(
 
 	authService := auth.New(log, userProvider, sessionStorage, resetTokenStorage, jwtGenerator, emailSender, cfg.ResetTokenTTL)
 
-	grpcApp := grpc.New(log, grpcAuth.NewController(authService), cfg.GRPCConfig.Port, cfg.Env)
+	grpcApp := grpc.New(log, cfg.GRPCConfig.Port, cfg.Env)
+	grpcApp.Register(grpcAuth.NewController(authService))
 
 	return &App{
 		GRPCServer:      grpcApp,
