@@ -7,7 +7,9 @@ import (
 	"log/slog"
 	"net"
 
+	"buf.build/go/protovalidate"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
+	protovalidateInterceptor "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/protovalidate"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -40,9 +42,15 @@ func New(log *slog.Logger, port int, e env.Env) *App {
 		}),
 	}
 
+	validator, err := protovalidate.New()
+	if err != nil {
+		panic("Failed to create validator: " + err.Error())
+	}
+
 	gRPCServer := grpc.NewServer(grpc.ChainUnaryInterceptor(
 		recovery.UnaryServerInterceptor(recoveryOpts...),
 		logging.UnaryServerInterceptor(InterceptorLogger(log), loggingOpts...),
+		protovalidateInterceptor.UnaryServerInterceptor(validator),
 	))
 
 	if e.Is(env.Local) {

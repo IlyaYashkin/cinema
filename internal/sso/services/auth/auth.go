@@ -81,7 +81,7 @@ func New(
 }
 
 func (a *Auth) RegisterNewUser(ctx context.Context, email string, pass string) (string, error) {
-	const op = "Auth.RegisterNewUser"
+	const op = "auth.RegisterNewUser"
 
 	log := a.log.With(
 		slog.String("op", op),
@@ -114,7 +114,7 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email string, pass string) (
 }
 
 func (a *Auth) Login(ctx context.Context, email string, password string, deviceId string, deviceName string) (*domain.TokenPair, error) {
-	const op = "Auth.Login"
+	const op = "auth.Login"
 
 	log := a.log.With(
 		slog.String("op", op),
@@ -177,7 +177,7 @@ func (a *Auth) Login(ctx context.Context, email string, password string, deviceI
 }
 
 func (a *Auth) Refresh(ctx context.Context, refreshToken string, deviceId string, deviceName string) (*domain.TokenPair, error) {
-	const op = "Auth.Refresh"
+	const op = "auth.Refresh"
 
 	log := a.log.With(
 		slog.String("op", op),
@@ -248,7 +248,7 @@ func (a *Auth) Refresh(ctx context.Context, refreshToken string, deviceId string
 }
 
 func (a *Auth) Logout(ctx context.Context, refreshToken string, deviceId string) error {
-	const op = "Auth.Logout"
+	const op = "auth.Logout"
 
 	log := a.log.With(
 		slog.String("op", op),
@@ -297,7 +297,7 @@ func (a *Auth) Logout(ctx context.Context, refreshToken string, deviceId string)
 }
 
 func (a *Auth) ChangeRole(ctx context.Context, accessToken string, userId string, role domain.Role) error {
-	const op = "Auth.ChangeRole"
+	const op = "auth.ChangeRole"
 
 	log := a.log.With(
 		slog.String("op", op),
@@ -352,7 +352,7 @@ func (a *Auth) ChangeEmail(
 	newEmail string,
 	password string,
 ) error {
-	const op = "Auth.ChangeEmail"
+	const op = "auth.ChangeEmail"
 
 	log := a.log.With(
 		slog.String("op", op),
@@ -407,7 +407,7 @@ func (a *Auth) ChangePassword(
 	oldPassword string,
 	newPassword string,
 ) error {
-	const op = "Auth.ChangePassword"
+	const op = "auth.ChangePassword"
 
 	log := a.log.With(
 		slog.String("op", op),
@@ -458,7 +458,7 @@ func (a *Auth) ForgotPassword(
 	ctx context.Context,
 	email string,
 ) {
-	const op = "Auth.ForgotPassword"
+	const op = "auth.ForgotPassword"
 
 	log := a.log.With(
 		slog.String("op", op),
@@ -501,7 +501,7 @@ func (a *Auth) ResetPassword(
 	resetToken string,
 	newPassword string,
 ) error {
-	const op = "Auth.ResetPassword"
+	const op = "auth.ResetPassword"
 
 	log := a.log.With(
 		slog.String("op", op),

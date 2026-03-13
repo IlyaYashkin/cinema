@@ -4,17 +4,17 @@ package showcase;
 
 option go_package = "cinema/gen/showcase;showcase";
 
+import "buf/validate/validate.proto";
+
 service Film {
   rpc Create (FilmCreateRequest) returns (FilmCreateResponse);
   rpc Get (FilmGetRequest) returns (FilmGetResponse);
+  rpc AddImage (AddImageRequest) returns (AddImageResponse);
 }
 
 message FilmCreateRequest {
-  string name = 1;
+  string name = 1 [(buf.validate.field).string.min_len = 1];
   string description = 2;
-  string genre = 3;
-  float rating = 4;
-  string poster_url = 5;
 }
 
 message FilmCreateResponse {
@@ -22,9 +22,21 @@ message FilmCreateResponse {
 }
 
 message FilmGetRequest {
-
+  string id = 1;
 }
 
 message FilmGetResponse {
+  string name = 1;
+  string description = 2;
+  string poster_url = 5;
+}
 
+message AddImageRequest {
+  string film_id = 1 [(buf.validate.field).string.uuid = true];
+  string content_type = 2 [(buf.validate.field).string.min_len = 1];
+}
+
+message AddImageResponse {
+  string presigned_url = 1;
+  string key = 2;
 }

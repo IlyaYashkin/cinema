@@ -4,11 +4,9 @@ import (
 	"cinema/internal/sso/domain"
 	"context"
 
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	"cinema/gen/sso"
+
+	"google.golang.org/grpc"
 )
 
 type Controller struct {
@@ -68,16 +66,6 @@ func (c *Controller) Login(
 	ctx context.Context,
 	in *sso.LoginRequest,
 ) (*sso.LoginResponse, error) {
-	if err := validateEmail(in.GetEmail(), "email"); err != nil {
-		return nil, err
-	}
-	if err := validatePassword(in.GetPassword(), "password"); err != nil {
-		return nil, err
-	}
-	if err := validateDeviceId(in.GetDeviceId(), "device_id"); err != nil {
-		return nil, err
-	}
-
 	userAgent := getUserAgent(ctx)
 
 	tokenPair, err := c.auth.Login(ctx, in.GetEmail(), in.GetPassword(), in.GetDeviceId(), userAgent)
@@ -92,13 +80,6 @@ func (c *Controller) Register(
 	ctx context.Context,
 	in *sso.RegisterRequest,
 ) (*sso.RegisterResponse, error) {
-	if err := validateEmail(in.GetEmail(), "email"); err != nil {
-		return nil, err
-	}
-	if err := validatePassword(in.GetPassword(), "password"); err != nil {
-		return nil, err
-	}
-
 	uid, err := c.auth.RegisterNewUser(ctx, in.GetEmail(), in.GetPassword())
 	if err != nil {
 		return nil, toGRPCError(err)
@@ -111,13 +92,6 @@ func (c *Controller) Refresh(
 	ctx context.Context,
 	in *sso.RefreshRequest,
 ) (*sso.RefreshResponse, error) {
-	if in.GetRefreshToken() == "" {
-		return nil, status.Error(codes.InvalidArgument, "refresh_token is required")
-	}
-	if err := validateDeviceId(in.GetDeviceId(), "device_id"); err != nil {
-		return nil, err
-	}
-
 	userAgent := getUserAgent(ctx)
 
 	tokenPair, err := c.auth.Refresh(ctx, in.GetRefreshToken(), in.GetDeviceId(), userAgent)
@@ -132,13 +106,6 @@ func (c *Controller) Logout(
 	ctx context.Context,
 	in *sso.LogoutRequest,
 ) (*sso.LogoutResponse, error) {
-	if in.GetRefreshToken() == "" {
-		return nil, status.Error(codes.InvalidArgument, "refresh_token is required")
-	}
-	if err := validateDeviceId(in.GetDeviceId(), "device_id"); err != nil {
-		return nil, err
-	}
-
 	err := c.auth.Logout(ctx, in.GetRefreshToken(), in.GetDeviceId())
 	if err != nil {
 		return nil, toGRPCError(err)
@@ -153,13 +120,6 @@ func (c *Controller) ChangeRole(
 ) (*sso.ChangeRoleResponse, error) {
 	token, err := getBearerFromCtx(ctx)
 	if err != nil {
-		return nil, err
-	}
-
-	if in.GetUserId() == "" {
-		return nil, status.Error(codes.InvalidArgument, "user_id is required")
-	}
-	if err := validateRole(in.GetRole()); err != nil {
 		return nil, err
 	}
 
@@ -180,13 +140,6 @@ func (c *Controller) ChangeEmail(
 		return nil, err
 	}
 
-	if err := validateEmail(in.GetNewEmail(), "new_email"); err != nil {
-		return nil, err
-	}
-	if err := validatePassword(in.GetPassword(), "password"); err != nil {
-		return nil, err
-	}
-
 	err = c.auth.ChangeEmail(ctx, token, in.GetNewEmail(), in.GetPassword())
 	if err != nil {
 		return nil, toGRPCError(err)
@@ -204,13 +157,6 @@ func (c *Controller) ChangePassword(
 		return nil, err
 	}
 
-	if err := validatePassword(in.GetOldPassword(), "old_password"); err != nil {
-		return nil, err
-	}
-	if err := validatePassword(in.GetNewPassword(), "new_password"); err != nil {
-		return nil, err
-	}
-
 	err = c.auth.ChangePassword(ctx, token, in.GetOldPassword(), in.GetNewPassword())
 	if err != nil {
 		return nil, toGRPCError(err)
@@ -223,10 +169,6 @@ func (c *Controller) ForgotPassword(
 	ctx context.Context,
 	in *sso.ForgotPasswordRequest,
 ) (*sso.ForgotPasswordResponse, error) {
-	if err := validateEmail(in.GetEmail(), "email"); err != nil {
-		return nil, err
-	}
-
 	c.auth.ForgotPassword(ctx, in.GetEmail())
 
 	return &sso.ForgotPasswordResponse{}, nil
@@ -236,13 +178,6 @@ func (c *Controller) ResetPassword(
 	ctx context.Context,
 	in *sso.ResetPasswordRequest,
 ) (*sso.ResetPasswordResponse, error) {
-	if err := validateResetToken(in.GetNewPassword(), "reset_token"); err != nil {
-		return nil, err
-	}
-	if err := validatePassword(in.GetNewPassword(), "new_password"); err != nil {
-		return nil, err
-	}
-
 	err := c.auth.ResetPassword(ctx, in.GetResetToken(), in.GetNewPassword())
 	if err != nil {
 		return nil, toGRPCError(err)

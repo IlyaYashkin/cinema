@@ -6,6 +6,8 @@ import (
 )
 
 type Config struct {
-	Env      env.Env         `yaml:"env" env-default:"local"`
-	S3Config config.S3Config `yaml:"s3"`
+	Env        env.Env           `yaml:"env" env-default:"local"`
+	GRPCConfig config.GRPCConfig `yaml:"grpc"`
+	S3Config   config.S3Config   `yaml:"s3"`
+	DBConfig   config.DBConfig   `yaml:"db"`
 }

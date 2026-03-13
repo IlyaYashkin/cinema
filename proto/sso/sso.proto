@@ -4,6 +4,8 @@ package sso;
 
 option go_package = "cinema/gen/sso;sso";
 
+import "buf/validate/validate.proto";
+
 service Auth {
   rpc Register (RegisterRequest) returns (RegisterResponse);
   rpc Login (LoginRequest) returns (LoginResponse);
@@ -17,8 +19,14 @@ service Auth {
 }
 
 message RegisterRequest {
-  string email = 1;
-  string password = 2;
+  string email = 1 [
+    (buf.validate.field).string.email = true,
+    (buf.validate.field).string.max_len = 254
+  ];
+  string password = 2 [
+    (buf.validate.field).string.min_len = 8,
+    (buf.validate.field).string.max_len = 72
+  ];
 }
 
 message RegisterResponse {
@@ -26,9 +34,18 @@ message RegisterResponse {
 }
 
 message LoginRequest {
-  string email = 1;
-  string password = 2;
-  string device_id = 3;
+  string email = 1 [
+    (buf.validate.field).string.email = true,
+    (buf.validate.field).string.max_len = 254
+  ];
+  string password = 2 [
+    (buf.validate.field).string.min_len = 8,
+    (buf.validate.field).string.max_len = 72
+  ];
+  string device_id = 3 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 64
+  ];
 }
 
 message LoginResponse {
@@ -37,8 +54,11 @@ message LoginResponse {
 }
 
 message RefreshRequest {
-  string refresh_token = 1;
-  string device_id = 2;
+  string refresh_token = 1 [(buf.validate.field).string.min_len = 1];
+  string device_id = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 64
+  ];
 }
 
 message RefreshResponse {
@@ -47,42 +67,66 @@ message RefreshResponse {
 }
 
 message LogoutRequest {
-  string refresh_token = 1;
-  string device_id = 2;
+  string refresh_token = 1 [(buf.validate.field).string.min_len = 1];
+  string device_id = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 64
+  ];
 }
 
 message LogoutResponse {}
 
 message ChangeRoleRequest {
-  string user_id = 1;
-  string role = 2;
+  string user_id = 1 [(buf.validate.field).string.uuid = true];
+  string role = 2 [(buf.validate.field).string = {in: ["member", "admin"]}];
 }
 
 message ChangeRoleResponse {}
 
 message ChangeEmailRequest {
-  string new_email = 1;
-  string password = 2;
+  string new_email = 1 [
+    (buf.validate.field).string.email = true,
+    (buf.validate.field).string.max_len = 254
+  ];
+  string password = 2 [
+    (buf.validate.field).string.min_len = 8,
+    (buf.validate.field).string.max_len = 72
+  ];
 }
 
 message ChangeEmailResponse {}
 
 message ChangePasswordRequest {
-  string old_password = 1;
-  string new_password = 2;
+  string old_password = 1 [
+    (buf.validate.field).string.min_len = 8,
+    (buf.validate.field).string.max_len = 72
+  ];
+  string new_password = 2 [
+    (buf.validate.field).string.min_len = 8,
+    (buf.validate.field).string.max_len = 72
+  ];
 }
 
 message ChangePasswordResponse {}
 
 message ForgotPasswordRequest {
-  string email = 1;
+  string email = 1 [
+    (buf.validate.field).string.email = true,
+    (buf.validate.field).string.max_len = 254
+  ];
 }
 
 message ForgotPasswordResponse {}
 
 message ResetPasswordRequest {
-  string reset_token = 1;
-  string new_password = 2;
+  string reset_token = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 64
+  ];
+  string new_password = 2 [
+    (buf.validate.field).string.min_len = 8,
+    (buf.validate.field).string.max_len = 72
+  ];
 }
 
 message ResetPasswordResponse {}

@@ -51,6 +51,19 @@ func (s *S3) GetPresignedUploadURL(ctx context.Context, key string) (string, err
 	return req.URL, nil
 }
 
+func (s *S3) GetRestrictedPresignedUploadURL(ctx context.Context, key string, contentType string) (string, error) {
+	presignClient := s3.NewPresignClient(s.client)
+	req, err := presignClient.PresignPutObject(ctx, &s3.PutObjectInput{
+		Bucket:      aws.String(s.bucket),
+		Key:         aws.String(key),
+		ContentType: aws.String(contentType),
+	}, s3.WithPresignExpires(s.presignTTL))
+	if err != nil {
+		return "", err
+	}
+	return req.URL, nil
+}
+
 func (s *S3) Client() *s3.Client {
 	return s.client
 }
