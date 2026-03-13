@@ -164,9 +164,10 @@ func (x *FilmGetRequest) GetId() string {
 
 type FilmGetResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Description   string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	PosterUrl     string                 `protobuf:"bytes,5,opt,name=poster_url,json=posterUrl,proto3" json:"poster_url,omitempty"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	PosterUrl     string                 `protobuf:"bytes,4,opt,name=poster_url,json=posterUrl,proto3" json:"poster_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -201,6 +202,13 @@ func (*FilmGetResponse) Descriptor() ([]byte, []int) {
 	return file_showcase_showcase_proto_rawDescGZIP(), []int{3}
 }
 
+func (x *FilmGetResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
 func (x *FilmGetResponse) GetName() string {
 	if x != nil {
 		return x.Name
@@ -222,7 +230,7 @@ func (x *FilmGetResponse) GetPosterUrl() string {
 	return ""
 }
 
-type AddImageRequest struct {
+type UploadImageRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	FilmId        string                 `protobuf:"bytes,1,opt,name=film_id,json=filmId,proto3" json:"film_id,omitempty"`
 	ContentType   string                 `protobuf:"bytes,2,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
@@ -230,20 +238,20 @@ type AddImageRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AddImageRequest) Reset() {
-	*x = AddImageRequest{}
+func (x *UploadImageRequest) Reset() {
+	*x = UploadImageRequest{}
 	mi := &file_showcase_showcase_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AddImageRequest) String() string {
+func (x *UploadImageRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AddImageRequest) ProtoMessage() {}
+func (*UploadImageRequest) ProtoMessage() {}
 
-func (x *AddImageRequest) ProtoReflect() protoreflect.Message {
+func (x *UploadImageRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_showcase_showcase_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -255,26 +263,26 @@ func (x *AddImageRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AddImageRequest.ProtoReflect.Descriptor instead.
-func (*AddImageRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use UploadImageRequest.ProtoReflect.Descriptor instead.
+func (*UploadImageRequest) Descriptor() ([]byte, []int) {
 	return file_showcase_showcase_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *AddImageRequest) GetFilmId() string {
+func (x *UploadImageRequest) GetFilmId() string {
 	if x != nil {
 		return x.FilmId
 	}
 	return ""
 }
 
-func (x *AddImageRequest) GetContentType() string {
+func (x *UploadImageRequest) GetContentType() string {
 	if x != nil {
 		return x.ContentType
 	}
 	return ""
 }
 
-type AddImageResponse struct {
+type UploadImageResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	PresignedUrl  string                 `protobuf:"bytes,1,opt,name=presigned_url,json=presignedUrl,proto3" json:"presigned_url,omitempty"`
 	Key           string                 `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
@@ -282,20 +290,20 @@ type AddImageResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AddImageResponse) Reset() {
-	*x = AddImageResponse{}
+func (x *UploadImageResponse) Reset() {
+	*x = UploadImageResponse{}
 	mi := &file_showcase_showcase_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AddImageResponse) String() string {
+func (x *UploadImageResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AddImageResponse) ProtoMessage() {}
+func (*UploadImageResponse) ProtoMessage() {}
 
-func (x *AddImageResponse) ProtoReflect() protoreflect.Message {
+func (x *UploadImageResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_showcase_showcase_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -307,52 +315,147 @@ func (x *AddImageResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AddImageResponse.ProtoReflect.Descriptor instead.
-func (*AddImageResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use UploadImageResponse.ProtoReflect.Descriptor instead.
+func (*UploadImageResponse) Descriptor() ([]byte, []int) {
 	return file_showcase_showcase_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *AddImageResponse) GetPresignedUrl() string {
+func (x *UploadImageResponse) GetPresignedUrl() string {
 	if x != nil {
 		return x.PresignedUrl
 	}
 	return ""
 }
 
-func (x *AddImageResponse) GetKey() string {
+func (x *UploadImageResponse) GetKey() string {
 	if x != nil {
 		return x.Key
 	}
 	return ""
 }
 
+type UpdatePosterRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FilmId        string                 `protobuf:"bytes,1,opt,name=film_id,json=filmId,proto3" json:"film_id,omitempty"`
+	Key           string                 `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdatePosterRequest) Reset() {
+	*x = UpdatePosterRequest{}
+	mi := &file_showcase_showcase_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdatePosterRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdatePosterRequest) ProtoMessage() {}
+
+func (x *UpdatePosterRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_showcase_showcase_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdatePosterRequest.ProtoReflect.Descriptor instead.
+func (*UpdatePosterRequest) Descriptor() ([]byte, []int) {
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *UpdatePosterRequest) GetFilmId() string {
+	if x != nil {
+		return x.FilmId
+	}
+	return ""
+}
+
+func (x *UpdatePosterRequest) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+type UpdatePosterResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdatePosterResponse) Reset() {
+	*x = UpdatePosterResponse{}
+	mi := &file_showcase_showcase_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdatePosterResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdatePosterResponse) ProtoMessage() {}
+
+func (x *UpdatePosterResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_showcase_showcase_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdatePosterResponse.ProtoReflect.Descriptor instead.
+func (*UpdatePosterResponse) Descriptor() ([]byte, []int) {
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{7}
+}
+
 var File_showcase_showcase_proto protoreflect.FileDescriptor
 
 const file_showcase_showcase_proto_rawDesc = "" +
 	"\n" +
-	"\x17showcase/showcase.proto\x12\bshowcase\x1a\x1bbuf/validate/validate.proto\"R\n" +
-	"\x11FilmCreateRequest\x12\x1b\n" +
-	"\x04name\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x04name\x12 \n" +
+	"\x17showcase/showcase.proto\x12\bshowcase\x1a\x1bbuf/validate/validate.proto\"U\n" +
+	"\x11FilmCreateRequest\x12\x1e\n" +
+	"\x04name\x18\x01 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x01\x18\xff\x01R\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\"$\n" +
 	"\x12FilmCreateResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\" \n" +
-	"\x0eFilmGetRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"f\n" +
-	"\x0fFilmGetResponse\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
-	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"*\n" +
+	"\x0eFilmGetRequest\x12\x18\n" +
+	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"v\n" +
+	"\x0fFilmGetResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x1d\n" +
 	"\n" +
-	"poster_url\x18\x05 \x01(\tR\tposterUrl\"`\n" +
-	"\x0fAddImageRequest\x12!\n" +
+	"poster_url\x18\x04 \x01(\tR\tposterUrl\"c\n" +
+	"\x12UploadImageRequest\x12!\n" +
 	"\afilm_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06filmId\x12*\n" +
-	"\fcontent_type\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\vcontentType\"I\n" +
-	"\x10AddImageResponse\x12#\n" +
+	"\fcontent_type\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\vcontentType\"L\n" +
+	"\x13UploadImageResponse\x12#\n" +
 	"\rpresigned_url\x18\x01 \x01(\tR\fpresignedUrl\x12\x10\n" +
-	"\x03key\x18\x02 \x01(\tR\x03key2\xca\x01\n" +
+	"\x03key\x18\x02 \x01(\tR\x03key\"S\n" +
+	"\x13UpdatePosterRequest\x12!\n" +
+	"\afilm_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06filmId\x12\x19\n" +
+	"\x03key\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x03key\"\x16\n" +
+	"\x14UpdatePosterResponse2\xa2\x02\n" +
 	"\x04Film\x12C\n" +
 	"\x06Create\x12\x1b.showcase.FilmCreateRequest\x1a\x1c.showcase.FilmCreateResponse\x12:\n" +
-	"\x03Get\x12\x18.showcase.FilmGetRequest\x1a\x19.showcase.FilmGetResponse\x12A\n" +
-	"\bAddImage\x12\x19.showcase.AddImageRequest\x1a\x1a.showcase.AddImageResponseB\x1eZ\x1ccinema/gen/showcase;showcaseb\x06proto3"
+	"\x03Get\x12\x18.showcase.FilmGetRequest\x1a\x19.showcase.FilmGetResponse\x12J\n" +
+	"\vUploadImage\x12\x1c.showcase.UploadImageRequest\x1a\x1d.showcase.UploadImageResponse\x12M\n" +
+	"\fUpdatePoster\x12\x1d.showcase.UpdatePosterRequest\x1a\x1e.showcase.UpdatePosterResponseB\x1eZ\x1ccinema/gen/showcase;showcaseb\x06proto3"
 
 var (
 	file_showcase_showcase_proto_rawDescOnce sync.Once
@@ -366,24 +469,28 @@ func file_showcase_showcase_proto_rawDescGZIP() []byte {
 	return file_showcase_showcase_proto_rawDescData
 }
 
-var file_showcase_showcase_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_showcase_showcase_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_showcase_showcase_proto_goTypes = []any{
-	(*FilmCreateRequest)(nil),  // 0: showcase.FilmCreateRequest
-	(*FilmCreateResponse)(nil), // 1: showcase.FilmCreateResponse
-	(*FilmGetRequest)(nil),     // 2: showcase.FilmGetRequest
-	(*FilmGetResponse)(nil),    // 3: showcase.FilmGetResponse
-	(*AddImageRequest)(nil),    // 4: showcase.AddImageRequest
-	(*AddImageResponse)(nil),   // 5: showcase.AddImageResponse
+	(*FilmCreateRequest)(nil),    // 0: showcase.FilmCreateRequest
+	(*FilmCreateResponse)(nil),   // 1: showcase.FilmCreateResponse
+	(*FilmGetRequest)(nil),       // 2: showcase.FilmGetRequest
+	(*FilmGetResponse)(nil),      // 3: showcase.FilmGetResponse
+	(*UploadImageRequest)(nil),   // 4: showcase.UploadImageRequest
+	(*UploadImageResponse)(nil),  // 5: showcase.UploadImageResponse
+	(*UpdatePosterRequest)(nil),  // 6: showcase.UpdatePosterRequest
+	(*UpdatePosterResponse)(nil), // 7: showcase.UpdatePosterResponse
 }
 var file_showcase_showcase_proto_depIdxs = []int32{
 	0, // 0: showcase.Film.Create:input_type -> showcase.FilmCreateRequest
 	2, // 1: showcase.Film.Get:input_type -> showcase.FilmGetRequest
-	4, // 2: showcase.Film.AddImage:input_type -> showcase.AddImageRequest
-	1, // 3: showcase.Film.Create:output_type -> showcase.FilmCreateResponse
-	3, // 4: showcase.Film.Get:output_type -> showcase.FilmGetResponse
-	5, // 5: showcase.Film.AddImage:output_type -> showcase.AddImageResponse
-	3, // [3:6] is the sub-list for method output_type
-	0, // [0:3] is the sub-list for method input_type
+	4, // 2: showcase.Film.UploadImage:input_type -> showcase.UploadImageRequest
+	6, // 3: showcase.Film.UpdatePoster:input_type -> showcase.UpdatePosterRequest
+	1, // 4: showcase.Film.Create:output_type -> showcase.FilmCreateResponse
+	3, // 5: showcase.Film.Get:output_type -> showcase.FilmGetResponse
+	5, // 6: showcase.Film.UploadImage:output_type -> showcase.UploadImageResponse
+	7, // 7: showcase.Film.UpdatePoster:output_type -> showcase.UpdatePosterResponse
+	4, // [4:8] is the sub-list for method output_type
+	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -400,7 +507,7 @@ func file_showcase_showcase_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_showcase_showcase_proto_rawDesc), len(file_showcase_showcase_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

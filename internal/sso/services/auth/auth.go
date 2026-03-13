@@ -9,7 +9,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"log/slog"
 	"time"
 
@@ -81,7 +80,7 @@ func New(
 }
 
 func (a *Auth) RegisterNewUser(ctx context.Context, email string, pass string) (string, error) {
-	const op = "auth.RegisterNewUser"
+	const op = "sso.auth.register_new_user"
 
 	log := a.log.With(
 		slog.String("op", op),
@@ -94,7 +93,7 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email string, pass string) (
 	if err != nil {
 		log.Error("failed to generate password hash", sl.Err(err))
 
-		return "", fmt.Errorf("%s: %w", op, err)
+		return "", sl.WrapErr(op, err)
 	}
 
 	id, err := a.userProvider.SaveUser(ctx, email, passHash)
@@ -102,19 +101,19 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email string, pass string) (
 		if errors.Is(err, storage.ErrUserExists) {
 			log.Warn("user already exists", sl.Err(err))
 
-			return "", ErrUserAlreadyExists
+			return "", sl.WrapErr(op, ErrUserAlreadyExists)
 		}
 
 		log.Error("failed to save user", sl.Err(err))
 
-		return "", fmt.Errorf("%s: %w", op, err)
+		return "", sl.WrapErr(op, err)
 	}
 
 	return id, nil
 }
 
 func (a *Auth) Login(ctx context.Context, email string, password string, deviceId string, deviceName string) (*domain.TokenPair, error) {
-	const op = "auth.Login"
+	const op = "sso.auth.login"
 
 	log := a.log.With(
 		slog.String("op", op),
@@ -130,24 +129,24 @@ func (a *Auth) Login(ctx context.Context, email string, password string, deviceI
 		if errors.Is(err, storage.ErrUserNotFound) {
 			log.Warn("user not found", sl.Err(err))
 
-			return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
+			return nil, sl.WrapErr(op, ErrInvalidCredentials)
 		}
 
 		log.Error("failed to find user", sl.Err(err))
 
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, sl.WrapErr(op, err)
 	}
 
 	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(password)); err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 			log.Warn("invalid password", sl.Err(err))
 
-			return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
+			return nil, sl.WrapErr(op, ErrInvalidCredentials)
 		}
 
 		log.Error("failed compare hash and password", sl.Err(err))
 
-		return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
+		return nil, sl.WrapErr(op, ErrInvalidCredentials)
 	}
 
 	userId := user.Id.String()
@@ -156,28 +155,28 @@ func (a *Auth) Login(ctx context.Context, email string, password string, deviceI
 	if err != nil {
 		log.Error("failed to generate access token", sl.Err(err))
 
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, sl.WrapErr(op, err)
 	}
 
 	refreshToken, err := a.jwtGenerator.GenerateRefreshToken(userId, string(user.Role))
 	if err != nil {
 		log.Error("failed to generate refresh token", sl.Err(err))
 
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, sl.WrapErr(op, err)
 	}
 
 	err = a.sessionStorage.SaveSession(ctx, userId, refreshToken, deviceId, deviceName, a.jwtGenerator.GetRefreshTTL())
 	if err != nil {
 		log.Error("failed to save refresh token", sl.Err(err))
 
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, sl.WrapErr(op, err)
 	}
 
 	return &domain.TokenPair{AccessToken: accessToken, RefreshToken: refreshToken}, nil
 }
 
 func (a *Auth) Refresh(ctx context.Context, refreshToken string, deviceId string, deviceName string) (*domain.TokenPair, error) {
-	const op = "auth.Refresh"
+	const op = "sso.auth.refresh"
 
 	log := a.log.With(
 		slog.String("op", op),
@@ -187,7 +186,7 @@ func (a *Auth) Refresh(ctx context.Context, refreshToken string, deviceId string
 
 	claims, err := a.validateRefreshToken(log, refreshToken)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, sl.WrapErr(op, err)
 	}
 
 	userId := claims.Subject
@@ -202,12 +201,12 @@ func (a *Auth) Refresh(ctx context.Context, refreshToken string, deviceId string
 		if errors.Is(err, storage.ErrSessionNotFound) {
 			log.Warn("session not found", sl.Err(err))
 
-			return nil, fmt.Errorf("%s: %w", op, ErrInvalidRefreshToken)
+			return nil, sl.WrapErr(op, ErrInvalidRefreshToken)
 		}
 
 		log.Error("failed to get session", sl.Err(err))
 
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, sl.WrapErr(op, err)
 	}
 
 	if session.RefreshToken != refreshToken {
@@ -215,40 +214,40 @@ func (a *Auth) Refresh(ctx context.Context, refreshToken string, deviceId string
 
 		_ = a.sessionStorage.DeleteAllSessions(ctx, userId)
 
-		return nil, fmt.Errorf("%s: %w", op, ErrInvalidRefreshToken)
+		return nil, sl.WrapErr(op, ErrInvalidRefreshToken)
 	}
 
 	if err := a.sessionStorage.DeleteSession(ctx, userId, deviceId); err != nil {
 		log.Error("failed to delete old refresh token", sl.Err(err))
 
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, sl.WrapErr(op, err)
 	}
 
 	accessToken, err := a.jwtGenerator.GenerateAccessToken(userId, role)
 	if err != nil {
 		log.Error("failed to generate access token", sl.Err(err))
 
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, sl.WrapErr(op, err)
 	}
 
 	refreshToken, err = a.jwtGenerator.GenerateRefreshToken(userId, role)
 	if err != nil {
 		log.Error("failed to generate refresh token", sl.Err(err))
 
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, sl.WrapErr(op, err)
 	}
 
 	if err := a.sessionStorage.SaveSession(ctx, userId, refreshToken, deviceId, deviceName, a.jwtGenerator.GetRefreshTTL()); err != nil {
 		log.Error("failed to save refresh token", sl.Err(err))
 
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, sl.WrapErr(op, err)
 	}
 
 	return &domain.TokenPair{AccessToken: accessToken, RefreshToken: refreshToken}, nil
 }
 
 func (a *Auth) Logout(ctx context.Context, refreshToken string, deviceId string) error {
-	const op = "auth.Logout"
+	const op = "sso.auth.logout"
 
 	log := a.log.With(
 		slog.String("op", op),
@@ -256,7 +255,7 @@ func (a *Auth) Logout(ctx context.Context, refreshToken string, deviceId string)
 
 	claims, err := a.validateRefreshToken(log, refreshToken)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return sl.WrapErr(op, err)
 	}
 
 	userId := claims.Subject
@@ -270,12 +269,12 @@ func (a *Auth) Logout(ctx context.Context, refreshToken string, deviceId string)
 		if errors.Is(err, storage.ErrSessionNotFound) {
 			log.Warn("session not found", sl.Err(err))
 
-			return fmt.Errorf("%s: %w", op, ErrInvalidRefreshToken)
+			return sl.WrapErr(op, ErrInvalidRefreshToken)
 		}
 
 		log.Error("failed to get session", sl.Err(err))
 
-		return fmt.Errorf("%s: %w", op, err)
+		return sl.WrapErr(op, err)
 	}
 
 	if session.RefreshToken != refreshToken {
@@ -283,21 +282,21 @@ func (a *Auth) Logout(ctx context.Context, refreshToken string, deviceId string)
 
 		_ = a.sessionStorage.DeleteAllSessions(ctx, userId)
 
-		return fmt.Errorf("%s: %w", op, ErrInvalidRefreshToken)
+		return sl.WrapErr(op, ErrInvalidRefreshToken)
 	}
 
 	err = a.sessionStorage.DeleteSession(ctx, userId, deviceId)
 	if err != nil {
 		log.Error("failed to delete sessions", sl.Err(err))
 
-		return fmt.Errorf("%s: %w", op, err)
+		return sl.WrapErr(op, err)
 	}
 
 	return nil
 }
 
 func (a *Auth) ChangeRole(ctx context.Context, accessToken string, userId string, role domain.Role) error {
-	const op = "auth.ChangeRole"
+	const op = "sso.auth.change_role"
 
 	log := a.log.With(
 		slog.String("op", op),
@@ -309,7 +308,7 @@ func (a *Auth) ChangeRole(ctx context.Context, accessToken string, userId string
 
 	claims, err := a.validateAccessToken(log, accessToken)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return sl.WrapErr(op, err)
 	}
 
 	log = log.With(
@@ -320,7 +319,7 @@ func (a *Auth) ChangeRole(ctx context.Context, accessToken string, userId string
 	if domain.Role(claims.Role) != domain.Admin {
 		log.Error("attempt to change role without permission")
 
-		return fmt.Errorf("%s: %w", op, ErrPermissionDenied)
+		return sl.WrapErr(op, ErrPermissionDenied)
 	}
 
 	err = a.userProvider.UpdateUserRole(ctx, userId, string(role))
@@ -328,19 +327,19 @@ func (a *Auth) ChangeRole(ctx context.Context, accessToken string, userId string
 		if errors.Is(err, storage.ErrUserNotFound) {
 			log.Warn("user not found", sl.Err(err))
 
-			return fmt.Errorf("%s: %w", op, ErrUserNotFound)
+			return sl.WrapErr(op, ErrUserNotFound)
 		}
 
 		log.Error("failed to set user role", sl.Err(err))
 
-		return fmt.Errorf("%s: %w", op, err)
+		return sl.WrapErr(op, err)
 	}
 
 	err = a.sessionStorage.DeleteAllSessions(ctx, userId)
 	if err != nil {
 		log.Error("failed to delete sessions", sl.Err(err))
 
-		return fmt.Errorf("%s: %w", op, err)
+		return sl.WrapErr(op, err)
 	}
 
 	return nil
@@ -352,7 +351,7 @@ func (a *Auth) ChangeEmail(
 	newEmail string,
 	password string,
 ) error {
-	const op = "auth.ChangeEmail"
+	const op = "sso.auth.change_email"
 
 	log := a.log.With(
 		slog.String("op", op),
@@ -362,7 +361,7 @@ func (a *Auth) ChangeEmail(
 
 	claims, err := a.validateAccessToken(log, accessToken)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return sl.WrapErr(op, err)
 	}
 
 	userId := claims.Subject
@@ -375,27 +374,27 @@ func (a *Auth) ChangeEmail(
 	if err != nil {
 		log.Error("failed to find user", sl.Err(err))
 
-		return fmt.Errorf("%s: %w", op, err)
+		return sl.WrapErr(op, err)
 	}
 
 	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(password)); err != nil {
 		log.Warn("invalid password", sl.Err(err))
 
-		return fmt.Errorf("%s: %w", op, ErrInvalidPassword)
+		return sl.WrapErr(op, ErrInvalidPassword)
 	}
 
 	err = a.userProvider.UpdateUserEmail(ctx, userId, newEmail)
 	if err != nil {
 		log.Error("failed to change user email", sl.Err(err))
 
-		return fmt.Errorf("%s: %w", op, err)
+		return sl.WrapErr(op, err)
 	}
 
 	err = a.sessionStorage.DeleteAllSessions(ctx, userId)
 	if err != nil {
 		log.Error("failed to delete sessions", sl.Err(err))
 
-		return fmt.Errorf("%s: %w", op, err)
+		return sl.WrapErr(op, err)
 	}
 
 	return nil
@@ -407,7 +406,7 @@ func (a *Auth) ChangePassword(
 	oldPassword string,
 	newPassword string,
 ) error {
-	const op = "auth.ChangePassword"
+	const op = "sso.auth.change_password"
 
 	log := a.log.With(
 		slog.String("op", op),
@@ -417,7 +416,7 @@ func (a *Auth) ChangePassword(
 
 	claims, err := a.validateAccessToken(log, accessToken)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return sl.WrapErr(op, err)
 	}
 
 	userId := claims.Subject
@@ -430,25 +429,25 @@ func (a *Auth) ChangePassword(
 	if err != nil {
 		log.Error("failed to find user", sl.Err(err))
 
-		return fmt.Errorf("%s: %w", op, err)
+		return sl.WrapErr(op, err)
 	}
 
 	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(oldPassword)); err != nil {
 		log.Warn("invalid password", sl.Err(err))
 
-		return fmt.Errorf("%s: %w", op, ErrInvalidPassword)
+		return sl.WrapErr(op, ErrInvalidPassword)
 	}
 
 	err = a.generatePasswordHashAndUpdateUser(ctx, log, userId, newPassword)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return sl.WrapErr(op, err)
 	}
 
 	err = a.sessionStorage.DeleteAllSessions(ctx, userId)
 	if err != nil {
 		log.Error("failed to delete all sessions", sl.Err(err))
 
-		return fmt.Errorf("%s: %w", op, err)
+		return sl.WrapErr(op, err)
 	}
 
 	return nil
@@ -458,7 +457,7 @@ func (a *Auth) ForgotPassword(
 	ctx context.Context,
 	email string,
 ) {
-	const op = "auth.ForgotPassword"
+	const op = "sso.auth.forgot_password"
 
 	log := a.log.With(
 		slog.String("op", op),
@@ -501,7 +500,7 @@ func (a *Auth) ResetPassword(
 	resetToken string,
 	newPassword string,
 ) error {
-	const op = "auth.ResetPassword"
+	const op = "sso.auth.reset_password"
 
 	log := a.log.With(
 		slog.String("op", op),
@@ -511,28 +510,34 @@ func (a *Auth) ResetPassword(
 
 	userId, err := a.resetTokenStorage.GetUserIdByResetToken(ctx, resetToken)
 	if err != nil {
+		if errors.Is(err, storage.ErrResetTokenNotFound) {
+			log.Warn("reset token not found", sl.Err(err))
+
+			return sl.WrapErr(op, ErrInvalidResetToken)
+		}
+
 		log.Error("failed to find user by reset token", sl.Err(err))
 
-		return ErrInvalidResetToken
+		return sl.WrapErr(op, err)
 	}
 
 	err = a.generatePasswordHashAndUpdateUser(ctx, log, userId, newPassword)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return sl.WrapErr(op, err)
 	}
 
 	err = a.resetTokenStorage.DeleteResetToken(ctx, resetToken)
 	if err != nil {
 		log.Error("failed to delete reset token", sl.Err(err))
 
-		return fmt.Errorf("%s: %w", op, err)
+		return sl.WrapErr(op, err)
 	}
 
 	err = a.sessionStorage.DeleteAllSessions(ctx, userId)
 	if err != nil {
 		log.Error("failed to delete all sessions", sl.Err(err))
 
-		return fmt.Errorf("%s: %w", op, err)
+		return sl.WrapErr(op, err)
 	}
 
 	return nil

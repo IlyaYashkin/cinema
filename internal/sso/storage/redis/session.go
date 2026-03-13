@@ -2,6 +2,7 @@ package redis
 
 import (
 	redislib "cinema/internal/lib/redis"
+	"cinema/internal/lib/sl"
 	"cinema/internal/sso/domain"
 	"cinema/internal/sso/storage"
 	"context"
@@ -18,6 +19,8 @@ type Session struct {
 }
 
 func (s *Session) SaveSession(ctx context.Context, userId, token, deviceId, deviceName string, ttl time.Duration) error {
+	const op = "sso.storage.session.save"
+
 	key := fmt.Sprintf("session:%s:%s", userId, deviceId)
 
 	session := domain.Session{
@@ -28,50 +31,73 @@ func (s *Session) SaveSession(ctx context.Context, userId, token, deviceId, devi
 
 	data, err := json.Marshal(session)
 	if err != nil {
-		return err
+		return sl.WrapErr(op, err)
 	}
 
-	return s.Client().Set(ctx, key, data, ttl).Err()
+	err = s.Client().Set(ctx, key, data, ttl).Err()
+	if err != nil {
+		return sl.WrapErr(op, err)
+	}
+
+	return nil
 }
 
 func (s *Session) GetSession(ctx context.Context, userId, deviceId string) (domain.Session, error) {
+	const op = "sso.storage.session.get"
+
 	key := fmt.Sprintf("session:%s:%s", userId, deviceId)
 
 	data, err := s.Client().Get(ctx, key).Bytes()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
-			return domain.Session{}, storage.ErrSessionNotFound
+			return domain.Session{}, sl.WrapErr(op, storage.ErrSessionNotFound)
 		}
 
-		return domain.Session{}, err
+		return domain.Session{}, sl.WrapErr(op, err)
 	}
 
 	var session domain.Session
 	if err := json.Unmarshal(data, &session); err != nil {
-		return domain.Session{}, err
+		return domain.Session{}, sl.WrapErr(op, err)
 	}
 
 	return session, nil
 }
 
 func (s *Session) DeleteSession(ctx context.Context, userId, deviceId string) error {
+	const op = "sso.storage.session.delete"
+
 	key := fmt.Sprintf("session:%s:%s", userId, deviceId)
 
-	return s.Client().Del(ctx, key).Err()
+	err := s.Client().Del(ctx, key).Err()
+	if err != nil {
+		return sl.WrapErr(op, err)
+	}
+
+	return nil
 }
 
 func (s *Session) DeleteAllSessions(ctx context.Context, userId string) error {
+	const op = "sso.storage.session.delete_all"
+
 	keys, err := s.scanSessionKeys(ctx, userId)
 	if err != nil {
-		return err
+		return sl.WrapErr(op, err)
 	}
 	if len(keys) == 0 {
 		return nil
 	}
-	return s.Client().Del(ctx, keys...).Err()
+	err = s.Client().Del(ctx, keys...).Err()
+	if err != nil {
+		return sl.WrapErr(op, err)
+	}
+
+	return nil
 }
 
 func (s *Session) scanSessionKeys(ctx context.Context, userId string) ([]string, error) {
+	const op = "sso.storage.session.scan"
+
 	var keys []string
 	pattern := fmt.Sprintf("session:%s:*", userId)
 	cursor := uint64(0)
@@ -79,7 +105,7 @@ func (s *Session) scanSessionKeys(ctx context.Context, userId string) ([]string,
 	for {
 		result, nextCursor, err := s.Client().Scan(ctx, cursor, pattern, 100).Result()
 		if err != nil {
-			return nil, err
+			return nil, sl.WrapErr(op, err)
 		}
 
 		keys = append(keys, result...)

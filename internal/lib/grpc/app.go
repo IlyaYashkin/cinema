@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"cinema/internal/lib/env"
+	"cinema/internal/lib/sl"
 	"context"
 	"fmt"
 	"log/slog"
@@ -28,6 +29,8 @@ type Registrar interface {
 }
 
 func New(log *slog.Logger, port int, e env.Env) *App {
+	const op = "lib.grpc.new"
+
 	loggingOpts := []logging.Option{
 		logging.WithLogOnEvents(
 			logging.PayloadReceived, logging.PayloadSent,
@@ -44,7 +47,7 @@ func New(log *slog.Logger, port int, e env.Env) *App {
 
 	validator, err := protovalidate.New()
 	if err != nil {
-		panic("Failed to create validator: " + err.Error())
+		panic(sl.WrapErr(op, err))
 	}
 
 	gRPCServer := grpc.NewServer(grpc.ChainUnaryInterceptor(
@@ -71,25 +74,25 @@ func (a *App) MustRun() {
 }
 
 func (a *App) Run() error {
-	const op = "grpcapp.Run"
+	const op = "lib.grpc.run"
 
 	l, err := net.Listen("tcp", fmt.Sprintf(":%d", a.port))
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return sl.WrapErr(op, err)
 	}
 
 	a.log.With(slog.String("op", op)).
 		Info("grpc server started", slog.String("addr", l.Addr().String()))
 
 	if err := a.gRPCServer.Serve(l); err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return sl.WrapErr(op, err)
 	}
 
 	return nil
 }
 
 func (a *App) Stop() {
-	const op = "grpcapp.Stop"
+	const op = "lib.grpc.stop"
 
 	a.log.With(slog.String("op", op)).
 		Info("stopping gRPC server", slog.Int("port", a.port))

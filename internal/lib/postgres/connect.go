@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"cinema/internal/lib/config"
+	"cinema/internal/lib/sl"
 	"context"
 	"log/slog"
 
@@ -14,9 +15,11 @@ type Postgres struct {
 }
 
 func New(log *slog.Logger, config config.DBConfig) (*Postgres, error) {
+	const op = "lib.postgres.new"
+
 	pgxCfg, err := pgxpool.ParseConfig(config.DSN)
 	if err != nil {
-		return nil, err
+		return nil, sl.WrapErr(op, err)
 	}
 
 	pgxCfg.MaxConns = config.MaxConns
@@ -26,7 +29,7 @@ func New(log *slog.Logger, config config.DBConfig) (*Postgres, error) {
 
 	pool, err := pgxpool.NewWithConfig(context.Background(), pgxCfg)
 	if err != nil {
-		return nil, err
+		return nil, sl.WrapErr(op, err)
 	}
 
 	return &Postgres{log: log, pool: pool}, nil
@@ -37,14 +40,19 @@ func (p *Postgres) Pool() *pgxpool.Pool {
 }
 
 func (p *Postgres) MustConnect() {
+	const op = "lib.postgres.must_connect"
+
 	if err := p.pool.Ping(context.Background()); err != nil {
-		panic("error pinging database: " + err.Error())
+		panic(sl.WrapErr(op, err))
 	}
-	p.log.Info("postgres connected")
+
+	p.log.With(slog.String("op", op)).Info("postgres connected")
 }
 
 func (p *Postgres) Close() {
+	const op = "lib.postgres.close"
+
 	p.pool.Close()
 
-	p.log.Info("postgres disconnected")
+	p.log.With(slog.String("op", op)).Info("postgres disconnected")
 }

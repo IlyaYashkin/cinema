@@ -3,8 +3,8 @@ package smtp
 import (
 	"cinema/internal/lib/config"
 	"cinema/internal/lib/env"
+	"cinema/internal/lib/sl"
 	"context"
-	"fmt"
 	"log/slog"
 
 	"github.com/wneessen/go-mail"
@@ -17,6 +17,8 @@ type Client struct {
 }
 
 func New(log *slog.Logger, cfg config.SMTPConfig, e env.Env) (*Client, error) {
+	const op = "lib.smtp.new"
+
 	tlsPolicyOption := mail.WithTLSPolicy(mail.TLSOpportunistic)
 
 	if e.Is(env.Prod) {
@@ -32,36 +34,42 @@ func New(log *slog.Logger, cfg config.SMTPConfig, e env.Env) (*Client, error) {
 		tlsPolicyOption,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create smtp client: %w", err)
+		return nil, sl.WrapErr(op, err)
 	}
 
 	return &Client{log: log, client: c, from: cfg.From}, nil
 }
 
 func (c *Client) Connect() {
+	const op = "lib.smtp.connect"
+
+	log := c.log.With(slog.String("op", op))
+
 	if err := c.client.DialWithContext(context.Background()); err != nil {
-		c.log.Error("smtp connection failed: " + err.Error())
+		log.Error("smtp connection failed: " + err.Error())
 	}
 	_ = c.client.Close()
 
-	c.log.Info("smtp connection successful")
+	log.Info("smtp connection successful")
 }
 
 func (c *Client) Send(to, subject, body string) error {
+	const op = "lib.smtp.send"
+
 	m := mail.NewMsg()
 
 	if err := m.From(c.from); err != nil {
-		return fmt.Errorf("failed to set from: %w", err)
+		return sl.WrapErr(op, err)
 	}
 	if err := m.To(to); err != nil {
-		return fmt.Errorf("failed to set to: %w", err)
+		return sl.WrapErr(op, err)
 	}
 
 	m.Subject(subject)
 	m.SetBodyString(mail.TypeTextHTML, body)
 
 	if err := c.client.DialAndSend(m); err != nil {
-		return fmt.Errorf("failed to send email: %w", err)
+		return sl.WrapErr(op, err)
 	}
 
 	return nil

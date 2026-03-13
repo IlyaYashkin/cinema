@@ -14,6 +14,8 @@ func toGRPCError(err error) error {
 		return status.Error(codes.InvalidArgument, "incorrect mime type")
 	case errors.Is(err, film.ErrFilmNotFound):
 		return status.Error(codes.NotFound, "film not found")
+	case errors.Is(err, film.ErrFileNotFound):
+		return status.Error(codes.NotFound, "file not found")
 	}
 
 	return status.Error(codes.Internal, "internal server error")

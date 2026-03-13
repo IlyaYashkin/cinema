@@ -19,9 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Film_Create_FullMethodName   = "/showcase.Film/Create"
-	Film_Get_FullMethodName      = "/showcase.Film/Get"
-	Film_AddImage_FullMethodName = "/showcase.Film/AddImage"
+	Film_Create_FullMethodName       = "/showcase.Film/Create"
+	Film_Get_FullMethodName          = "/showcase.Film/Get"
+	Film_UploadImage_FullMethodName  = "/showcase.Film/UploadImage"
+	Film_UpdatePoster_FullMethodName = "/showcase.Film/UpdatePoster"
 )
 
 // FilmClient is the client API for Film service.
@@ -30,7 +31,8 @@ const (
 type FilmClient interface {
 	Create(ctx context.Context, in *FilmCreateRequest, opts ...grpc.CallOption) (*FilmCreateResponse, error)
 	Get(ctx context.Context, in *FilmGetRequest, opts ...grpc.CallOption) (*FilmGetResponse, error)
-	AddImage(ctx context.Context, in *AddImageRequest, opts ...grpc.CallOption) (*AddImageResponse, error)
+	UploadImage(ctx context.Context, in *UploadImageRequest, opts ...grpc.CallOption) (*UploadImageResponse, error)
+	UpdatePoster(ctx context.Context, in *UpdatePosterRequest, opts ...grpc.CallOption) (*UpdatePosterResponse, error)
 }
 
 type filmClient struct {
@@ -61,10 +63,20 @@ func (c *filmClient) Get(ctx context.Context, in *FilmGetRequest, opts ...grpc.C
 	return out, nil
 }
 
-func (c *filmClient) AddImage(ctx context.Context, in *AddImageRequest, opts ...grpc.CallOption) (*AddImageResponse, error) {
+func (c *filmClient) UploadImage(ctx context.Context, in *UploadImageRequest, opts ...grpc.CallOption) (*UploadImageResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AddImageResponse)
-	err := c.cc.Invoke(ctx, Film_AddImage_FullMethodName, in, out, cOpts...)
+	out := new(UploadImageResponse)
+	err := c.cc.Invoke(ctx, Film_UploadImage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *filmClient) UpdatePoster(ctx context.Context, in *UpdatePosterRequest, opts ...grpc.CallOption) (*UpdatePosterResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdatePosterResponse)
+	err := c.cc.Invoke(ctx, Film_UpdatePoster_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +89,8 @@ func (c *filmClient) AddImage(ctx context.Context, in *AddImageRequest, opts ...
 type FilmServer interface {
 	Create(context.Context, *FilmCreateRequest) (*FilmCreateResponse, error)
 	Get(context.Context, *FilmGetRequest) (*FilmGetResponse, error)
-	AddImage(context.Context, *AddImageRequest) (*AddImageResponse, error)
+	UploadImage(context.Context, *UploadImageRequest) (*UploadImageResponse, error)
+	UpdatePoster(context.Context, *UpdatePosterRequest) (*UpdatePosterResponse, error)
 	mustEmbedUnimplementedFilmServer()
 }
 
@@ -94,8 +107,11 @@ func (UnimplementedFilmServer) Create(context.Context, *FilmCreateRequest) (*Fil
 func (UnimplementedFilmServer) Get(context.Context, *FilmGetRequest) (*FilmGetResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
 }
-func (UnimplementedFilmServer) AddImage(context.Context, *AddImageRequest) (*AddImageResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method AddImage not implemented")
+func (UnimplementedFilmServer) UploadImage(context.Context, *UploadImageRequest) (*UploadImageResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UploadImage not implemented")
+}
+func (UnimplementedFilmServer) UpdatePoster(context.Context, *UpdatePosterRequest) (*UpdatePosterResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdatePoster not implemented")
 }
 func (UnimplementedFilmServer) mustEmbedUnimplementedFilmServer() {}
 func (UnimplementedFilmServer) testEmbeddedByValue()              {}
@@ -154,20 +170,38 @@ func _Film_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Film_AddImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddImageRequest)
+func _Film_UploadImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UploadImageRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(FilmServer).AddImage(ctx, in)
+		return srv.(FilmServer).UploadImage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Film_AddImage_FullMethodName,
+		FullMethod: Film_UploadImage_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FilmServer).AddImage(ctx, req.(*AddImageRequest))
+		return srv.(FilmServer).UploadImage(ctx, req.(*UploadImageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Film_UpdatePoster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdatePosterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FilmServer).UpdatePoster(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Film_UpdatePoster_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FilmServer).UpdatePoster(ctx, req.(*UpdatePosterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -188,8 +222,12 @@ var Film_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Film_Get_Handler,
 		},
 		{
-			MethodName: "AddImage",
-			Handler:    _Film_AddImage_Handler,
+			MethodName: "UploadImage",
+			Handler:    _Film_UploadImage_Handler,
+		},
+		{
+			MethodName: "UpdatePoster",
+			Handler:    _Film_UpdatePoster_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

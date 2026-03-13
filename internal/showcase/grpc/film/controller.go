@@ -2,6 +2,7 @@ package film
 
 import (
 	"cinema/gen/showcase"
+	"cinema/internal/showcase/domain"
 	"cinema/internal/showcase/services/film"
 	"context"
 
@@ -29,11 +30,19 @@ type Film interface {
 		name string,
 		description string,
 	) (string, error)
-	AddImage(
+	Get(
+		ctx context.Context,
+		id string,
+	) (domain.Film, error)
+	UploadImage(
 		ctx context.Context,
 		filmId string,
 		contentType string,
-	) (film.AddImageResult, error)
+	) (film.UploadImageResult, error)
+	UpdatePoster(
+		ctx context.Context,
+		filmId string,
+		key string) error
 }
 
 func (c *Controller) Create(
@@ -52,17 +61,39 @@ func (c *Controller) Get(
 	ctx context.Context,
 	in *showcase.FilmGetRequest,
 ) (*showcase.FilmGetResponse, error) {
-	return &showcase.FilmGetResponse{}, nil
-}
-
-func (c *Controller) AddImage(
-	ctx context.Context,
-	in *showcase.AddImageRequest,
-) (*showcase.AddImageResponse, error) {
-	res, err := c.film.AddImage(ctx, in.GetFilmId(), in.GetContentType())
+	f, err := c.film.Get(ctx, in.GetId())
 	if err != nil {
 		return nil, toGRPCError(err)
 	}
 
-	return &showcase.AddImageResponse{PresignedUrl: res.PresignedURL, Key: res.Key}, nil
+	return &showcase.FilmGetResponse{
+		Id:          f.Id.String(),
+		Name:        f.Name,
+		Description: f.Description,
+		PosterUrl:   *f.PosterUrl,
+	}, nil
+}
+
+func (c *Controller) UploadImage(
+	ctx context.Context,
+	in *showcase.UploadImageRequest,
+) (*showcase.UploadImageResponse, error) {
+	res, err := c.film.UploadImage(ctx, in.GetFilmId(), in.GetContentType())
+	if err != nil {
+		return nil, toGRPCError(err)
+	}
+
+	return &showcase.UploadImageResponse{PresignedUrl: res.PresignedURL, Key: res.Key}, nil
+}
+
+func (c *Controller) UpdatePoster(
+	ctx context.Context,
+	in *showcase.UpdatePosterRequest,
+) (*showcase.UpdatePosterResponse, error) {
+	err := c.film.UpdatePoster(ctx, in.GetFilmId(), in.GetKey())
+	if err != nil {
+		return nil, toGRPCError(err)
+	}
+
+	return &showcase.UpdatePosterResponse{}, nil
 }

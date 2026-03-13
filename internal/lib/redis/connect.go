@@ -2,6 +2,7 @@ package redis
 
 import (
 	"cinema/internal/lib/config"
+	"cinema/internal/lib/sl"
 	"context"
 	"log/slog"
 
@@ -14,9 +15,11 @@ type Redis struct {
 }
 
 func New(log *slog.Logger, config config.RedisConfig) (*Redis, error) {
+	const op = "lib.redis.new"
+
 	opts, err := redis.ParseURL(config.URL)
 	if err != nil {
-		return nil, err
+		return nil, sl.WrapErr(op, err)
 	}
 
 	client := redis.NewClient(opts)
@@ -29,14 +32,18 @@ func (r *Redis) Client() *redis.Client {
 }
 
 func (r *Redis) MustConnect() {
+	const op = "lib.redis.must_connect"
+
 	if err := r.client.Ping(context.Background()).Err(); err != nil {
-		panic("error pinging redis: " + err.Error())
+		panic(sl.WrapErr(op, err))
 	}
-	r.log.Info("redis connected")
+	r.log.With(slog.String("op", op)).Info("redis connected")
 }
 
 func (r *Redis) Close() {
+	const op = "lib.redis.close"
+
 	_ = r.client.Close()
 
-	r.log.Info("redis disconnected")
+	r.log.With(slog.String("op", op)).Info("redis disconnected")
 }

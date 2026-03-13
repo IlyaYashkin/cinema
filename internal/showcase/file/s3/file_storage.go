@@ -1,7 +1,7 @@
 package s3
 
 import (
-	"cinema/internal/lib/s3"
+	"cinema/internal/lib/file/s3"
 )
 
 type FileStorage struct {

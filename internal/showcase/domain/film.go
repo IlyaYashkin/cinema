@@ -7,4 +7,5 @@ type Film struct {
 	Name        string
 	Description string
 	PosterUrl   *string
+	Images      []string
 }

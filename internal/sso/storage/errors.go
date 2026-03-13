@@ -3,7 +3,8 @@ package storage
 import "errors"
 
 var (
-	ErrUserExists      = errors.New("user already exists")
-	ErrUserNotFound    = errors.New("user not found")
-	ErrSessionNotFound = errors.New("session not found")
+	ErrUserExists         = errors.New("user already exists")
+	ErrUserNotFound       = errors.New("user not found")
+	ErrSessionNotFound    = errors.New("session not found")
+	ErrResetTokenNotFound = errors.New("reset token not found")
 )

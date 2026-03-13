@@ -9,11 +9,15 @@ import "buf/validate/validate.proto";
 service Film {
   rpc Create (FilmCreateRequest) returns (FilmCreateResponse);
   rpc Get (FilmGetRequest) returns (FilmGetResponse);
-  rpc AddImage (AddImageRequest) returns (AddImageResponse);
+  rpc UploadImage (UploadImageRequest) returns (UploadImageResponse);
+  rpc UpdatePoster (UpdatePosterRequest) returns (UpdatePosterResponse);
 }
 
 message FilmCreateRequest {
-  string name = 1 [(buf.validate.field).string.min_len = 1];
+  string name = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 255
+  ];
   string description = 2;
 }
 
@@ -22,21 +26,29 @@ message FilmCreateResponse {
 }
 
 message FilmGetRequest {
-  string id = 1;
+  string id = 1 [(buf.validate.field).string.uuid = true];
 }
 
 message FilmGetResponse {
-  string name = 1;
-  string description = 2;
-  string poster_url = 5;
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string poster_url = 4;
 }
 
-message AddImageRequest {
+message UploadImageRequest {
   string film_id = 1 [(buf.validate.field).string.uuid = true];
   string content_type = 2 [(buf.validate.field).string.min_len = 1];
 }
 
-message AddImageResponse {
+message UploadImageResponse {
   string presigned_url = 1;
   string key = 2;
 }
+
+message UpdatePosterRequest {
+  string film_id = 1 [(buf.validate.field).string.uuid = true];
+  string key = 2 [(buf.validate.field).string.min_len = 1];
+}
+
+message UpdatePosterResponse {}

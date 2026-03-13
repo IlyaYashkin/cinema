@@ -5,6 +5,7 @@ import (
 	"cinema/internal/lib/jwt"
 	"cinema/internal/lib/postgres"
 	"cinema/internal/lib/redis"
+	"cinema/internal/lib/sl"
 	"cinema/internal/lib/smtp"
 	"cinema/internal/sso/config"
 	grpcAuth "cinema/internal/sso/grpc/auth"
@@ -35,27 +36,29 @@ func New(
 	log *slog.Logger,
 	cfg *config.Config,
 ) *App {
+	const op = "sso.app.new"
+
 	dbConn, err := postgres.New(log, cfg.DBConfig)
 	if err != nil {
-		panic("error creating database connection: " + err.Error())
+		panic(sl.WrapErr(op, err))
 	}
 	userProvider := &ssoPostgres.User{Postgres: dbConn}
 
 	redisConn, err := redis.New(log, cfg.RedisConfig)
 	if err != nil {
-		panic("error creating redis userProvider: " + err.Error())
+		panic(sl.WrapErr(op, err))
 	}
 	sessionStorage := &ssoRedis.Session{Redis: redisConn}
 	resetTokenStorage := &ssoRedis.Reset{Redis: redisConn}
 
 	jwtGenerator, err := jwt.NewGenerator(cfg.JWTConfig)
 	if err != nil {
-		panic("error creating jwt generator: " + err.Error())
+		panic(sl.WrapErr(op, err))
 	}
 
 	smtpClient, err := smtp.New(log, cfg.SMTPConfig, cfg.Env)
 	if err != nil {
-		panic("error creating smtp client: " + err.Error())
+		panic(sl.WrapErr(op, err))
 	}
 
 	emailSender := ssoSmtp.NewEmailSender(smtpClient, cfg.ResetPasswordBaseUrl)
