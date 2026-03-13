@@ -4,7 +4,6 @@ import (
 	"cinema/internal/lib/file/s3"
 	"cinema/internal/lib/grpc"
 	"cinema/internal/lib/postgres"
-	"cinema/internal/lib/sl"
 	"cinema/internal/showcase/config"
 	showcaseS3 "cinema/internal/showcase/file/s3"
 	"cinema/internal/showcase/grpc/film"
@@ -32,17 +31,15 @@ func New(
 	log *slog.Logger,
 	cfg *config.Config,
 ) *App {
-	const op = "showcase.app.new"
-
 	dbConn, err := postgres.New(log, cfg.DBConfig)
 	if err != nil {
-		panic(sl.WrapErr(op, err))
+		panic(err)
 	}
 	filmStorage := &showcasePostgres.Film{Postgres: dbConn}
 
 	s3Conn, err := s3.New(log, cfg.S3Config)
 	if err != nil {
-		panic(sl.WrapErr(op, err))
+		panic(err)
 	}
 	fileStorage := &showcaseS3.FileStorage{S3: s3Conn}
 
