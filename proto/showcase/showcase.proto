@@ -8,9 +8,19 @@ import "buf/validate/validate.proto";
 
 service Film {
   rpc Create (FilmCreateRequest) returns (FilmCreateResponse);
+  rpc Update (FilmUpdateRequest) returns (FilmUpdateResponse);
   rpc Get (FilmGetRequest) returns (FilmGetResponse);
+  rpc Delete (FilmDeleteRequest) returns (FilmDeleteResponse);
   rpc UploadImage (UploadImageRequest) returns (UploadImageResponse);
   rpc UpdatePoster (UpdatePosterRequest) returns (UpdatePosterResponse);
+  rpc DeletePoster (DeletePosterRequest) returns (DeletePosterResponse);
+  rpc UpdateImages (UpdateImagesRequest) returns (UpdateImagesResponse);
+  rpc DeleteImages (DeleteImagesRequest) returns (DeleteImagesResponse);
+}
+
+message FilmImage {
+  int64 id = 1;
+  string url = 2;
 }
 
 message FilmCreateRequest {
@@ -25,8 +35,19 @@ message FilmCreateResponse {
   string id = 1;
 }
 
+message FilmUpdateRequest {
+  string film_id = 1 [(buf.validate.field).string.uuid = true];
+  string name = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 255
+  ];
+  string description = 3;
+}
+
+message FilmUpdateResponse {}
+
 message FilmGetRequest {
-  string id = 1 [(buf.validate.field).string.uuid = true];
+  string film_id = 1 [(buf.validate.field).string.uuid = true];
 }
 
 message FilmGetResponse {
@@ -34,7 +55,14 @@ message FilmGetResponse {
   string name = 2;
   string description = 3;
   string poster_url = 4;
+  repeated FilmImage images = 5;
 }
+
+message FilmDeleteRequest {
+  string film_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message FilmDeleteResponse {}
 
 message UploadImageRequest {
   string film_id = 1 [(buf.validate.field).string.uuid = true];
@@ -52,3 +80,37 @@ message UpdatePosterRequest {
 }
 
 message UpdatePosterResponse {}
+
+message DeletePosterRequest {
+  string film_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message DeletePosterResponse {}
+
+message UpdateImagesRequest {
+  string film_id = 1 [(buf.validate.field).string.uuid = true];
+  repeated string keys = 2 [(buf.validate.field).repeated = {
+    min_items: 1,
+    max_items: 100,
+    items: {string: {min_len: 1}}
+  }];
+}
+
+message UpdateImagesResponse {
+  repeated string failed_keys = 1;
+  repeated string updated_keys = 2;
+}
+
+message DeleteImagesRequest {
+  string film_id = 1 [(buf.validate.field).string.uuid = true];
+  repeated int64 image_ids = 2 [(buf.validate.field).repeated = {
+    min_items: 1,
+    max_items: 100,
+    items: {int64: {gt: 0}}
+  }];
+}
+
+message DeleteImagesResponse {
+  repeated int64 failed_ids = 1;
+  repeated int64 deleted_ids = 2;
+}

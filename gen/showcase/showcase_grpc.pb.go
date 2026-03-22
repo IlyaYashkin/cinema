@@ -20,9 +20,14 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	Film_Create_FullMethodName       = "/showcase.Film/Create"
+	Film_Update_FullMethodName       = "/showcase.Film/Update"
 	Film_Get_FullMethodName          = "/showcase.Film/Get"
+	Film_Delete_FullMethodName       = "/showcase.Film/Delete"
 	Film_UploadImage_FullMethodName  = "/showcase.Film/UploadImage"
 	Film_UpdatePoster_FullMethodName = "/showcase.Film/UpdatePoster"
+	Film_DeletePoster_FullMethodName = "/showcase.Film/DeletePoster"
+	Film_UpdateImages_FullMethodName = "/showcase.Film/UpdateImages"
+	Film_DeleteImages_FullMethodName = "/showcase.Film/DeleteImages"
 )
 
 // FilmClient is the client API for Film service.
@@ -30,9 +35,14 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FilmClient interface {
 	Create(ctx context.Context, in *FilmCreateRequest, opts ...grpc.CallOption) (*FilmCreateResponse, error)
+	Update(ctx context.Context, in *FilmUpdateRequest, opts ...grpc.CallOption) (*FilmUpdateResponse, error)
 	Get(ctx context.Context, in *FilmGetRequest, opts ...grpc.CallOption) (*FilmGetResponse, error)
+	Delete(ctx context.Context, in *FilmDeleteRequest, opts ...grpc.CallOption) (*FilmDeleteResponse, error)
 	UploadImage(ctx context.Context, in *UploadImageRequest, opts ...grpc.CallOption) (*UploadImageResponse, error)
 	UpdatePoster(ctx context.Context, in *UpdatePosterRequest, opts ...grpc.CallOption) (*UpdatePosterResponse, error)
+	DeletePoster(ctx context.Context, in *DeletePosterRequest, opts ...grpc.CallOption) (*DeletePosterResponse, error)
+	UpdateImages(ctx context.Context, in *UpdateImagesRequest, opts ...grpc.CallOption) (*UpdateImagesResponse, error)
+	DeleteImages(ctx context.Context, in *DeleteImagesRequest, opts ...grpc.CallOption) (*DeleteImagesResponse, error)
 }
 
 type filmClient struct {
@@ -53,10 +63,30 @@ func (c *filmClient) Create(ctx context.Context, in *FilmCreateRequest, opts ...
 	return out, nil
 }
 
+func (c *filmClient) Update(ctx context.Context, in *FilmUpdateRequest, opts ...grpc.CallOption) (*FilmUpdateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FilmUpdateResponse)
+	err := c.cc.Invoke(ctx, Film_Update_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *filmClient) Get(ctx context.Context, in *FilmGetRequest, opts ...grpc.CallOption) (*FilmGetResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(FilmGetResponse)
 	err := c.cc.Invoke(ctx, Film_Get_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *filmClient) Delete(ctx context.Context, in *FilmDeleteRequest, opts ...grpc.CallOption) (*FilmDeleteResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FilmDeleteResponse)
+	err := c.cc.Invoke(ctx, Film_Delete_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -83,14 +113,49 @@ func (c *filmClient) UpdatePoster(ctx context.Context, in *UpdatePosterRequest, 
 	return out, nil
 }
 
+func (c *filmClient) DeletePoster(ctx context.Context, in *DeletePosterRequest, opts ...grpc.CallOption) (*DeletePosterResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeletePosterResponse)
+	err := c.cc.Invoke(ctx, Film_DeletePoster_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *filmClient) UpdateImages(ctx context.Context, in *UpdateImagesRequest, opts ...grpc.CallOption) (*UpdateImagesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateImagesResponse)
+	err := c.cc.Invoke(ctx, Film_UpdateImages_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *filmClient) DeleteImages(ctx context.Context, in *DeleteImagesRequest, opts ...grpc.CallOption) (*DeleteImagesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteImagesResponse)
+	err := c.cc.Invoke(ctx, Film_DeleteImages_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FilmServer is the server API for Film service.
 // All implementations must embed UnimplementedFilmServer
 // for forward compatibility.
 type FilmServer interface {
 	Create(context.Context, *FilmCreateRequest) (*FilmCreateResponse, error)
+	Update(context.Context, *FilmUpdateRequest) (*FilmUpdateResponse, error)
 	Get(context.Context, *FilmGetRequest) (*FilmGetResponse, error)
+	Delete(context.Context, *FilmDeleteRequest) (*FilmDeleteResponse, error)
 	UploadImage(context.Context, *UploadImageRequest) (*UploadImageResponse, error)
 	UpdatePoster(context.Context, *UpdatePosterRequest) (*UpdatePosterResponse, error)
+	DeletePoster(context.Context, *DeletePosterRequest) (*DeletePosterResponse, error)
+	UpdateImages(context.Context, *UpdateImagesRequest) (*UpdateImagesResponse, error)
+	DeleteImages(context.Context, *DeleteImagesRequest) (*DeleteImagesResponse, error)
 	mustEmbedUnimplementedFilmServer()
 }
 
@@ -104,14 +169,29 @@ type UnimplementedFilmServer struct{}
 func (UnimplementedFilmServer) Create(context.Context, *FilmCreateRequest) (*FilmCreateResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Create not implemented")
 }
+func (UnimplementedFilmServer) Update(context.Context, *FilmUpdateRequest) (*FilmUpdateResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Update not implemented")
+}
 func (UnimplementedFilmServer) Get(context.Context, *FilmGetRequest) (*FilmGetResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedFilmServer) Delete(context.Context, *FilmDeleteRequest) (*FilmDeleteResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Delete not implemented")
 }
 func (UnimplementedFilmServer) UploadImage(context.Context, *UploadImageRequest) (*UploadImageResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UploadImage not implemented")
 }
 func (UnimplementedFilmServer) UpdatePoster(context.Context, *UpdatePosterRequest) (*UpdatePosterResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdatePoster not implemented")
+}
+func (UnimplementedFilmServer) DeletePoster(context.Context, *DeletePosterRequest) (*DeletePosterResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeletePoster not implemented")
+}
+func (UnimplementedFilmServer) UpdateImages(context.Context, *UpdateImagesRequest) (*UpdateImagesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateImages not implemented")
+}
+func (UnimplementedFilmServer) DeleteImages(context.Context, *DeleteImagesRequest) (*DeleteImagesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteImages not implemented")
 }
 func (UnimplementedFilmServer) mustEmbedUnimplementedFilmServer() {}
 func (UnimplementedFilmServer) testEmbeddedByValue()              {}
@@ -152,6 +232,24 @@ func _Film_Create_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Film_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FilmUpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FilmServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Film_Update_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FilmServer).Update(ctx, req.(*FilmUpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Film_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FilmGetRequest)
 	if err := dec(in); err != nil {
@@ -166,6 +264,24 @@ func _Film_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(FilmServer).Get(ctx, req.(*FilmGetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Film_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FilmDeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FilmServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Film_Delete_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FilmServer).Delete(ctx, req.(*FilmDeleteRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -206,6 +322,60 @@ func _Film_UpdatePoster_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Film_DeletePoster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeletePosterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FilmServer).DeletePoster(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Film_DeletePoster_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FilmServer).DeletePoster(ctx, req.(*DeletePosterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Film_UpdateImages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateImagesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FilmServer).UpdateImages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Film_UpdateImages_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FilmServer).UpdateImages(ctx, req.(*UpdateImagesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Film_DeleteImages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteImagesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FilmServer).DeleteImages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Film_DeleteImages_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FilmServer).DeleteImages(ctx, req.(*DeleteImagesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Film_ServiceDesc is the grpc.ServiceDesc for Film service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -218,8 +388,16 @@ var Film_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Film_Create_Handler,
 		},
 		{
+			MethodName: "Update",
+			Handler:    _Film_Update_Handler,
+		},
+		{
 			MethodName: "Get",
 			Handler:    _Film_Get_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _Film_Delete_Handler,
 		},
 		{
 			MethodName: "UploadImage",
@@ -228,6 +406,18 @@ var Film_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdatePoster",
 			Handler:    _Film_UpdatePoster_Handler,
+		},
+		{
+			MethodName: "DeletePoster",
+			Handler:    _Film_DeletePoster_Handler,
+		},
+		{
+			MethodName: "UpdateImages",
+			Handler:    _Film_UpdateImages_Handler,
+		},
+		{
+			MethodName: "DeleteImages",
+			Handler:    _Film_DeleteImages_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

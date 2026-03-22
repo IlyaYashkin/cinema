@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -22,6 +23,16 @@ var allowedPictureMIMETypes = map[string]string{
 type UploadImageResult struct {
 	PresignedURL string
 	Key          string
+}
+
+type UpdateImagesResult struct {
+	FailedKeys  []string
+	UpdatedKeys []string
+}
+
+type DeleteImagesResult struct {
+	FailedIds  []int64
+	DeletedIds []int64
 }
 
 type Film struct {
@@ -39,19 +50,43 @@ func New(
 }
 
 type Provider interface {
-	Save(
+	Create(
 		ctx context.Context,
 		name string,
 		description string,
 	) (string, error)
+	Update(
+		ctx context.Context,
+		filmId string,
+		name string,
+		description string,
+	) error
+	Delete(
+		ctx context.Context,
+		id string,
+	) error
 	GetById(
 		ctx context.Context,
 		id string,
 	) (domain.Film, error)
-	UpdatePosterUrl(
+	UpdatePoster(
 		ctx context.Context,
 		filmId string,
 		posterUrl string,
+	) error
+	DeletePoster(
+		ctx context.Context,
+		filmId string,
+	) error
+	UpdateImages(
+		ctx context.Context,
+		filmId string,
+		images []string,
+	) (int64, error)
+	DeleteImages(
+		ctx context.Context,
+		filmId string,
+		imageIds []int64,
 	) error
 }
 
@@ -78,18 +113,50 @@ func (f *Film) Create(
 
 	log.Info("creating new film")
 
-	id, err := f.filmProvider.Save(
+	id, err := f.filmProvider.Create(
 		ctx,
 		name,
 		description,
 	)
 	if err != nil {
-		log.Error("failed to save film", sl.Err(err))
+		log.Error("failed to create film", sl.Err(err))
 
 		return "", sl.WrapErr(op, err)
 	}
 
 	return id, nil
+}
+
+func (f *Film) Update(
+	ctx context.Context,
+	filmId string,
+	name string,
+	description string,
+) error {
+	const op = "showcase.film.update"
+
+	log := f.log.With(
+		slog.String("op", op),
+		slog.String("filmId", filmId),
+		slog.String("name", name),
+		slog.String("description", description),
+	)
+
+	log.Info("updating film")
+
+	err := f.filmProvider.Update(ctx, filmId, name, description)
+	if errors.Is(err, storage.ErrFilmNotFound) {
+		log.Warn("film not found")
+
+		return sl.WrapErr(op, err)
+	}
+	if err != nil {
+		log.Error("failed to update film", sl.Err(err))
+
+		return sl.WrapErr(op, err)
+	}
+
+	return nil
 }
 
 func (f *Film) Get(
@@ -123,7 +190,64 @@ func (f *Film) Get(
 		film.PosterUrl = &posterFullPath
 	}
 
+	for idx, img := range film.Images {
+		imageFullPath := f.fileStorage.GetFilePath(img.Url)
+		film.Images[idx].Url = imageFullPath
+	}
+
 	return film, nil
+}
+
+func (f *Film) Delete(
+	ctx context.Context,
+	filmId string,
+) error {
+	const op = "showcase.film.delete"
+
+	log := f.log.With(
+		slog.String("op", op),
+		slog.String("filmId", filmId),
+	)
+
+	log.Info("deleting film")
+
+	film, err := f.filmProvider.GetById(ctx, filmId)
+	if errors.Is(err, storage.ErrFilmNotFound) {
+		log.Warn("film not found", sl.Err(err))
+
+		return sl.WrapErr(op, ErrFilmNotFound)
+	}
+	if err != nil {
+		log.Error("failed to get film", sl.Err(err))
+
+		return sl.WrapErr(op, err)
+	}
+
+	if film.PosterUrl != nil {
+		err = f.fileStorage.DeleteFile(ctx, *film.PosterUrl)
+		if err != nil {
+			log.Error("failed to delete poster", sl.Err(err))
+
+			return sl.WrapErr(op, err)
+		}
+	}
+
+	for _, image := range film.Images {
+		if err := f.fileStorage.DeleteFile(ctx, image.Url); err != nil {
+			log.Error("failed to delete image", sl.Err(err))
+
+			return sl.WrapErr(op, err)
+		}
+	}
+
+	err = f.filmProvider.Delete(ctx, filmId)
+	if err != nil {
+		log.Error("failed to delete film", sl.Err(err))
+
+		return sl.WrapErr(op, err)
+	}
+
+	return nil
 }
 
 func (f *Film) UploadImage(
@@ -237,7 +361,7 @@ func (f *Film) UpdatePoster(
 		return sl.WrapErr(op, err)
 	}
 
-	err = f.filmProvider.UpdatePosterUrl(ctx, filmId, newKey)
+	err = f.filmProvider.UpdatePoster(ctx, filmId, newKey)
 	if err != nil {
 		log.Error("failed to update poster", sl.Err(err))
 
@@ -252,4 +376,203 @@ func (f *Film) UpdatePoster(
 	}
 
 	return nil
+}
+
+func (f *Film) DeletePoster(
+	ctx context.Context,
+	filmId string,
+) error {
+	const op = "showcase.film.delete_poster"
+
+	log := f.log.With(
+		slog.String("op", op),
+		slog.String("filmId", filmId),
+	)
+
+	log.Info("deleting poster")
+
+	film, err := f.filmProvider.GetById(ctx, filmId)
+	if errors.Is(err, storage.ErrFilmNotFound) {
+		log.Warn("film not found", sl.Err(err))
+
+		return sl.WrapErr(op, ErrFilmNotFound)
+	}
+	if err != nil {
+		log.Error("failed to get film", sl.Err(err))
+
+		return sl.WrapErr(op, err)
+	}
+
+	if film.PosterUrl == nil {
+		return nil
+	}
+
+	err = f.fileStorage.DeleteFile(ctx, *film.PosterUrl)
+	if err != nil {
+		log.Error("failed to delete poster file", sl.Err(err))
+
+		return sl.WrapErr(op, err)
+	}
+
+	err = f.filmProvider.DeletePoster(ctx, filmId)
+	if err != nil {
+		log.Error("failed to delete poster", sl.Err(err))
+
+		return sl.WrapErr(op, err)
+	}
+
+	return nil
+}
+
+func (f *Film) UpdateImages(
+	ctx context.Context,
+	filmId string,
+	keys []string,
+) (UpdateImagesResult, error) {
+	const op = "showcase.film.update_images"
+
+	log := f.log.With(
+		slog.String("op", op),
+		slog.String("filmId", filmId),
+		slog.String("keys", strings.Join(keys, ",")),
+	)
+
+	log.Info("updating images")
+
+	_, err := f.filmProvider.GetById(ctx, filmId)
+	if err != nil {
+		if errors.Is(err, storage.ErrFilmNotFound) {
+			log.Warn("film not found", sl.Err(err))
+
+			return UpdateImagesResult{}, sl.WrapErr(op, err)
+		}
+		log.Error("failed to get film", sl.Err(err))
+
+		return UpdateImagesResult{}, sl.WrapErr(op, err)
+	}
+
+	var failedKeys []string
+	var newKeys []string
+
+	for _, key := range keys {
+		contentType, err := f.fileStorage.GetFileContentType(ctx, key)
+		if err != nil {
+			if errors.Is(err, file.ErrFileNotFound) {
+				log.With(slog.String("key", key)).Warn("file not found", sl.Err(err))
+			} else {
+				log.With(slog.String("key", key)).Error("failed to get file content-type", sl.Err(err))
+			}
+
+			failedKeys = append(failedKeys, key)
+			continue
+		}
+
+		ext, ok := allowedPictureMIMETypes[contentType]
+		if !ok {
+			log.With(slog.String("key", key)).Warn("not allowed file mime type", sl.Err(ErrIncorrectMIMEType))
+
+			err = f.fileStorage.DeleteFile(ctx, key)
+			if err != nil {
+				log.With(slog.String("key", key)).Error("failed to delete file", sl.Err(err))
+			}
+
+			failedKeys = append(failedKeys, key)
+			continue
+		}
+
+		fileName := uuid.New().String() + ext
+		newKey := "films/" + filmId + "/" + fileName
+
+		err = f.fileStorage.MoveFile(ctx, key, newKey)
+		if err != nil {
+			log.With(slog.String("key", key)).Error("failed to move file", sl.Err(err))
+
+			failedKeys = append(failedKeys, key)
+			continue
+		}
+
+		newKeys = append(newKeys, newKey)
+	}
+
+	if len(newKeys) > 0 {
+		_, err = f.filmProvider.UpdateImages(ctx, filmId, newKeys)
+		if err != nil {
+			log.Error("failed to update images", sl.Err(err))
+
+			return UpdateImagesResult{}, sl.WrapErr(op, err)
+		}
+	}
+
+	return UpdateImagesResult{
+		FailedKeys:  failedKeys,
+		UpdatedKeys: newKeys,
+	}, nil
+}
+
+func (f *Film) DeleteImages(
+	ctx context.Context,
+	filmId string,
+	imageIds []int64,
+) (DeleteImagesResult, error) {
+	const op = "showcase.film.delete_images"
+
+	log := f.log.With(
+		slog.String("op", op),
+		slog.String("filmId", filmId),
+		slog.String("imageIds", fmt.Sprintf("%v", imageIds)),
+	)
+
+	log.Info("deleting images")
+
+	film, err := f.filmProvider.GetById(ctx, filmId)
+	if errors.Is(err, storage.ErrFilmNotFound) {
+		log.Warn("film not found", sl.Err(err))
+
+		return DeleteImagesResult{}, sl.WrapErr(op, err)
+	}
+	if err != nil {
+		log.Error("failed to get film", sl.Err(err))
+
+		return DeleteImagesResult{}, sl.WrapErr(op, err)
+	}
+
+	filmImagesByIds := make(map[int64]domain.FilmImage, len(film.Images))
+	for _, img := range film.Images {
+		filmImagesByIds[img.Id] = img
+	}
+
+	var failedIds []int64
+	var deletedIds []int64
+
+	for _, id := range imageIds {
+		filmImage, ok := filmImagesByIds[id]
+		if !ok {
+			failedIds = append(failedIds, id)
+			continue
+		}
+
+		err = f.fileStorage.DeleteFile(ctx, filmImage.Url)
+		if err != nil {
+			log.Error("failed to delete file", sl.Err(err))
+
+			failedIds = append(failedIds, id)
+			continue
+		}
+
+		deletedIds = append(deletedIds, id)
+	}
+
+	if len(deletedIds) > 0 {
+		err = f.filmProvider.DeleteImages(ctx, filmId, deletedIds)
+		if err != nil {
+			log.Error("failed to delete images", sl.Err(err))
+
+			return DeleteImagesResult{}, sl.WrapErr(op, err)
+		}
+	}
+
+	return DeleteImagesResult{
+		FailedIds:  failedIds,
+		DeletedIds: deletedIds,
+	}, nil
 }

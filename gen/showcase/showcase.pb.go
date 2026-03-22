@@ -22,6 +22,58 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type FilmImage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Url           string                 `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FilmImage) Reset() {
+	*x = FilmImage{}
+	mi := &file_showcase_showcase_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FilmImage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FilmImage) ProtoMessage() {}
+
+func (x *FilmImage) ProtoReflect() protoreflect.Message {
+	mi := &file_showcase_showcase_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FilmImage.ProtoReflect.Descriptor instead.
+func (*FilmImage) Descriptor() ([]byte, []int) {
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *FilmImage) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *FilmImage) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
 type FilmCreateRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -32,7 +84,7 @@ type FilmCreateRequest struct {
 
 func (x *FilmCreateRequest) Reset() {
 	*x = FilmCreateRequest{}
-	mi := &file_showcase_showcase_proto_msgTypes[0]
+	mi := &file_showcase_showcase_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -44,7 +96,7 @@ func (x *FilmCreateRequest) String() string {
 func (*FilmCreateRequest) ProtoMessage() {}
 
 func (x *FilmCreateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_showcase_showcase_proto_msgTypes[0]
+	mi := &file_showcase_showcase_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -57,7 +109,7 @@ func (x *FilmCreateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FilmCreateRequest.ProtoReflect.Descriptor instead.
 func (*FilmCreateRequest) Descriptor() ([]byte, []int) {
-	return file_showcase_showcase_proto_rawDescGZIP(), []int{0}
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *FilmCreateRequest) GetName() string {
@@ -83,7 +135,7 @@ type FilmCreateResponse struct {
 
 func (x *FilmCreateResponse) Reset() {
 	*x = FilmCreateResponse{}
-	mi := &file_showcase_showcase_proto_msgTypes[1]
+	mi := &file_showcase_showcase_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -95,7 +147,7 @@ func (x *FilmCreateResponse) String() string {
 func (*FilmCreateResponse) ProtoMessage() {}
 
 func (x *FilmCreateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_showcase_showcase_proto_msgTypes[1]
+	mi := &file_showcase_showcase_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -108,7 +160,7 @@ func (x *FilmCreateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FilmCreateResponse.ProtoReflect.Descriptor instead.
 func (*FilmCreateResponse) Descriptor() ([]byte, []int) {
-	return file_showcase_showcase_proto_rawDescGZIP(), []int{1}
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *FilmCreateResponse) GetId() string {
@@ -118,16 +170,112 @@ func (x *FilmCreateResponse) GetId() string {
 	return ""
 }
 
+type FilmUpdateRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FilmId        string                 `protobuf:"bytes,1,opt,name=film_id,json=filmId,proto3" json:"film_id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FilmUpdateRequest) Reset() {
+	*x = FilmUpdateRequest{}
+	mi := &file_showcase_showcase_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FilmUpdateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FilmUpdateRequest) ProtoMessage() {}
+
+func (x *FilmUpdateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_showcase_showcase_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FilmUpdateRequest.ProtoReflect.Descriptor instead.
+func (*FilmUpdateRequest) Descriptor() ([]byte, []int) {
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *FilmUpdateRequest) GetFilmId() string {
+	if x != nil {
+		return x.FilmId
+	}
+	return ""
+}
+
+func (x *FilmUpdateRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *FilmUpdateRequest) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+type FilmUpdateResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FilmUpdateResponse) Reset() {
+	*x = FilmUpdateResponse{}
+	mi := &file_showcase_showcase_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FilmUpdateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FilmUpdateResponse) ProtoMessage() {}
+
+func (x *FilmUpdateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_showcase_showcase_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FilmUpdateResponse.ProtoReflect.Descriptor instead.
+func (*FilmUpdateResponse) Descriptor() ([]byte, []int) {
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{4}
+}
+
 type FilmGetRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	FilmId        string                 `protobuf:"bytes,1,opt,name=film_id,json=filmId,proto3" json:"film_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *FilmGetRequest) Reset() {
 	*x = FilmGetRequest{}
-	mi := &file_showcase_showcase_proto_msgTypes[2]
+	mi := &file_showcase_showcase_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -139,7 +287,7 @@ func (x *FilmGetRequest) String() string {
 func (*FilmGetRequest) ProtoMessage() {}
 
 func (x *FilmGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_showcase_showcase_proto_msgTypes[2]
+	mi := &file_showcase_showcase_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -152,12 +300,12 @@ func (x *FilmGetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FilmGetRequest.ProtoReflect.Descriptor instead.
 func (*FilmGetRequest) Descriptor() ([]byte, []int) {
-	return file_showcase_showcase_proto_rawDescGZIP(), []int{2}
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *FilmGetRequest) GetId() string {
+func (x *FilmGetRequest) GetFilmId() string {
 	if x != nil {
-		return x.Id
+		return x.FilmId
 	}
 	return ""
 }
@@ -168,13 +316,14 @@ type FilmGetResponse struct {
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	PosterUrl     string                 `protobuf:"bytes,4,opt,name=poster_url,json=posterUrl,proto3" json:"poster_url,omitempty"`
+	Images        []*FilmImage           `protobuf:"bytes,5,rep,name=images,proto3" json:"images,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *FilmGetResponse) Reset() {
 	*x = FilmGetResponse{}
-	mi := &file_showcase_showcase_proto_msgTypes[3]
+	mi := &file_showcase_showcase_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -186,7 +335,7 @@ func (x *FilmGetResponse) String() string {
 func (*FilmGetResponse) ProtoMessage() {}
 
 func (x *FilmGetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_showcase_showcase_proto_msgTypes[3]
+	mi := &file_showcase_showcase_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -199,7 +348,7 @@ func (x *FilmGetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FilmGetResponse.ProtoReflect.Descriptor instead.
 func (*FilmGetResponse) Descriptor() ([]byte, []int) {
-	return file_showcase_showcase_proto_rawDescGZIP(), []int{3}
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *FilmGetResponse) GetId() string {
@@ -230,6 +379,93 @@ func (x *FilmGetResponse) GetPosterUrl() string {
 	return ""
 }
 
+func (x *FilmGetResponse) GetImages() []*FilmImage {
+	if x != nil {
+		return x.Images
+	}
+	return nil
+}
+
+type FilmDeleteRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FilmId        string                 `protobuf:"bytes,1,opt,name=film_id,json=filmId,proto3" json:"film_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FilmDeleteRequest) Reset() {
+	*x = FilmDeleteRequest{}
+	mi := &file_showcase_showcase_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FilmDeleteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FilmDeleteRequest) ProtoMessage() {}
+
+func (x *FilmDeleteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_showcase_showcase_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FilmDeleteRequest.ProtoReflect.Descriptor instead.
+func (*FilmDeleteRequest) Descriptor() ([]byte, []int) {
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *FilmDeleteRequest) GetFilmId() string {
+	if x != nil {
+		return x.FilmId
+	}
+	return ""
+}
+
+type FilmDeleteResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FilmDeleteResponse) Reset() {
+	*x = FilmDeleteResponse{}
+	mi := &file_showcase_showcase_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FilmDeleteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FilmDeleteResponse) ProtoMessage() {}
+
+func (x *FilmDeleteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_showcase_showcase_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FilmDeleteResponse.ProtoReflect.Descriptor instead.
+func (*FilmDeleteResponse) Descriptor() ([]byte, []int) {
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{8}
+}
+
 type UploadImageRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	FilmId        string                 `protobuf:"bytes,1,opt,name=film_id,json=filmId,proto3" json:"film_id,omitempty"`
@@ -240,7 +476,7 @@ type UploadImageRequest struct {
 
 func (x *UploadImageRequest) Reset() {
 	*x = UploadImageRequest{}
-	mi := &file_showcase_showcase_proto_msgTypes[4]
+	mi := &file_showcase_showcase_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -252,7 +488,7 @@ func (x *UploadImageRequest) String() string {
 func (*UploadImageRequest) ProtoMessage() {}
 
 func (x *UploadImageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_showcase_showcase_proto_msgTypes[4]
+	mi := &file_showcase_showcase_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -265,7 +501,7 @@ func (x *UploadImageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadImageRequest.ProtoReflect.Descriptor instead.
 func (*UploadImageRequest) Descriptor() ([]byte, []int) {
-	return file_showcase_showcase_proto_rawDescGZIP(), []int{4}
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UploadImageRequest) GetFilmId() string {
@@ -292,7 +528,7 @@ type UploadImageResponse struct {
 
 func (x *UploadImageResponse) Reset() {
 	*x = UploadImageResponse{}
-	mi := &file_showcase_showcase_proto_msgTypes[5]
+	mi := &file_showcase_showcase_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -304,7 +540,7 @@ func (x *UploadImageResponse) String() string {
 func (*UploadImageResponse) ProtoMessage() {}
 
 func (x *UploadImageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_showcase_showcase_proto_msgTypes[5]
+	mi := &file_showcase_showcase_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -317,7 +553,7 @@ func (x *UploadImageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadImageResponse.ProtoReflect.Descriptor instead.
 func (*UploadImageResponse) Descriptor() ([]byte, []int) {
-	return file_showcase_showcase_proto_rawDescGZIP(), []int{5}
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UploadImageResponse) GetPresignedUrl() string {
@@ -344,7 +580,7 @@ type UpdatePosterRequest struct {
 
 func (x *UpdatePosterRequest) Reset() {
 	*x = UpdatePosterRequest{}
-	mi := &file_showcase_showcase_proto_msgTypes[6]
+	mi := &file_showcase_showcase_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -356,7 +592,7 @@ func (x *UpdatePosterRequest) String() string {
 func (*UpdatePosterRequest) ProtoMessage() {}
 
 func (x *UpdatePosterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_showcase_showcase_proto_msgTypes[6]
+	mi := &file_showcase_showcase_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -369,7 +605,7 @@ func (x *UpdatePosterRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdatePosterRequest.ProtoReflect.Descriptor instead.
 func (*UpdatePosterRequest) Descriptor() ([]byte, []int) {
-	return file_showcase_showcase_proto_rawDescGZIP(), []int{6}
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *UpdatePosterRequest) GetFilmId() string {
@@ -394,7 +630,7 @@ type UpdatePosterResponse struct {
 
 func (x *UpdatePosterResponse) Reset() {
 	*x = UpdatePosterResponse{}
-	mi := &file_showcase_showcase_proto_msgTypes[7]
+	mi := &file_showcase_showcase_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -406,7 +642,7 @@ func (x *UpdatePosterResponse) String() string {
 func (*UpdatePosterResponse) ProtoMessage() {}
 
 func (x *UpdatePosterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_showcase_showcase_proto_msgTypes[7]
+	mi := &file_showcase_showcase_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -419,28 +655,329 @@ func (x *UpdatePosterResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdatePosterResponse.ProtoReflect.Descriptor instead.
 func (*UpdatePosterResponse) Descriptor() ([]byte, []int) {
-	return file_showcase_showcase_proto_rawDescGZIP(), []int{7}
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{12}
+}
+
+type DeletePosterRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FilmId        string                 `protobuf:"bytes,1,opt,name=film_id,json=filmId,proto3" json:"film_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeletePosterRequest) Reset() {
+	*x = DeletePosterRequest{}
+	mi := &file_showcase_showcase_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeletePosterRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeletePosterRequest) ProtoMessage() {}
+
+func (x *DeletePosterRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_showcase_showcase_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeletePosterRequest.ProtoReflect.Descriptor instead.
+func (*DeletePosterRequest) Descriptor() ([]byte, []int) {
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *DeletePosterRequest) GetFilmId() string {
+	if x != nil {
+		return x.FilmId
+	}
+	return ""
+}
+
+type DeletePosterResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeletePosterResponse) Reset() {
+	*x = DeletePosterResponse{}
+	mi := &file_showcase_showcase_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeletePosterResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeletePosterResponse) ProtoMessage() {}
+
+func (x *DeletePosterResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_showcase_showcase_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeletePosterResponse.ProtoReflect.Descriptor instead.
+func (*DeletePosterResponse) Descriptor() ([]byte, []int) {
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{14}
+}
+
+type UpdateImagesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FilmId        string                 `protobuf:"bytes,1,opt,name=film_id,json=filmId,proto3" json:"film_id,omitempty"`
+	Keys          []string               `protobuf:"bytes,2,rep,name=keys,proto3" json:"keys,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateImagesRequest) Reset() {
+	*x = UpdateImagesRequest{}
+	mi := &file_showcase_showcase_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateImagesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateImagesRequest) ProtoMessage() {}
+
+func (x *UpdateImagesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_showcase_showcase_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateImagesRequest.ProtoReflect.Descriptor instead.
+func (*UpdateImagesRequest) Descriptor() ([]byte, []int) {
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *UpdateImagesRequest) GetFilmId() string {
+	if x != nil {
+		return x.FilmId
+	}
+	return ""
+}
+
+func (x *UpdateImagesRequest) GetKeys() []string {
+	if x != nil {
+		return x.Keys
+	}
+	return nil
+}
+
+type UpdateImagesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FailedKeys    []string               `protobuf:"bytes,1,rep,name=failed_keys,json=failedKeys,proto3" json:"failed_keys,omitempty"`
+	UpdatedKeys   []string               `protobuf:"bytes,2,rep,name=updated_keys,json=updatedKeys,proto3" json:"updated_keys,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateImagesResponse) Reset() {
+	*x = UpdateImagesResponse{}
+	mi := &file_showcase_showcase_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateImagesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateImagesResponse) ProtoMessage() {}
+
+func (x *UpdateImagesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_showcase_showcase_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateImagesResponse.ProtoReflect.Descriptor instead.
+func (*UpdateImagesResponse) Descriptor() ([]byte, []int) {
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *UpdateImagesResponse) GetFailedKeys() []string {
+	if x != nil {
+		return x.FailedKeys
+	}
+	return nil
+}
+
+func (x *UpdateImagesResponse) GetUpdatedKeys() []string {
+	if x != nil {
+		return x.UpdatedKeys
+	}
+	return nil
+}
+
+type DeleteImagesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FilmId        string                 `protobuf:"bytes,1,opt,name=film_id,json=filmId,proto3" json:"film_id,omitempty"`
+	ImageIds      []int64                `protobuf:"varint,2,rep,packed,name=image_ids,json=imageIds,proto3" json:"image_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteImagesRequest) Reset() {
+	*x = DeleteImagesRequest{}
+	mi := &file_showcase_showcase_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteImagesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteImagesRequest) ProtoMessage() {}
+
+func (x *DeleteImagesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_showcase_showcase_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteImagesRequest.ProtoReflect.Descriptor instead.
+func (*DeleteImagesRequest) Descriptor() ([]byte, []int) {
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *DeleteImagesRequest) GetFilmId() string {
+	if x != nil {
+		return x.FilmId
+	}
+	return ""
+}
+
+func (x *DeleteImagesRequest) GetImageIds() []int64 {
+	if x != nil {
+		return x.ImageIds
+	}
+	return nil
+}
+
+type DeleteImagesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FailedIds     []int64                `protobuf:"varint,1,rep,packed,name=failed_ids,json=failedIds,proto3" json:"failed_ids,omitempty"`
+	DeletedIds    []int64                `protobuf:"varint,2,rep,packed,name=deleted_ids,json=deletedIds,proto3" json:"deleted_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteImagesResponse) Reset() {
+	*x = DeleteImagesResponse{}
+	mi := &file_showcase_showcase_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteImagesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteImagesResponse) ProtoMessage() {}
+
+func (x *DeleteImagesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_showcase_showcase_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteImagesResponse.ProtoReflect.Descriptor instead.
+func (*DeleteImagesResponse) Descriptor() ([]byte, []int) {
+	return file_showcase_showcase_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *DeleteImagesResponse) GetFailedIds() []int64 {
+	if x != nil {
+		return x.FailedIds
+	}
+	return nil
+}
+
+func (x *DeleteImagesResponse) GetDeletedIds() []int64 {
+	if x != nil {
+		return x.DeletedIds
+	}
+	return nil
 }
 
 var File_showcase_showcase_proto protoreflect.FileDescriptor
 
 const file_showcase_showcase_proto_rawDesc = "" +
 	"\n" +
-	"\x17showcase/showcase.proto\x12\bshowcase\x1a\x1bbuf/validate/validate.proto\"U\n" +
+	"\x17showcase/showcase.proto\x12\bshowcase\x1a\x1bbuf/validate/validate.proto\"-\n" +
+	"\tFilmImage\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x10\n" +
+	"\x03url\x18\x02 \x01(\tR\x03url\"U\n" +
 	"\x11FilmCreateRequest\x12\x1e\n" +
 	"\x04name\x18\x01 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x01\x18\xff\x01R\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\"$\n" +
 	"\x12FilmCreateResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"*\n" +
-	"\x0eFilmGetRequest\x12\x18\n" +
-	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"v\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"x\n" +
+	"\x11FilmUpdateRequest\x12!\n" +
+	"\afilm_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06filmId\x12\x1e\n" +
+	"\x04name\x18\x02 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x01\x18\xff\x01R\x04name\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\"\x14\n" +
+	"\x12FilmUpdateResponse\"3\n" +
+	"\x0eFilmGetRequest\x12!\n" +
+	"\afilm_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06filmId\"\xa3\x01\n" +
 	"\x0fFilmGetResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x1d\n" +
 	"\n" +
-	"poster_url\x18\x04 \x01(\tR\tposterUrl\"c\n" +
+	"poster_url\x18\x04 \x01(\tR\tposterUrl\x12+\n" +
+	"\x06images\x18\x05 \x03(\v2\x13.showcase.FilmImageR\x06images\"6\n" +
+	"\x11FilmDeleteRequest\x12!\n" +
+	"\afilm_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06filmId\"\x14\n" +
+	"\x12FilmDeleteResponse\"c\n" +
 	"\x12UploadImageRequest\x12!\n" +
 	"\afilm_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06filmId\x12*\n" +
 	"\fcontent_type\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\vcontentType\"L\n" +
@@ -450,12 +987,37 @@ const file_showcase_showcase_proto_rawDesc = "" +
 	"\x13UpdatePosterRequest\x12!\n" +
 	"\afilm_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06filmId\x12\x19\n" +
 	"\x03key\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x03key\"\x16\n" +
-	"\x14UpdatePosterResponse2\xa2\x02\n" +
+	"\x14UpdatePosterResponse\"8\n" +
+	"\x13DeletePosterRequest\x12!\n" +
+	"\afilm_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06filmId\"\x16\n" +
+	"\x14DeletePosterResponse\"^\n" +
+	"\x13UpdateImagesRequest\x12!\n" +
+	"\afilm_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06filmId\x12$\n" +
+	"\x04keys\x18\x02 \x03(\tB\x10\xbaH\r\x92\x01\n" +
+	"\b\x01\x10d\"\x04r\x02\x10\x01R\x04keys\"Z\n" +
+	"\x14UpdateImagesResponse\x12\x1f\n" +
+	"\vfailed_keys\x18\x01 \x03(\tR\n" +
+	"failedKeys\x12!\n" +
+	"\fupdated_keys\x18\x02 \x03(\tR\vupdatedKeys\"g\n" +
+	"\x13DeleteImagesRequest\x12!\n" +
+	"\afilm_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06filmId\x12-\n" +
+	"\timage_ids\x18\x02 \x03(\x03B\x10\xbaH\r\x92\x01\n" +
+	"\b\x01\x10d\"\x04\"\x02 \x00R\bimageIds\"V\n" +
+	"\x14DeleteImagesResponse\x12\x1d\n" +
+	"\n" +
+	"failed_ids\x18\x01 \x03(\x03R\tfailedIds\x12\x1f\n" +
+	"\vdeleted_ids\x18\x02 \x03(\x03R\n" +
+	"deletedIds2\x99\x05\n" +
 	"\x04Film\x12C\n" +
-	"\x06Create\x12\x1b.showcase.FilmCreateRequest\x1a\x1c.showcase.FilmCreateResponse\x12:\n" +
-	"\x03Get\x12\x18.showcase.FilmGetRequest\x1a\x19.showcase.FilmGetResponse\x12J\n" +
+	"\x06Create\x12\x1b.showcase.FilmCreateRequest\x1a\x1c.showcase.FilmCreateResponse\x12C\n" +
+	"\x06Update\x12\x1b.showcase.FilmUpdateRequest\x1a\x1c.showcase.FilmUpdateResponse\x12:\n" +
+	"\x03Get\x12\x18.showcase.FilmGetRequest\x1a\x19.showcase.FilmGetResponse\x12C\n" +
+	"\x06Delete\x12\x1b.showcase.FilmDeleteRequest\x1a\x1c.showcase.FilmDeleteResponse\x12J\n" +
 	"\vUploadImage\x12\x1c.showcase.UploadImageRequest\x1a\x1d.showcase.UploadImageResponse\x12M\n" +
-	"\fUpdatePoster\x12\x1d.showcase.UpdatePosterRequest\x1a\x1e.showcase.UpdatePosterResponseB\x1eZ\x1ccinema/gen/showcase;showcaseb\x06proto3"
+	"\fUpdatePoster\x12\x1d.showcase.UpdatePosterRequest\x1a\x1e.showcase.UpdatePosterResponse\x12M\n" +
+	"\fDeletePoster\x12\x1d.showcase.DeletePosterRequest\x1a\x1e.showcase.DeletePosterResponse\x12M\n" +
+	"\fUpdateImages\x12\x1d.showcase.UpdateImagesRequest\x1a\x1e.showcase.UpdateImagesResponse\x12M\n" +
+	"\fDeleteImages\x12\x1d.showcase.DeleteImagesRequest\x1a\x1e.showcase.DeleteImagesResponseB\x1eZ\x1ccinema/gen/showcase;showcaseb\x06proto3"
 
 var (
 	file_showcase_showcase_proto_rawDescOnce sync.Once
@@ -469,31 +1031,53 @@ func file_showcase_showcase_proto_rawDescGZIP() []byte {
 	return file_showcase_showcase_proto_rawDescData
 }
 
-var file_showcase_showcase_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_showcase_showcase_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_showcase_showcase_proto_goTypes = []any{
-	(*FilmCreateRequest)(nil),    // 0: showcase.FilmCreateRequest
-	(*FilmCreateResponse)(nil),   // 1: showcase.FilmCreateResponse
-	(*FilmGetRequest)(nil),       // 2: showcase.FilmGetRequest
-	(*FilmGetResponse)(nil),      // 3: showcase.FilmGetResponse
-	(*UploadImageRequest)(nil),   // 4: showcase.UploadImageRequest
-	(*UploadImageResponse)(nil),  // 5: showcase.UploadImageResponse
-	(*UpdatePosterRequest)(nil),  // 6: showcase.UpdatePosterRequest
-	(*UpdatePosterResponse)(nil), // 7: showcase.UpdatePosterResponse
+	(*FilmImage)(nil),            // 0: showcase.FilmImage
+	(*FilmCreateRequest)(nil),    // 1: showcase.FilmCreateRequest
+	(*FilmCreateResponse)(nil),   // 2: showcase.FilmCreateResponse
+	(*FilmUpdateRequest)(nil),    // 3: showcase.FilmUpdateRequest
+	(*FilmUpdateResponse)(nil),   // 4: showcase.FilmUpdateResponse
+	(*FilmGetRequest)(nil),       // 5: showcase.FilmGetRequest
+	(*FilmGetResponse)(nil),      // 6: showcase.FilmGetResponse
+	(*FilmDeleteRequest)(nil),    // 7: showcase.FilmDeleteRequest
+	(*FilmDeleteResponse)(nil),   // 8: showcase.FilmDeleteResponse
+	(*UploadImageRequest)(nil),   // 9: showcase.UploadImageRequest
+	(*UploadImageResponse)(nil),  // 10: showcase.UploadImageResponse
+	(*UpdatePosterRequest)(nil),  // 11: showcase.UpdatePosterRequest
+	(*UpdatePosterResponse)(nil), // 12: showcase.UpdatePosterResponse
+	(*DeletePosterRequest)(nil),  // 13: showcase.DeletePosterRequest
+	(*DeletePosterResponse)(nil), // 14: showcase.DeletePosterResponse
+	(*UpdateImagesRequest)(nil),  // 15: showcase.UpdateImagesRequest
+	(*UpdateImagesResponse)(nil), // 16: showcase.UpdateImagesResponse
+	(*DeleteImagesRequest)(nil),  // 17: showcase.DeleteImagesRequest
+	(*DeleteImagesResponse)(nil), // 18: showcase.DeleteImagesResponse
 }
 var file_showcase_showcase_proto_depIdxs = []int32{
-	0, // 0: showcase.Film.Create:input_type -> showcase.FilmCreateRequest
-	2, // 1: showcase.Film.Get:input_type -> showcase.FilmGetRequest
-	4, // 2: showcase.Film.UploadImage:input_type -> showcase.UploadImageRequest
-	6, // 3: showcase.Film.UpdatePoster:input_type -> showcase.UpdatePosterRequest
-	1, // 4: showcase.Film.Create:output_type -> showcase.FilmCreateResponse
-	3, // 5: showcase.Film.Get:output_type -> showcase.FilmGetResponse
-	5, // 6: showcase.Film.UploadImage:output_type -> showcase.UploadImageResponse
-	7, // 7: showcase.Film.UpdatePoster:output_type -> showcase.UpdatePosterResponse
-	4, // [4:8] is the sub-list for method output_type
-	0, // [0:4] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0,  // 0: showcase.FilmGetResponse.images:type_name -> showcase.FilmImage
+	1,  // 1: showcase.Film.Create:input_type -> showcase.FilmCreateRequest
+	3,  // 2: showcase.Film.Update:input_type -> showcase.FilmUpdateRequest
+	5,  // 3: showcase.Film.Get:input_type -> showcase.FilmGetRequest
+	7,  // 4: showcase.Film.Delete:input_type -> showcase.FilmDeleteRequest
+	9,  // 5: showcase.Film.UploadImage:input_type -> showcase.UploadImageRequest
+	11, // 6: showcase.Film.UpdatePoster:input_type -> showcase.UpdatePosterRequest
+	13, // 7: showcase.Film.DeletePoster:input_type -> showcase.DeletePosterRequest
+	15, // 8: showcase.Film.UpdateImages:input_type -> showcase.UpdateImagesRequest
+	17, // 9: showcase.Film.DeleteImages:input_type -> showcase.DeleteImagesRequest
+	2,  // 10: showcase.Film.Create:output_type -> showcase.FilmCreateResponse
+	4,  // 11: showcase.Film.Update:output_type -> showcase.FilmUpdateResponse
+	6,  // 12: showcase.Film.Get:output_type -> showcase.FilmGetResponse
+	8,  // 13: showcase.Film.Delete:output_type -> showcase.FilmDeleteResponse
+	10, // 14: showcase.Film.UploadImage:output_type -> showcase.UploadImageResponse
+	12, // 15: showcase.Film.UpdatePoster:output_type -> showcase.UpdatePosterResponse
+	14, // 16: showcase.Film.DeletePoster:output_type -> showcase.DeletePosterResponse
+	16, // 17: showcase.Film.UpdateImages:output_type -> showcase.UpdateImagesResponse
+	18, // 18: showcase.Film.DeleteImages:output_type -> showcase.DeleteImagesResponse
+	10, // [10:19] is the sub-list for method output_type
+	1,  // [1:10] is the sub-list for method input_type
+	1,  // [1:1] is the sub-list for extension type_name
+	1,  // [1:1] is the sub-list for extension extendee
+	0,  // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_showcase_showcase_proto_init() }
@@ -507,7 +1091,7 @@ func file_showcase_showcase_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_showcase_showcase_proto_rawDesc), len(file_showcase_showcase_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

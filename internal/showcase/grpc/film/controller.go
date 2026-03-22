@@ -30,10 +30,20 @@ type Film interface {
 		name string,
 		description string,
 	) (string, error)
+	Update(
+		ctx context.Context,
+		filmId string,
+		name string,
+		description string,
+	) error
 	Get(
 		ctx context.Context,
 		id string,
 	) (domain.Film, error)
+	Delete(
+		ctx context.Context,
+		filmId string,
+	) error
 	UploadImage(
 		ctx context.Context,
 		filmId string,
@@ -43,6 +53,20 @@ type Film interface {
 		ctx context.Context,
 		filmId string,
 		key string) error
+	DeletePoster(
+		ctx context.Context,
+		filmId string,
+	) error
+	UpdateImages(
+		ctx context.Context,
+		filmId string,
+		keys []string,
+	) (film.UpdateImagesResult, error)
+	DeleteImages(
+		ctx context.Context,
+		filmId string,
+		imageIds []int64,
+	) (film.DeleteImagesResult, error)
 }
 
 func (c *Controller) Create(
@@ -57,13 +81,33 @@ func (c *Controller) Create(
 	return &showcase.FilmCreateResponse{Id: id}, nil
 }
 
+func (c *Controller) Update(
+	ctx context.Context,
+	in *showcase.FilmUpdateRequest,
+) (*showcase.FilmUpdateResponse, error) {
+	err := c.film.Update(ctx, in.GetFilmId(), in.GetName(), in.GetDescription())
+	if err != nil {
+		return nil, toGRPCError(err)
+	}
+
+	return &showcase.FilmUpdateResponse{}, nil
+}
+
 func (c *Controller) Get(
 	ctx context.Context,
 	in *showcase.FilmGetRequest,
 ) (*showcase.FilmGetResponse, error) {
-	f, err := c.film.Get(ctx, in.GetId())
+	f, err := c.film.Get(ctx, in.GetFilmId())
 	if err != nil {
 		return nil, toGRPCError(err)
+	}
+
+	images := make([]*showcase.FilmImage, len(f.Images))
+	for i, img := range f.Images {
+		images[i] = &showcase.FilmImage{
+			Id:  img.Id,
+			Url: img.Url,
+		}
 	}
 
 	return &showcase.FilmGetResponse{
@@ -71,7 +115,20 @@ func (c *Controller) Get(
 		Name:        f.Name,
 		Description: f.Description,
 		PosterUrl:   *f.PosterUrl,
+		Images:      images,
 	}, nil
+}
+
+func (c *Controller) Delete(
+	ctx context.Context,
+	in *showcase.FilmDeleteRequest,
+) (*showcase.FilmDeleteResponse, error) {
+	err := c.film.Delete(ctx, in.GetFilmId())
+	if err != nil {
+		return nil, toGRPCError(err)
+	}
+
+	return &showcase.FilmDeleteResponse{}, nil
 }
 
 func (c *Controller) UploadImage(
@@ -96,4 +153,46 @@ func (c *Controller) UpdatePoster(
 	}
 
 	return &showcase.UpdatePosterResponse{}, nil
+}
+
+func (c *Controller) DeletePoster(
+	ctx context.Context,
+	in *showcase.DeletePosterRequest,
+) (*showcase.DeletePosterResponse, error) {
+	err := c.film.DeletePoster(ctx, in.GetFilmId())
+	if err != nil {
+		return nil, toGRPCError(err)
+	}
+
+	return &showcase.DeletePosterResponse{}, nil
+}
+
+func (c *Controller) UpdateImages(
+	ctx context.Context,
+	in *showcase.UpdateImagesRequest,
+) (*showcase.UpdateImagesResponse, error) {
+	result, err := c.film.UpdateImages(ctx, in.GetFilmId(), in.GetKeys())
+	if err != nil {
+		return nil, toGRPCError(err)
+	}
+
+	return &showcase.UpdateImagesResponse{
+		FailedKeys:  result.FailedKeys,
+		UpdatedKeys: result.UpdatedKeys,
+	}, nil
+}
+
+func (c *Controller) DeleteImages(
+	ctx context.Context,
+	in *showcase.DeleteImagesRequest,
+) (*showcase.DeleteImagesResponse, error) {
+	result, err := c.film.DeleteImages(ctx, in.GetFilmId(), in.GetImageIds())
+	if err != nil {
+		return nil, toGRPCError(err)
+	}
+
+	return &showcase.DeleteImagesResponse{
+		FailedIds:  result.FailedIds,
+		DeletedIds: result.DeletedIds,
+	}, nil
 }
