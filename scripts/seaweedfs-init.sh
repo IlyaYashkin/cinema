@@ -17,6 +17,7 @@ AWS_CMD="aws --endpoint-url $ENDPOINT"
 
 echo "Creating buckets..."
 $AWS_CMD s3 mb s3://showcase 2>/dev/null || echo "Bucket 'showcase' already exists"
+$AWS_CMD s3 mb s3://media 2>/dev/null || echo "Bucket 'media' already exists"
 
 echo "Setting up lifecycle policy for showcase/tmp/..."
 LIFECYCLE_FILE=$(mktemp)
@@ -35,6 +36,24 @@ EOF
 
 $AWS_CMD s3api put-bucket-lifecycle-configuration \
   --bucket showcase \
+  --lifecycle-configuration "file://$LIFECYCLE_FILE"
+
+echo "Setting up lifecycle policy for media/originals/..."
+cat > "$LIFECYCLE_FILE" << 'EOF'
+{
+  "Rules": [
+    {
+      "ID": "originals/",
+      "Status": "Enabled",
+      "Filter": {"Prefix": "originals/"},
+      "Expiration": {"Days": 1}
+    }
+  ]
+}
+EOF
+
+$AWS_CMD s3api put-bucket-lifecycle-configuration \
+  --bucket media \
   --lifecycle-configuration "file://$LIFECYCLE_FILE"
 
 rm "$LIFECYCLE_FILE"

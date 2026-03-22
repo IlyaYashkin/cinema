@@ -177,3 +177,5 @@ func (s *S3) MustConnect() {
 
 	s.log.With(slog.String("op", op)).Info("s3 connection successful")
 }
+
+func (s *S3) Close() {}

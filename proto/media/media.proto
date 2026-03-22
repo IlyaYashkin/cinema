@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package media;
+
+option go_package = "cinema/gen/media;media";
+
+import "buf/validate/validate.proto";
+
+service Media {
+
+}

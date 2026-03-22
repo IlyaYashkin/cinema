@@ -17,13 +17,9 @@ type Connection interface {
 	MustConnect()
 }
 
-type MustConnectionChecker interface {
-	MustConnect()
-}
-
 type App struct {
 	DBConnection Connection
-	S3Connection MustConnectionChecker
+	S3Connection Connection
 	GRPCServer   *grpc.App
 }
 
