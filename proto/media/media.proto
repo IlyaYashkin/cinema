@@ -6,6 +6,66 @@ option go_package = "cinema/gen/media;media";
 
 import "buf/validate/validate.proto";
 
-service Media {
+service Content {
+  rpc InitUpload (InitUploadRequest) returns (InitUploadResponse);
+  rpc CompleteUpload (CompleteUploadRequest) returns (CompleteUploadResponse);
+  rpc AbortUpload (AbortUploadRequest) returns (AbortUploadResponse);
+}
 
+message InitUploadRequest {
+  string film_id = 1 [(buf.validate.field).string.uuid = true];
+  string file_name = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 255,
+    (buf.validate.field).string.pattern = "^.+\\.(mp4|mov|mkv|avi)$"
+  ];
+  string content_type = 3 [
+    (buf.validate.field).string.in = "video/mp4",
+    (buf.validate.field).string.in = "video/quicktime",
+    (buf.validate.field).string.in = "video/x-matroska",
+    (buf.validate.field).string.in = "video/x-msvideo"
+  ];
+  int64 file_size = 4 [
+    (buf.validate.field).int64.gt = 0,
+    (buf.validate.field).int64.lte = 107374182400 // 100 gigs
+  ];
+}
+
+message InitUploadResponse {
+  string upload_id = 1;
+  string key = 2;
+  repeated string presigned_urls = 3;
+  int64 chunk_size = 4;
+}
+
+message CompleteUploadRequest {
+  string upload_id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 255
+  ];
+  string key = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 255
+  ];
+  repeated string e_tags = 3 [(buf.validate.field).repeated = {
+    min_items: 1,
+    items: {string: {min_len: 1}}
+  }];
+}
+
+message CompleteUploadResponse {
+}
+
+message AbortUploadRequest {
+  string upload_id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 255
+  ];
+  string key = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 255
+  ];
+}
+
+message AbortUploadResponse {
 }

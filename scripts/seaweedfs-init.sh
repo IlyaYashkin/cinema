@@ -47,6 +47,12 @@ cat > "$LIFECYCLE_FILE" << 'EOF'
       "Status": "Enabled",
       "Filter": {"Prefix": "originals/"},
       "Expiration": {"Days": 1}
+    },
+    {
+      "ID": "abort-incomplete-multipart",
+      "Status": "Enabled",
+      "Filter": {"Prefix": ""},
+      "AbortIncompleteMultipartUpload": {"DaysAfterInitiation": 1}
     }
   ]
 }

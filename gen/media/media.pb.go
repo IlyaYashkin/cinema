@@ -11,6 +11,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
+	sync "sync"
 	unsafe "unsafe"
 )
 
@@ -21,17 +22,391 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type InitUploadRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FilmId        string                 `protobuf:"bytes,1,opt,name=film_id,json=filmId,proto3" json:"film_id,omitempty"`
+	FileName      string                 `protobuf:"bytes,2,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
+	ContentType   string                 `protobuf:"bytes,3,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
+	FileSize      int64                  `protobuf:"varint,4,opt,name=file_size,json=fileSize,proto3" json:"file_size,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InitUploadRequest) Reset() {
+	*x = InitUploadRequest{}
+	mi := &file_media_media_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InitUploadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InitUploadRequest) ProtoMessage() {}
+
+func (x *InitUploadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_media_media_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InitUploadRequest.ProtoReflect.Descriptor instead.
+func (*InitUploadRequest) Descriptor() ([]byte, []int) {
+	return file_media_media_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *InitUploadRequest) GetFilmId() string {
+	if x != nil {
+		return x.FilmId
+	}
+	return ""
+}
+
+func (x *InitUploadRequest) GetFileName() string {
+	if x != nil {
+		return x.FileName
+	}
+	return ""
+}
+
+func (x *InitUploadRequest) GetContentType() string {
+	if x != nil {
+		return x.ContentType
+	}
+	return ""
+}
+
+func (x *InitUploadRequest) GetFileSize() int64 {
+	if x != nil {
+		return x.FileSize
+	}
+	return 0
+}
+
+type InitUploadResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UploadId      string                 `protobuf:"bytes,1,opt,name=upload_id,json=uploadId,proto3" json:"upload_id,omitempty"`
+	Key           string                 `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	PresignedUrls []string               `protobuf:"bytes,3,rep,name=presigned_urls,json=presignedUrls,proto3" json:"presigned_urls,omitempty"`
+	ChunkSize     int64                  `protobuf:"varint,4,opt,name=chunk_size,json=chunkSize,proto3" json:"chunk_size,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InitUploadResponse) Reset() {
+	*x = InitUploadResponse{}
+	mi := &file_media_media_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InitUploadResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InitUploadResponse) ProtoMessage() {}
+
+func (x *InitUploadResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_media_media_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InitUploadResponse.ProtoReflect.Descriptor instead.
+func (*InitUploadResponse) Descriptor() ([]byte, []int) {
+	return file_media_media_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *InitUploadResponse) GetUploadId() string {
+	if x != nil {
+		return x.UploadId
+	}
+	return ""
+}
+
+func (x *InitUploadResponse) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *InitUploadResponse) GetPresignedUrls() []string {
+	if x != nil {
+		return x.PresignedUrls
+	}
+	return nil
+}
+
+func (x *InitUploadResponse) GetChunkSize() int64 {
+	if x != nil {
+		return x.ChunkSize
+	}
+	return 0
+}
+
+type CompleteUploadRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UploadId      string                 `protobuf:"bytes,1,opt,name=upload_id,json=uploadId,proto3" json:"upload_id,omitempty"`
+	Key           string                 `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	ETags         []string               `protobuf:"bytes,3,rep,name=e_tags,json=eTags,proto3" json:"e_tags,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CompleteUploadRequest) Reset() {
+	*x = CompleteUploadRequest{}
+	mi := &file_media_media_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CompleteUploadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CompleteUploadRequest) ProtoMessage() {}
+
+func (x *CompleteUploadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_media_media_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CompleteUploadRequest.ProtoReflect.Descriptor instead.
+func (*CompleteUploadRequest) Descriptor() ([]byte, []int) {
+	return file_media_media_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *CompleteUploadRequest) GetUploadId() string {
+	if x != nil {
+		return x.UploadId
+	}
+	return ""
+}
+
+func (x *CompleteUploadRequest) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *CompleteUploadRequest) GetETags() []string {
+	if x != nil {
+		return x.ETags
+	}
+	return nil
+}
+
+type CompleteUploadResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CompleteUploadResponse) Reset() {
+	*x = CompleteUploadResponse{}
+	mi := &file_media_media_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CompleteUploadResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CompleteUploadResponse) ProtoMessage() {}
+
+func (x *CompleteUploadResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_media_media_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CompleteUploadResponse.ProtoReflect.Descriptor instead.
+func (*CompleteUploadResponse) Descriptor() ([]byte, []int) {
+	return file_media_media_proto_rawDescGZIP(), []int{3}
+}
+
+type AbortUploadRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UploadId      string                 `protobuf:"bytes,1,opt,name=upload_id,json=uploadId,proto3" json:"upload_id,omitempty"`
+	Key           string                 `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AbortUploadRequest) Reset() {
+	*x = AbortUploadRequest{}
+	mi := &file_media_media_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AbortUploadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AbortUploadRequest) ProtoMessage() {}
+
+func (x *AbortUploadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_media_media_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AbortUploadRequest.ProtoReflect.Descriptor instead.
+func (*AbortUploadRequest) Descriptor() ([]byte, []int) {
+	return file_media_media_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *AbortUploadRequest) GetUploadId() string {
+	if x != nil {
+		return x.UploadId
+	}
+	return ""
+}
+
+func (x *AbortUploadRequest) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+type AbortUploadResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AbortUploadResponse) Reset() {
+	*x = AbortUploadResponse{}
+	mi := &file_media_media_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AbortUploadResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AbortUploadResponse) ProtoMessage() {}
+
+func (x *AbortUploadResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_media_media_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AbortUploadResponse.ProtoReflect.Descriptor instead.
+func (*AbortUploadResponse) Descriptor() ([]byte, []int) {
+	return file_media_media_proto_rawDescGZIP(), []int{5}
+}
+
 var File_media_media_proto protoreflect.FileDescriptor
 
 const file_media_media_proto_rawDesc = "" +
 	"\n" +
-	"\x11media/media.proto\x12\x05media\x1a\x1bbuf/validate/validate.proto2\a\n" +
-	"\x05MediaB\x18Z\x16cinema/gen/media;mediab\x06proto3"
+	"\x11media/media.proto\x12\x05media\x1a\x1bbuf/validate/validate.proto\"\x8e\x02\n" +
+	"\x11InitUploadRequest\x12!\n" +
+	"\afilm_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06filmId\x12@\n" +
+	"\tfile_name\x18\x02 \x01(\tB#\xbaH r\x1e\x10\x01\x18\xff\x012\x17^.+\\.(mp4|mov|mkv|avi)$R\bfileName\x12g\n" +
+	"\fcontent_type\x18\x03 \x01(\tBD\xbaHAr?R\tvideo/mp4R\x0fvideo/quicktimeR\x10video/x-matroskaR\x0fvideo/x-msvideoR\vcontentType\x12+\n" +
+	"\tfile_size\x18\x04 \x01(\x03B\x0e\xbaH\v\"\t\x18\x80\x80\x80\x80\x90\x03 \x00R\bfileSize\"\x89\x01\n" +
+	"\x12InitUploadResponse\x12\x1b\n" +
+	"\tupload_id\x18\x01 \x01(\tR\buploadId\x12\x10\n" +
+	"\x03key\x18\x02 \x01(\tR\x03key\x12%\n" +
+	"\x0epresigned_urls\x18\x03 \x03(\tR\rpresignedUrls\x12\x1d\n" +
+	"\n" +
+	"chunk_size\x18\x04 \x01(\x03R\tchunkSize\"\x85\x01\n" +
+	"\x15CompleteUploadRequest\x12'\n" +
+	"\tupload_id\x18\x01 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x01\x18\xff\x01R\buploadId\x12\x1c\n" +
+	"\x03key\x18\x02 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x01\x18\xff\x01R\x03key\x12%\n" +
+	"\x06e_tags\x18\x03 \x03(\tB\x0e\xbaH\v\x92\x01\b\b\x01\"\x04r\x02\x10\x01R\x05eTags\"\x18\n" +
+	"\x16CompleteUploadResponse\"[\n" +
+	"\x12AbortUploadRequest\x12'\n" +
+	"\tupload_id\x18\x01 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x01\x18\xff\x01R\buploadId\x12\x1c\n" +
+	"\x03key\x18\x02 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x01\x18\xff\x01R\x03key\"\x15\n" +
+	"\x13AbortUploadResponse2\xe1\x01\n" +
+	"\aContent\x12A\n" +
+	"\n" +
+	"InitUpload\x12\x18.media.InitUploadRequest\x1a\x19.media.InitUploadResponse\x12M\n" +
+	"\x0eCompleteUpload\x12\x1c.media.CompleteUploadRequest\x1a\x1d.media.CompleteUploadResponse\x12D\n" +
+	"\vAbortUpload\x12\x19.media.AbortUploadRequest\x1a\x1a.media.AbortUploadResponseB\x18Z\x16cinema/gen/media;mediab\x06proto3"
 
-var file_media_media_proto_goTypes = []any{}
+var (
+	file_media_media_proto_rawDescOnce sync.Once
+	file_media_media_proto_rawDescData []byte
+)
+
+func file_media_media_proto_rawDescGZIP() []byte {
+	file_media_media_proto_rawDescOnce.Do(func() {
+		file_media_media_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_media_media_proto_rawDesc), len(file_media_media_proto_rawDesc)))
+	})
+	return file_media_media_proto_rawDescData
+}
+
+var file_media_media_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_media_media_proto_goTypes = []any{
+	(*InitUploadRequest)(nil),      // 0: media.InitUploadRequest
+	(*InitUploadResponse)(nil),     // 1: media.InitUploadResponse
+	(*CompleteUploadRequest)(nil),  // 2: media.CompleteUploadRequest
+	(*CompleteUploadResponse)(nil), // 3: media.CompleteUploadResponse
+	(*AbortUploadRequest)(nil),     // 4: media.AbortUploadRequest
+	(*AbortUploadResponse)(nil),    // 5: media.AbortUploadResponse
+}
 var file_media_media_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
+	0, // 0: media.Content.InitUpload:input_type -> media.InitUploadRequest
+	2, // 1: media.Content.CompleteUpload:input_type -> media.CompleteUploadRequest
+	4, // 2: media.Content.AbortUpload:input_type -> media.AbortUploadRequest
+	1, // 3: media.Content.InitUpload:output_type -> media.InitUploadResponse
+	3, // 4: media.Content.CompleteUpload:output_type -> media.CompleteUploadResponse
+	5, // 5: media.Content.AbortUpload:output_type -> media.AbortUploadResponse
+	3, // [3:6] is the sub-list for method output_type
+	0, // [0:3] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -48,12 +423,13 @@ func file_media_media_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_media_media_proto_rawDesc), len(file_media_media_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   0,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_media_media_proto_goTypes,
 		DependencyIndexes: file_media_media_proto_depIdxs,
+		MessageInfos:      file_media_media_proto_msgTypes,
 	}.Build()
 	File_media_media_proto = out.File
 	file_media_media_proto_goTypes = nil

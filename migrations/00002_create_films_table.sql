@@ -18,5 +18,3 @@ CREATE TABLE showcase.film_images
 
 -- +goose Down
 DROP SCHEMA showcase CASCADE;
-
-

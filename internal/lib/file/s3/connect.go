@@ -48,6 +48,84 @@ func New(log *slog.Logger, cfg config.S3Config) (*S3, error) {
 	return &S3{log: log, client: client, endpoint: cfg.Endpoint, bucket: cfg.Bucket, presignTTL: cfg.PresignTTL}, nil
 }
 
+func (s *S3) CreateMultipartUpload(ctx context.Context, key string, contentType string) (string, error) {
+	const op = "lib.s3.create_multipart_upload"
+
+	resp, err := s.client.CreateMultipartUpload(ctx, &s3.CreateMultipartUploadInput{
+		Bucket:      aws.String(s.bucket),
+		Key:         aws.String(key),
+		ContentType: aws.String(contentType),
+	})
+	if err != nil {
+		return "", sl.WrapErr(op, err)
+	}
+
+	return *resp.UploadId, nil
+}
+
+func (s *S3) PresignUploadParts(ctx context.Context, uploadId, key string, partsCount int) ([]string, error) {
+	const op = "lib.s3.presign_upload_parts"
+
+	presignClient := s3.NewPresignClient(s.client)
+	urls := make([]string, partsCount)
+
+	for i := range partsCount {
+		req, err := presignClient.PresignUploadPart(ctx, &s3.UploadPartInput{
+			Bucket:     aws.String(s.bucket),
+			Key:        aws.String(key),
+			UploadId:   aws.String(uploadId),
+			PartNumber: aws.Int32(int32(i + 1)),
+		}, s3.WithPresignExpires(s.presignTTL))
+		if err != nil {
+			return nil, sl.WrapErr(op, err)
+		}
+		urls[i] = req.URL
+	}
+
+	return urls, nil
+}
+
+func (s *S3) CompleteMultipartUpload(ctx context.Context, uploadId string, key string, eTags []string) error {
+	const op = "lib.s3.complete_multipart_upload"
+
+	parts := make([]types.CompletedPart, len(eTags))
+	for i, etag := range eTags {
+		parts[i] = types.CompletedPart{
+			ETag:       aws.String(etag),
+			PartNumber: aws.Int32(int32(i + 1)),
+		}
+	}
+
+	_, err := s.client.CompleteMultipartUpload(ctx, &s3.CompleteMultipartUploadInput{
+		Bucket:   aws.String(s.bucket),
+		Key:      aws.String(key),
+		UploadId: aws.String(uploadId),
+		MultipartUpload: &types.CompletedMultipartUpload{
+			Parts: parts,
+		},
+	})
+	if err != nil {
+		return sl.WrapErr(op, err)
+	}
+
+	return nil
+}
+
+func (s *S3) AbortMultipartUpload(ctx context.Context, uploadId string, key string) error {
+	const op = "lib.s3.abort_multipart_upload"
+
+	_, err := s.client.AbortMultipartUpload(ctx, &s3.AbortMultipartUploadInput{
+		Bucket:   aws.String(s.bucket),
+		Key:      aws.String(key),
+		UploadId: aws.String(uploadId),
+	})
+	if err != nil {
+		return sl.WrapErr(op, err)
+	}
+
+	return nil
+}
+
 func (s *S3) GetPresignedUploadURL(ctx context.Context, key string) (string, error) {
 	const op = "lib.s3.get_presigned_upload_url"
 

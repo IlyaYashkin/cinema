@@ -5,8 +5,9 @@ import (
 	"cinema/internal/lib/grpc"
 	"cinema/internal/lib/postgres"
 	"cinema/internal/media/config"
-	mediaController "cinema/internal/media/grpc/media"
-	"cinema/internal/media/service/media"
+	mediaController "cinema/internal/media/grpc/content"
+	"cinema/internal/media/service/content"
+	mediaPostgres "cinema/internal/media/storage/postgres"
 	"log/slog"
 )
 
@@ -29,13 +30,14 @@ func New(
 	if err != nil {
 		panic(err)
 	}
+	op := &mediaPostgres.Original{Postgres: dbConn}
 
 	s3Conn, err := s3.New(log, cfg.S3Config)
 	if err != nil {
 		panic(err)
 	}
 
-	mediaSrv := media.New()
+	mediaSrv := content.New(log, s3Conn, op)
 
 	grpcApp := grpc.New(log, cfg.GRPCConfig.Port, cfg.Env)
 	grpcApp.Register(mediaController.NewController(mediaSrv))

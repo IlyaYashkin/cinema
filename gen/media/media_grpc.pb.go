@@ -7,7 +7,10 @@
 package media
 
 import (
+	context "context"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -15,62 +18,180 @@ import (
 // Requires gRPC-Go v1.64.0 or later.
 const _ = grpc.SupportPackageIsVersion9
 
-// MediaClient is the client API for Media service.
+const (
+	Content_InitUpload_FullMethodName     = "/media.Content/InitUpload"
+	Content_CompleteUpload_FullMethodName = "/media.Content/CompleteUpload"
+	Content_AbortUpload_FullMethodName    = "/media.Content/AbortUpload"
+)
+
+// ContentClient is the client API for Content service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type MediaClient interface {
+type ContentClient interface {
+	InitUpload(ctx context.Context, in *InitUploadRequest, opts ...grpc.CallOption) (*InitUploadResponse, error)
+	CompleteUpload(ctx context.Context, in *CompleteUploadRequest, opts ...grpc.CallOption) (*CompleteUploadResponse, error)
+	AbortUpload(ctx context.Context, in *AbortUploadRequest, opts ...grpc.CallOption) (*AbortUploadResponse, error)
 }
 
-type mediaClient struct {
+type contentClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewMediaClient(cc grpc.ClientConnInterface) MediaClient {
-	return &mediaClient{cc}
+func NewContentClient(cc grpc.ClientConnInterface) ContentClient {
+	return &contentClient{cc}
 }
 
-// MediaServer is the server API for Media service.
-// All implementations must embed UnimplementedMediaServer
+func (c *contentClient) InitUpload(ctx context.Context, in *InitUploadRequest, opts ...grpc.CallOption) (*InitUploadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InitUploadResponse)
+	err := c.cc.Invoke(ctx, Content_InitUpload_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) CompleteUpload(ctx context.Context, in *CompleteUploadRequest, opts ...grpc.CallOption) (*CompleteUploadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CompleteUploadResponse)
+	err := c.cc.Invoke(ctx, Content_CompleteUpload_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *contentClient) AbortUpload(ctx context.Context, in *AbortUploadRequest, opts ...grpc.CallOption) (*AbortUploadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AbortUploadResponse)
+	err := c.cc.Invoke(ctx, Content_AbortUpload_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ContentServer is the server API for Content service.
+// All implementations must embed UnimplementedContentServer
 // for forward compatibility.
-type MediaServer interface {
-	mustEmbedUnimplementedMediaServer()
+type ContentServer interface {
+	InitUpload(context.Context, *InitUploadRequest) (*InitUploadResponse, error)
+	CompleteUpload(context.Context, *CompleteUploadRequest) (*CompleteUploadResponse, error)
+	AbortUpload(context.Context, *AbortUploadRequest) (*AbortUploadResponse, error)
+	mustEmbedUnimplementedContentServer()
 }
 
-// UnimplementedMediaServer must be embedded to have
+// UnimplementedContentServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedMediaServer struct{}
+type UnimplementedContentServer struct{}
 
-func (UnimplementedMediaServer) mustEmbedUnimplementedMediaServer() {}
-func (UnimplementedMediaServer) testEmbeddedByValue()               {}
+func (UnimplementedContentServer) InitUpload(context.Context, *InitUploadRequest) (*InitUploadResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method InitUpload not implemented")
+}
+func (UnimplementedContentServer) CompleteUpload(context.Context, *CompleteUploadRequest) (*CompleteUploadResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CompleteUpload not implemented")
+}
+func (UnimplementedContentServer) AbortUpload(context.Context, *AbortUploadRequest) (*AbortUploadResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method AbortUpload not implemented")
+}
+func (UnimplementedContentServer) mustEmbedUnimplementedContentServer() {}
+func (UnimplementedContentServer) testEmbeddedByValue()                 {}
 
-// UnsafeMediaServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to MediaServer will
+// UnsafeContentServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ContentServer will
 // result in compilation errors.
-type UnsafeMediaServer interface {
-	mustEmbedUnimplementedMediaServer()
+type UnsafeContentServer interface {
+	mustEmbedUnimplementedContentServer()
 }
 
-func RegisterMediaServer(s grpc.ServiceRegistrar, srv MediaServer) {
-	// If the following call panics, it indicates UnimplementedMediaServer was
+func RegisterContentServer(s grpc.ServiceRegistrar, srv ContentServer) {
+	// If the following call panics, it indicates UnimplementedContentServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&Media_ServiceDesc, srv)
+	s.RegisterService(&Content_ServiceDesc, srv)
 }
 
-// Media_ServiceDesc is the grpc.ServiceDesc for Media service.
+func _Content_InitUpload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InitUploadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).InitUpload(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Content_InitUpload_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).InitUpload(ctx, req.(*InitUploadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_CompleteUpload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CompleteUploadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).CompleteUpload(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Content_CompleteUpload_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).CompleteUpload(ctx, req.(*CompleteUploadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Content_AbortUpload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AbortUploadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ContentServer).AbortUpload(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Content_AbortUpload_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ContentServer).AbortUpload(ctx, req.(*AbortUploadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Content_ServiceDesc is the grpc.ServiceDesc for Content service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Media_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "media.Media",
-	HandlerType: (*MediaServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams:     []grpc.StreamDesc{},
-	Metadata:    "media/media.proto",
+var Content_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "media.Content",
+	HandlerType: (*ContentServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "InitUpload",
+			Handler:    _Content_InitUpload_Handler,
+		},
+		{
+			MethodName: "CompleteUpload",
+			Handler:    _Content_CompleteUpload_Handler,
+		},
+		{
+			MethodName: "AbortUpload",
+			Handler:    _Content_AbortUpload_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "media/media.proto",
 }
