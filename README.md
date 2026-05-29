@@ -59,7 +59,3 @@ go run ./cmd/media/main.go
 ```bash
 make proto
 ```
-
-## Лицензия
-
-MIT
